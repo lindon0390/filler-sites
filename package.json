@@ -1,0 +1,22 @@
+{
+  "name": "filler-sites",
+  "version": "1.0.0",
+  "description": "auto fill sites",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lindon0390/filler-sites.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lindon0390/filler-sites/issues"
+  },
+  "homepage": "https://github.com/lindon0390/filler-sites#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.44.1",
+    "@types/node": "^20.14.2"
+  }
+}
