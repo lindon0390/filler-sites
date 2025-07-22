@@ -4,16 +4,13 @@
   "description": "Автоматическое заполнение формы заявки на электронную визу Вьетнама",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    
-    "test": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed",
-    "test:full-flow": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed",
-    "test:full-flow:ui": "playwright test tests/evisa-vietnam-full-flow.spec.ts --ui",
-    "test:full-flow:headed": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed --workers=1",
-    "test:full-flow:timeout": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed --grep=\"таймаутом для капчи\"",
+    "chrome:debug": "open -a 'Google Chrome' --args --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug",
+
+
     "report": "playwright show-report",
     "install:browsers": "playwright install",
     "user:list": "node scripts/userManager.js list",
@@ -47,5 +44,8 @@
     "@playwright/test": "^1.44.1",
     "@types/node": "^20.14.2",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.0"
   }
 }

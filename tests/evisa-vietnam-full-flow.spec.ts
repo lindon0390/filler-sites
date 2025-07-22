@@ -1,20 +1,53 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { EvisaVietnamFullFlowPage, LoginData, UserSelection } from '../pages/evisaVietnamFullFlow.page';
+import { MainPage, LoginPage, ApplicationFormPage, LoginData } from '../pages';
+import { connectAndGetPage, checkChromeAvailability, isAuthorizationNeeded, isBrowserOpenMode, logCurrentConfig } from '../utils';
 
-test.describe('Vietnam E-Visa - Полный флоу авторизации (протестирован через MCP)', () => {
+test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env управление)', () => {
   let loginData: LoginData;
-  let userSelection: UserSelection;
-  let evisaFlowPage: EvisaVietnamFullFlowPage;
+  let mainPage: MainPage;
+  let loginPage: LoginPage;
+  let applicationFormPage: ApplicationFormPage;
 
-  test.beforeEach(async ({ page }) => {
-    // Выбираем пользователя (по умолчанию 001)
-    const userId = "001";
-    userSelection = {
-      userId: userId,
-      userDataPath: `files/${userId}/${userId}.json`
-    };
+  test.beforeEach(async ({ page: playwrightPage }) => {
+    // Показываем конфигурацию из .env
+    console.log('🔧 Загружаем конфигурацию из .env файла...');
+    logCurrentConfig();
+    
+    let page;
+    
+    // Проверяем режим работы браузера
+    if (isBrowserOpenMode()) {
+      console.log('🔗 Режим: подключение к существующему Chrome...');
+      
+      // Проверяем доступность Chrome для подключения
+      const isChromeAvailable = await checkChromeAvailability(9222);
+      
+      if (!isChromeAvailable) {
+        console.log('❌ Chrome недоступен для подключения!');
+        console.log('💡 Запустите Chrome командой: npm run chrome:debug');
+        console.log('💡 Или измените BROWSER_OPEN=false в .env для использования нового браузера');
+        throw new Error('Chrome не запущен с отладочным портом 9222. Запустите: npm run chrome:debug');
+      }
+      
+      // Подключаемся к существующему Chrome
+      const { browser, page: connectedPage } = await connectAndGetPage(9222);
+      page = connectedPage;
+      console.log('✅ Подключение к существующему Chrome выполнено');
+    } else {
+      console.log('🆕 Режим: запуск нового браузера...');
+      page = playwrightPage;
+      console.log('✅ Новый браузер запущен');
+    }
+    
+    // Создаём все три Page Object класса
+    mainPage = new MainPage(page);
+    loginPage = new LoginPage(page);
+    applicationFormPage = new ApplicationFormPage(page);
+    
+    // Автоматически выбираем пользователя из .env
+    const userSelection = applicationFormPage.aSelectUserFromConfig();
     
     // Загружаем данные пользователя для авторизации
     const userDataPath = path.join(process.cwd(), userSelection.userDataPath);
@@ -27,111 +60,97 @@ test.describe('Vietnam E-Visa - Полный флоу авторизации (п
       password: userData.password || userData.loginCredentials?.password || 'Timur123!'
     };
     
-    // Создаём Page Object
-    evisaFlowPage = new EvisaVietnamFullFlowPage(page);
-    
-    console.log(`👤 Выбран пользователь: ${userSelection.userId}`);
     console.log(`📧 Email для авторизации: ${loginData.email}`);
   });
 
-  test('Полный флоу авторизации и переход к форме заявления', async () => {
-    // Увеличиваем таймаут для полного флоу
+  test('🚀 Автоматический флоу (управляется через .env)', async () => {
     test.setTimeout(600000); // 10 минут
 
-    console.log('🎯 Начинаем протестированный через MCP полный флоу авторизации...');
-    console.log('📋 Этот тест повторяет все действия, успешно протестированные через MCP Playwright');
-
-    // Выполняем полный флоу авторизации
-    const success = await evisaFlowPage.aCompleteAuthorizationFlow(loginData);
+    console.log('🚀 Начинаем автоматический флоу на основе .env конфигурации...');
     
-    expect(success).toBe(true);
-    
-    // Делаем финальный скриншот формы заявления
-    await evisaFlowPage.aTakeScreenshot('application-form-ready');
-    
-    console.log('🎉 Полный флоу завершён! Форма заявления готова к заполнению');
-    console.log(`👤 Данные пользователя ${userSelection.userId} готовы к использованию`);
-  });
+    const authNeeded = isAuthorizationNeeded();
+    console.log(`🔐 Авторизация: ${authNeeded ? 'требуется' : 'пропускается'}`);
 
-  test('Только авторизация без перехода к форме (для отладки)', async () => {
-    test.setTimeout(300000); // 5 минут
+    // ЭТАП 1: Главная страница
+    console.log('\n🌐 ЭТАП 1: Главная страница');
+    await mainPage.aGoToMainPage();
 
-    console.log('🔐 Тестируем только процесс авторизации...');
-
-    // Шаги 1-2: Навигация
-    await evisaFlowPage.aGoToMainPage();
-    await evisaFlowPage.aClickLoginButton();
-    
-    // Шаги 3-5: Авторизация
-    await evisaFlowPage.aFillLoginForm(loginData);
-    await evisaFlowPage.aSubmitLoginForm();
-    
-    // Шаг 6: Проверка авторизации
-    await evisaFlowPage.aVerifyLogin();
-    
-    // Скриншот авторизованного состояния
-    await evisaFlowPage.aTakeScreenshot('authorized-main-page');
-    
-    console.log('✅ Авторизация завершена успешно!');
-  });
-
-  test('Только переход к форме после авторизации (предполагает ручную авторизацию)', async () => {
-    test.setTimeout(300000); // 5 минут
-
-    console.log('📋 Тестируем только переход к форме заявления...');
-    console.log('⚠️ ВНИМАНИЕ: Этот тест предполагает, что пользователь уже авторизован!');
-
-    // Переходим сразу на главную страницу (предполагая авторизацию)
-    await evisaFlowPage.aGoToMainPage();
-
-    // Переходим к форме заявления
-    await evisaFlowPage.aClickApplyNow();
-    await evisaFlowPage.aAcceptInstructions();
-    await evisaFlowPage.aClickNextInPopup();
-    await evisaFlowPage.aVerifyApplicationPage();
-
-    // Выбираем пользователя для заполнения
-    const selectedUser = evisaFlowPage.aSelectUser(userSelection.userId);
-    
-    // Скриншот готовой формы
-    await evisaFlowPage.aTakeScreenshot('form-ready-for-filling');
-
-    console.log('📝 Форма готова к заполнению!');
-    console.log(`👤 Выбран пользователь: ${selectedUser.userId}`);
-  });
-
-  test('Полный флоу с таймаутом для капчи (без pause)', async () => {
-    // Увеличиваем таймаут для полного флоу
-    test.setTimeout(600000); // 10 минут
-
-    console.log('🎯 Начинаем полный флоу с таймаутом для капчи...');
-    console.log('⏰ Этот тест НЕ использует page.pause(), а ждёт ввод капчи по таймауту');
-
-    // Выполняем полный флоу авторизации с таймаутом 60 секунд для капчи
-    const success = await evisaFlowPage.aCompleteAuthorizationFlowWithTimeout(loginData, 60);
-    
-    expect(success).toBe(true);
-    
-    // Делаем финальный скриншот формы заявления
-    await evisaFlowPage.aTakeScreenshot('application-form-ready-timeout');
-    
-    console.log('🎉 Полный флоу с таймаутом завершён! Форма заявления готова к заполнению');
-    console.log(`👤 Данные пользователя ${userSelection.userId} готовы к использованию`);
-  });
-
-  test('Демонстрация выбора разных пользователей', async () => {
-    test.setTimeout(120000); // 2 минуты
-
-    console.log('👥 Демонстрируем систему выбора пользователей...');
-
-    // Тестируем выбор разных пользователей
-    const users = ['001', '002', '003'];
-    
-    for (const userId of users) {
-      const userSelection = evisaFlowPage.aSelectUser(userId);
-      console.log(`✅ Пользователь ${userSelection.userId}: ${userSelection.userDataPath}`);
+    if (authNeeded) {
+      // ЭТАП 2: Авторизация (если требуется)
+      console.log('\n🔐 ЭТАП 2: Авторизация');
+      await mainPage.aClickLoginButton();
+      await loginPage.aCompleteLogin(loginData);
+      await loginPage.aVerifyLoginSuccess();
+      await mainPage.aCheckAuthorizationSuccess();
+    } else {
+      console.log('\n⏭️ ЭТАП 2: Авторизация пропущена согласно .env настройкам');
     }
 
-    console.log('📋 Система выбора пользователей работает корректно');
+    // ЭТАП 3: Переход к форме заявления
+    console.log('\n📋 ЭТАП 3: Переход к форме заявления');
+    await mainPage.aNavigateToApplicationForm();
+
+    // ЭТАП 4: Проверка формы заявления
+    console.log('\n📄 ЭТАП 4: Проверка формы заявления');
+    await applicationFormPage.aVerifyFormReady();
+    
+    const selectedUser = applicationFormPage.aSelectUserFromConfig();
+    
+    // Делаем финальный скриншот формы заявления
+    await applicationFormPage.aTakeScreenshot('env-auto-flow-ready');
+    
+    console.log('\n🎉 Автоматический флоу завершён!');
+    console.log(`👤 Выбран пользователь: ${selectedUser.userId} (из .env)`);
+    
+    if (isBrowserOpenMode()) {
+      console.log('🔗 Браузер остается открытым для дальнейшей работы');
+    } else {
+      console.log('🆕 Новый браузер использован согласно .env настройкам');
+    }
   });
+
+  test.skip('Только авторизация (управляется через .env)', async () => {
+    console.log('🔐 Тестируем авторизацию согласно .env настройкам...');
+    
+    const authNeeded = isAuthorizationNeeded();
+    
+    // ЭТАП 1: Главная страница
+    await mainPage.aGoToMainPage();
+
+    if (authNeeded) {
+      // ЭТАП 2: Авторизация
+      await mainPage.aClickLoginButton();
+      await loginPage.aCompleteLogin(loginData);
+      await loginPage.aVerifyLoginSuccess();
+      await mainPage.aCheckAuthorizationSuccess();
+      
+      await mainPage.aTakeScreenshot('env-authorized-main-page');
+      console.log('✅ Авторизация завершена успешно!');
+    } else {
+      console.log('⏭️ Авторизация пропущена согласно AUTHORIZATION_NEEDED=false');
+      await mainPage.aTakeScreenshot('env-no-auth-main-page');
+    }
+  });
+
+  test.skip('Только переход к форме (без авторизации)', async () => {
+    console.log('📋 Тестируем только переход к форме заявления...');
+    console.log('⚠️ ВНИМАНИЕ: Предполагается, что авторизация не требуется или уже выполнена');
+    
+    // ЭТАП 1: Открываем главную страницу
+    await mainPage.aGoToMainPage();
+    
+    // ЭТАП 2: Переход к форме
+    await mainPage.aNavigateToApplicationForm();
+    
+    // ЭТАП 3: Проверка и подготовка формы
+    await applicationFormPage.aVerifyFormReady();
+    
+    const selectedUser = applicationFormPage.aSelectUserFromConfig();
+    
+    await applicationFormPage.aTakeScreenshot('env-form-ready');
+    
+    console.log('📝 Форма готова к заполнению!');
+    console.log(`👤 Выбран пользователь: ${selectedUser.userId} (из .env)`);
+  });
+
 }); 

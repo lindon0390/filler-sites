@@ -85,3 +85,21 @@ export const TIMEOUTS = {
     FILE_UPLOAD: 20000,  // 20 секунд для загрузки файлов
     PAGE_LOAD: 20000     // 20 секунд для загрузки страниц
 } as const;
+
+// Экспорт утилит для работы с .env конфигурацией
+export { 
+    getEnvConfig, 
+    getUserIdFromEnv, 
+    isAuthorizationNeeded, 
+    isBrowserOpenMode,
+    logCurrentConfig,
+    type EnvConfig 
+} from './envConfig';
+
+// Экспорт утилит для подключения к существующему браузеру
+export {
+    connectToExistingChrome,
+    getOrCreatePage,
+    connectAndGetPage,
+    checkChromeAvailability
+} from './browserConnect';
