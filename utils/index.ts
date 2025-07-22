@@ -92,6 +92,7 @@ export {
     getUserIdFromEnv, 
     isAuthorizationNeeded, 
     isBrowserOpenMode,
+    getChromeCdpEndpoint,
     logCurrentConfig,
     type EnvConfig 
 } from './envConfig';

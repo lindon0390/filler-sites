@@ -8,6 +8,7 @@ export interface EnvConfig {
   userId: string;
   authorizationNeeded: boolean;
   browserOpen: boolean;
+  chromeCdpEndpoint?: string;
 }
 
 /**
@@ -17,16 +18,19 @@ export function getEnvConfig(): EnvConfig {
   const userId = process.env.USER_ID || '001'; // По умолчанию 001
   const authorizationNeeded = process.env.AUTHORIZATION_NEEDED?.toLowerCase() === 'true'; // По умолчанию false
   const browserOpen = process.env.BROWSER_OPEN?.toLowerCase() === 'true'; // По умолчанию false
+  const chromeCdpEndpoint = process.env.CHROME_CDP_ENDPOINT?.trim() || undefined; // WebSocket endpoint для CDP
   
   console.log(`🔧 Загружена конфигурация из .env:`);
   console.log(`   👤 USER_ID: ${userId}`);
   console.log(`   🔐 AUTHORIZATION_NEEDED: ${authorizationNeeded}`);
   console.log(`   🌐 BROWSER_OPEN: ${browserOpen}`);
+  console.log(`   🔌 CHROME_CDP_ENDPOINT: ${chromeCdpEndpoint || 'автоматически'}`);
   
   return {
     userId,
     authorizationNeeded,
-    browserOpen
+    browserOpen,
+    chromeCdpEndpoint
   };
 }
 
@@ -55,6 +59,14 @@ export function isBrowserOpenMode(): boolean {
 }
 
 /**
+ * Получаем Chrome CDP endpoint из .env файла
+ */
+export function getChromeCdpEndpoint(): string | undefined {
+  const config = getEnvConfig();
+  return config.chromeCdpEndpoint;
+}
+
+/**
  * Логируем текущую конфигурацию
  */
 export function logCurrentConfig(): void {
@@ -64,5 +76,8 @@ export function logCurrentConfig(): void {
   console.log(`   👤 Выбранный пользователь: ${config.userId}`);
   console.log(`   🔐 Авторизация: ${config.authorizationNeeded ? 'требуется' : 'пропускается'}`);
   console.log(`   🌐 Браузер: ${config.browserOpen ? 'подключение к существующему Chrome' : 'запуск нового браузера'}`);
+  if (config.browserOpen) {
+    console.log(`   🔌 CDP Endpoint: ${config.chromeCdpEndpoint || 'автоматическое определение'}`);
+  }
   console.log(`   📁 Путь к данным: files/${config.userId}/${config.userId}.json`);
 } 

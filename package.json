@@ -8,9 +8,13 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "chrome:debug": "open -a 'Google Chrome' --args --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug",
+    "chrome:debug": "open -a 'Google Chrome' --args --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug-profile --disable-web-security --disable-features=VizDisplayCompositor",
+    "chrome:status": "node scripts/chromeDebug.js status",
+    "chrome:start": "node scripts/chromeDebug.js start",
+    "chrome:stop": "node scripts/chromeDebug.js stop",
+    "chrome:restart": "node scripts/chromeDebug.js restart",
 
-
+    
     "report": "playwright show-report",
     "install:browsers": "playwright install",
     "user:list": "node scripts/userManager.js list",

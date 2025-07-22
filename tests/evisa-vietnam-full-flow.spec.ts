@@ -113,7 +113,7 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
     console.log('🔐 Тестируем авторизацию согласно .env настройкам...');
     
     const authNeeded = isAuthorizationNeeded();
-    
+
     // ЭТАП 1: Главная страница
     await mainPage.aGoToMainPage();
 
@@ -123,9 +123,9 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
       await loginPage.aCompleteLogin(loginData);
       await loginPage.aVerifyLoginSuccess();
       await mainPage.aCheckAuthorizationSuccess();
-      
+    
       await mainPage.aTakeScreenshot('env-authorized-main-page');
-      console.log('✅ Авторизация завершена успешно!');
+    console.log('✅ Авторизация завершена успешно!');
     } else {
       console.log('⏭️ Авторизация пропущена согласно AUTHORIZATION_NEEDED=false');
       await mainPage.aTakeScreenshot('env-no-auth-main-page');
@@ -135,16 +135,16 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
   test.skip('Только переход к форме (без авторизации)', async () => {
     console.log('📋 Тестируем только переход к форме заявления...');
     console.log('⚠️ ВНИМАНИЕ: Предполагается, что авторизация не требуется или уже выполнена');
-    
+
     // ЭТАП 1: Открываем главную страницу
     await mainPage.aGoToMainPage();
-    
+
     // ЭТАП 2: Переход к форме
     await mainPage.aNavigateToApplicationForm();
-    
+
     // ЭТАП 3: Проверка и подготовка формы
     await applicationFormPage.aVerifyFormReady();
-    
+
     const selectedUser = applicationFormPage.aSelectUserFromConfig();
     
     await applicationFormPage.aTakeScreenshot('env-form-ready');
