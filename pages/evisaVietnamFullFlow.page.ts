@@ -106,12 +106,61 @@ export class EvisaVietnamFullFlowPage {
     console.log('📧 Email введён:', loginData.email);
     console.log('🔑 Пароль введён');
     console.log('⚠️ ВНИМАНИЕ: Пожалуйста, введите капчу вручную в браузере!');
-    console.log('📋 После ввода капчи нажмите Enter в консоли для продолжения...');
+    console.log('🎯 После ввода капчи нажмите кнопку "Resume" в Playwright Inspector');
+    console.log('   или закройте это окно, если оно появилось');
     
     // Пауза для ручного ввода капчи
     await this.page.pause();
     
     console.log('✅ Капча введена, продолжаем...');
+  }
+
+  /**
+   * Альтернативный метод: Вводим логин и пароль, ждём заполнения капчи по времени
+   */
+  async aFillLoginFormWithTimeout(loginData: LoginData, timeoutSeconds: number = 60) {
+    console.log('📝 Шаги 3-4: Заполняем форму авторизации (с таймаутом)...');
+    
+    // Ждём загрузки формы входа
+    await this.eAccountField.waitFor({ timeout: 20000 });
+    
+    // Заполняем логин и пароль
+    await this.eAccountField.fill(loginData.email);
+    await this.ePasswordField.fill(loginData.password);
+    
+    // Ждём появления капчи
+    await this.eCaptchaField.waitFor({ timeout: 20000 });
+    
+    console.log('📧 Email введён:', loginData.email);
+    console.log('🔑 Пароль введён');
+    console.log('⚠️ ВНИМАНИЕ: Пожалуйста, введите капчу вручную в браузере!');
+    console.log(`⏰ У вас есть ${timeoutSeconds} секунд для ввода капчи...`);
+    
+    // Ждём заполнения поля капчи или таймаута
+    console.log('🕐 Ожидаем заполнения поля капчи...');
+    
+    const startTime = Date.now();
+    const timeoutMs = timeoutSeconds * 1000;
+    
+    while (Date.now() - startTime < timeoutMs) {
+      const captchaValue = await this.eCaptchaField.inputValue();
+      if (captchaValue && captchaValue.length >= 4) {
+        console.log('✅ Капча введена, продолжаем...');
+        return;
+      }
+      
+      // Показываем оставшееся время каждые 5 секунд
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, Math.ceil((timeoutMs - elapsed) / 1000));
+      
+      if (elapsed % 5000 < 1000) { // Примерно каждые 5 секунд
+        console.log(`⏳ Осталось времени: ${remaining} секунд...`);
+      }
+      
+      await this.page.waitForTimeout(1000); // Проверяем каждую секунду
+    }
+    
+    console.log('⚠️ Время ожидания истекло, продолжаем с текущим значением капчи...');
   }
 
   /**
@@ -230,6 +279,45 @@ export class EvisaVietnamFullFlowPage {
       
       // Шаги 3-5: Авторизация
       await this.aFillLoginForm(loginData);
+      await this.aSubmitLoginForm();
+      
+      // Шаг 6: Проверка авторизации
+      await this.aVerifyLogin();
+      
+      // Шаги 7-9: Переход к форме заявления
+      await this.aClickApplyNow();
+      await this.aAcceptInstructions();
+      await this.aClickNextInPopup();
+      
+      // Шаг 10: Проверка формы заявления
+      await this.aVerifyApplicationPage();
+      
+      console.log('🎉 Полный флоу авторизации завершён успешно!');
+      console.log('📋 Можно приступать к заполнению формы заявления');
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Ошибка в процессе авторизации:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Полный флоу авторизации с таймаутом для капчи (без pause)
+   */
+  async aCompleteAuthorizationFlowWithTimeout(loginData: LoginData, captchaTimeoutSeconds: number = 60) {
+    console.log('🎯 Начинаем полный флоу авторизации Vietnam E-Visa (с таймаутом)...');
+    console.log('📊 Пользователь:', loginData.email);
+    console.log(`⏰ Таймаут капчи: ${captchaTimeoutSeconds} секунд`);
+    
+    try {
+      // Шаги 1-2: Навигация
+      await this.aGoToMainPage();
+      await this.aClickLoginButton();
+      
+      // Шаги 3-5: Авторизация с таймаутом
+      await this.aFillLoginFormWithTimeout(loginData, captchaTimeoutSeconds);
       await this.aSubmitLoginForm();
       
       // Шаг 6: Проверка авторизации

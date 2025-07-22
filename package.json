@@ -26,6 +26,7 @@
     "test:full-flow": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed",
     "test:full-flow:ui": "playwright test tests/evisa-vietnam-full-flow.spec.ts --ui",
     "test:full-flow:headed": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed --workers=1",
+    "test:full-flow:timeout": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed --grep=\"таймаутом для капчи\"",
     "test:multi:headed": "playwright test tests/multi-user.spec.ts --headed",
     "report": "playwright show-report",
     "install:browsers": "playwright install",
