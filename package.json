@@ -1,14 +1,29 @@
 {
   "name": "filler-sites",
   "version": "1.0.0",
-  "description": "auto fill sites",
+  "description": "Автоматическое заполнение формы заявки на электронную визу Вьетнама",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:evisa": "playwright test tests/evisa-vietnam.spec.ts",
+    "test:evisa:headed": "playwright test tests/evisa-vietnam.spec.ts --headed",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lindon0390/filler-sites.git"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "automation",
+    "evisa",
+    "vietnam",
+    "form-filling"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
