@@ -9,7 +9,11 @@ test.describe('Vietnam E-Visa - Отладка селекторов', () => {
     
     // 1. Переходим на главную страницу
     await page.goto('https://evisa.gov.vn', { timeout: 20000 });
-    console.log('✅ Главная страница загружена');
+    
+    // Ждём полной загрузки страницы
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
+    
+    console.log('✅ Главная страница полностью загружена');
     
     // Делаем скриншот главной страницы
     await page.screenshot({ 
@@ -34,6 +38,10 @@ test.describe('Vietnam E-Visa - Отладка селекторов', () => {
         await element.waitFor({ timeout: 3000 });
         console.log(`✅ Найдена кнопка Login: ${selector}`);
         await element.click();
+        
+        // Ждём загрузки после клика Login
+        await page.waitForLoadState('networkidle', { timeout: 20000 });
+        
         loginFound = true;
         break;
       } catch {
@@ -44,6 +52,9 @@ test.describe('Vietnam E-Visa - Отладка селекторов', () => {
     if (!loginFound) {
       console.log('⚠️ Кнопка Login не найдена, переходим сразу к форме');
       await page.goto('https://evisa.gov.vn/e-visa/foreigners', { timeout: 20000 });
+      
+      // Ждём загрузки страницы форм
+      await page.waitForLoadState('networkidle', { timeout: 20000 });
     }
     
     // Делаем скриншот текущего состояния
@@ -108,6 +119,10 @@ test.describe('Vietnam E-Visa - Отладка селекторов', () => {
         
         if (isEnabled) {
           await button.click();
+          
+          // Ждём загрузки после клика Next
+          await page.waitForLoadState('networkidle', { timeout: 20000 });
+          
           console.log(`✅ Кнопка Next нажата`);
           break;
         } else {
@@ -131,6 +146,9 @@ test.describe('Vietnam E-Visa - Отладка селекторов', () => {
     test.setTimeout(60000);
     
     await page.goto('https://evisa.gov.vn/e-visa/foreigners', { timeout: 20000 });
+    
+    // Ждём полной загрузки страницы для анализа
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
     
     // Получаем HTML структуру страницы
     const html = await page.content();

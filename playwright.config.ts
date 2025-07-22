@@ -11,14 +11,14 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
+  /* Отключаем параллельные запуски */
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Только один воркер - последовательное выполнение */
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -28,6 +28,8 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    
+    /* Принудительно головной режим (не headless) */
     headless: false,
     
     /* Увеличенные таймауты для медленной загрузки */
@@ -35,14 +37,18 @@ export default defineConfig({
     navigationTimeout: 20000,    // 20 секунд для навигации
   },
   
-  /* Глобальный таймаут для тестов */
-  timeout: 120000,  // 2 минуты на тест
+  /* Увеличенный глобальный таймаут для медленных страниц */
+  timeout: 300000,  // 5 минут на тест
 
-  /* Configure projects for major browsers */
+  /* Запуск только на Chrome в головном режиме */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        /* Принудительно головной режим для Chrome */
+        headless: false,
+      },
     },
 
     // {

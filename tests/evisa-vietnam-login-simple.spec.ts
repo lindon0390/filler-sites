@@ -72,11 +72,17 @@ test.describe('Vietnam E-Visa - Полный процесс с авториза�
     // Переходим сразу к форме (предполагая, что пользователь уже авторизован)
     await page.goto('https://evisa.gov.vn/e-visa/foreigners');
     
+    // Ждём полной загрузки страницы
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
+    
     // Принимаем условия
     await page.waitForSelector('input[type="checkbox"]', { timeout: 20000 });
     await page.check('input[type="checkbox"]:first-of-type');
     await page.check('input[type="checkbox"]:last-of-type');
     await page.click('button:has-text("Next")');
+
+    // Ждём полной загрузки после клика Next
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
 
     // Ждём загрузки формы
     await page.waitForSelector('input[id*="ttcnHo"]', { timeout: 20000 });

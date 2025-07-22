@@ -168,7 +168,13 @@ export class EvisaVietnamLoginFlowPage {
 
   async aGoToMainPage() {
     await this.page.goto('https://evisa.gov.vn', { timeout: 20000 });
+    
+    // Ждём полной загрузки страницы
+    await this.page.waitForLoadState('networkidle', { timeout: 20000 });
+    
     await expect(this.page).toHaveTitle(/Vietnam/, { timeout: 20000 });
+    
+    console.log('✅ Главная страница полностью загружена');
   }
 
   async aLogin(email: string, password: string) {
@@ -176,6 +182,9 @@ export class EvisaVietnamLoginFlowPage {
     
     // Нажимаем на Login
     await this.eLoginButton.click();
+    
+    // Ждём полной загрузки страницы входа
+    await this.page.waitForLoadState('networkidle', { timeout: 20000 });
     
     // Ждём загрузки формы входа
     await this.eAccountField.waitFor({ timeout: 20000 });
@@ -202,6 +211,9 @@ export class EvisaVietnamLoginFlowPage {
     
     await this.eApplyNowButton.click();
     
+    // Ждём полной загрузки после клика
+    await this.page.waitForLoadState('networkidle', { timeout: 20000 });
+    
     // Ждём модального окна
     await this.page.waitForSelector('.ant-modal-content, .modal', { timeout: 20000 });
     
@@ -211,6 +223,9 @@ export class EvisaVietnamLoginFlowPage {
     
     // Переходим к форме
     await this.eNextButton.click();
+    
+    // Ждём полной загрузки формы
+    await this.page.waitForLoadState('networkidle', { timeout: 20000 });
     
     // Ждём загрузки основной формы
     await this.eSurnameField.waitFor({ timeout: 20000 });

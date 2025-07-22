@@ -62,6 +62,11 @@ export default class EvisaVietnamAgreementPage {
 
     async aGoToEvisaPage() {
         await this.page.goto('https://evisa.gov.vn/e-visa/foreigners', { timeout: 20000 });
+        
+        // Ждём полной загрузки страницы
+        await this.page.waitForLoadState('networkidle', { timeout: 20000 });
+        
+        console.log('✅ Страница e-visa загружена');
     }
 
     async aAcceptAgreement() {
@@ -78,6 +83,11 @@ export default class EvisaVietnamAgreementPage {
         }
         
         await this.aClickBtnNext();
+        
+        // Ждём загрузки следующей страницы
+        await this.page.waitForLoadState('networkidle', { timeout: 20000 });
+        
+        console.log('✅ Соглашение принято, переходим к форме');
     }
 
     // async aFillInputLIEmail(text: string) {
