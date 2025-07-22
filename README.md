@@ -32,31 +32,25 @@ npm run lint
 
 ```
 filler-sites/
-├── tests/                              # Тесты Playwright
-│   ├── evisa-vietnam-fixed.spec.ts     # ✅ Исправленная версия (рекомендуется)
-│   ├── evisa-vietnam-login-simple.spec.ts # ✅ Тест с авторизацией
-│   ├── multi-user.spec.ts              # ✅ Многопользовательские тесты
-│   ├── evisa-vietnam.spec.ts           # ⚠️ Устаревший (ошибки типов)
-│   └── evisa-vietnam-login.spec.ts     # ⚠️ Сложный
-├── pages/                              # Page Objects
-│   ├── evisaVietnamLoginFlow.page.ts   # ✅ Полный процесс с авторизацией
-│   ├── evisaVietnam.page.ts            # Основная форма
-│   └── evisaVietnamAgreement.page.ts   # Страница соглашений
-├── files/001/                          # Данные пользователя
+├── tests/                              # 🧪 Единственный рабочий тест
+│   └── evisa-vietnam-full-flow.spec.ts # ✅ MCP протестированный флоу (ЕДИНСТВЕННЫЙ)
+├── pages/                              # 📄 Единственный Page Object
+│   └── evisaVietnamFullFlow.page.ts    # ✅ Полный флоу авторизации (MCP протестирован)
+├── files/001/                          # 📁 Данные пользователя
 │   ├── 001.json                        # ✅ Ваши реальные данные
-│   ├── 001-example.json                # Пример заполнения
-│   ├── README.md                       # Описание полей JSON
-│   ├── 001-01.jpg                      # ✅ Ваше портретное фото
-│   └── 001-02.jpg                      # ✅ Ваш скан паспорта
-├── utils/                              # Вспомогательные утилиты
-│   ├── userManager.ts                  # Управление пользователями
-│   └── index.ts                        # Общие утилиты
-├── scripts/                            # CLI скрипты
-│   └── userManager.js                  # Консольное управление пользователями
-├── tsconfig.json                       # ✅ TypeScript конфигурация
-├── AUTOMATION-GUIDE.md                 # 📖 Подробное руководство по автоматизации
-├── TROUBLESHOOTING.md                  # 🔧 Устранение неполадок
-└── DEVELOPMENT.md                      # 👩‍💻 Руководство разработчика
+│   ├── 001-example.json                # 📋 Пример заполнения
+│   ├── README.md                       # 📖 Описание полей JSON
+│   ├── 001-01.jpg                      # 📸 Ваше портретное фото
+│   └── 001-02.jpg                      # 📄 Ваш скан паспорта
+├── utils/                              # 🛠️ Вспомогательные утилиты
+│   ├── index.ts                        # ⚙️ Общие утилиты и константы
+│   └── userManager.js                  # 👤 Консольное управление пользователями
+├── scripts/                            # 🖥️ CLI скрипты
+│   └── userManager.js                  # 👤 Скрипт управления пользователями
+├── MCP-TESTED-FLOW.md                  # 🎯 Документация MCP тестирования
+├── PROJECT-STATUS.md                   # 📊 Текущий статус проекта
+├── tsconfig.json                       # ⚙️ TypeScript конфигурация
+└── playwright.config.ts               # ⚙️ Конфигурация Playwright
 ```
 
 ## 🎯 Основные возможности
@@ -82,14 +76,10 @@ filler-sites/
 ### Тестирование
 | Команда | Описание | Статус |
 |---------|----------|--------|
-| `npm run test:full-flow:headed` | 🎯 **Полный флоу (протестирован MCP)** | **РЕКОМЕНДУЕТСЯ** |
-| `npm run test:full-flow:timeout` | ⏰ **Полный флоу с таймаутом капчи** | **БЕЗ PAUSE** |
-| `npm run test:full-flow:ui` | 🎯 **Полный флоу в UI режиме** | **НОВЫЙ** |
-| `npm run test:evisa-fixed:headed` | ✅ Исправленная версия теста | Работает |
-| `npm run test:evisa-simple:headed` | ✅ Тест с авторизацией | Работает |
-| `npm run test:multi:headed` | ✅ Многопользовательские тесты | Работает |
-| `npm run test:debug` | 🔍 Отладочный тест | Диагностика |
-| `npm run test:evisa:headed` | ⚠️ Старая версия | Ошибки типов |
+| `npm test` | 🎯 **Основной тест (MCP протестирован)** | **РЕКОМЕНДУЕТСЯ** |
+| `npm run test:full-flow:timeout` | ⏰ **С таймаутом капчи (без pause)** | **УДОБНО** |
+| `npm run test:full-flow:ui` | 🎨 **UI режим для отладки** | **ВИЗУАЛЬНЫЙ** |
+| `npm run test:full-flow:headed` | 🎯 **Полный флоу с pause** | **С INSPECTOR** |
 
 ### Проверка качества кода
 ```bash
