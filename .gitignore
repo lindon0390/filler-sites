@@ -3,4 +3,10 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-files/
+
+# Блокируем реальные изображения документов
+files/*
+# Но разрешаем тестовые изображения
+!files/imgPhoto.jpg
+!files/imgPassport.jpg
+!files/001/
