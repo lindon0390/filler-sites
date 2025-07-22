@@ -11,10 +11,13 @@ export class ApplicationFormPage {
   
   // Селекторы для основных разделов формы
   readonly ePersonalInformationSection: Locator;
+  readonly eRequestedInformationSection: Locator;
   readonly ePassportInformationSection: Locator;
   readonly eContactInformationSection: Locator;
   readonly eOccupationSection: Locator;
   readonly eTripInformationSection: Locator;
+  readonly eChildrenSection: Locator;
+  readonly eExpensesSection: Locator;
   
   // Селекторы для кнопок формы
   readonly eSaveButton: Locator;
@@ -28,17 +31,20 @@ export class ApplicationFormPage {
   constructor(page: Page) {
     this.page = page;
     
-    // Основные разделы формы
-    this.ePersonalInformationSection = page.locator('h3:has-text("PERSONAL INFORMATION")');
-    this.ePassportInformationSection = page.locator('h3:has-text("PASSPORT INFORMATION")');
-    this.eContactInformationSection = page.locator('h3:has-text("CONTACT INFORMATION")');
-    this.eOccupationSection = page.locator('h3:has-text("OCCUPATION")');
-    this.eTripInformationSection = page.locator('h3:has-text("TRIP INFORMATION")');
+    // Основные разделы формы с правильными заголовками (включая номера)
+    this.ePersonalInformationSection = page.locator('h3:has-text("1. PERSONAL INFORMATION")');
+    this.eRequestedInformationSection = page.locator('h3:has-text("2. REQUESTED INFORMATION")');
+    this.ePassportInformationSection = page.locator('h3:has-text("3. PASSPORT INFORMATION")');
+    this.eContactInformationSection = page.locator('h3:has-text("4. CONTACT INFORMATION")');
+    this.eOccupationSection = page.locator('h3:has-text("5. OCCUPATION")');
+    this.eTripInformationSection = page.locator('h3:has-text("6. INFORMATION ABOUT THE TRIP")');
+    this.eChildrenSection = page.locator('h3:has-text("7. Accompany child(ren)")');
+    this.eExpensesSection = page.locator('h3:has-text("8. TRIP\'S EXPENSES, INSURANCE")');
     
     // Кнопки формы
     this.eSaveButton = page.getByRole('button', { name: 'Save' });
     this.eSubmitButton = page.getByRole('button', { name: 'Submit' });
-    this.eNextStepButton = page.getByRole('button', { name: 'Next Step' });
+    this.eNextStepButton = page.getByRole('button', { name: 'Next' });
     
     // Поля загрузки файлов
     this.ePhotoUploadField = page.locator('input[type="file"]').first();
@@ -103,21 +109,30 @@ export class ApplicationFormPage {
     console.log('📋 Проверяем все разделы формы...');
     
     await expect(this.ePersonalInformationSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Раздел "PERSONAL INFORMATION" виден');
+    console.log('✅ Раздел "1. PERSONAL INFORMATION" виден');
+    
+    await expect(this.eRequestedInformationSection).toBeVisible({ timeout: 10000 });
+    console.log('✅ Раздел "2. REQUESTED INFORMATION" виден');
     
     await expect(this.ePassportInformationSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Раздел "PASSPORT INFORMATION" виден');
+    console.log('✅ Раздел "3. PASSPORT INFORMATION" виден');
     
     await expect(this.eContactInformationSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Раздел "CONTACT INFORMATION" виден');
+    console.log('✅ Раздел "4. CONTACT INFORMATION" виден');
     
     await expect(this.eOccupationSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Раздел "OCCUPATION" виден');
+    console.log('✅ Раздел "5. OCCUPATION" виден');
     
     await expect(this.eTripInformationSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Раздел "TRIP INFORMATION" виден');
+    console.log('✅ Раздел "6. INFORMATION ABOUT THE TRIP" виден');
     
-    console.log('✅ Все основные разделы формы найдены');
+    await expect(this.eChildrenSection).toBeVisible({ timeout: 10000 });
+    console.log('✅ Раздел "7. ACCOMPANY CHILDREN" виден');
+    
+    await expect(this.eExpensesSection).toBeVisible({ timeout: 10000 });
+    console.log('✅ Раздел "8. TRIP\'S EXPENSES, INSURANCE" виден');
+    
+    console.log('✅ Все 8 разделов формы найдены');
   }
 
   /**
@@ -151,17 +166,20 @@ export class ApplicationFormPage {
   }
 
   /**
-   * Переходим к следующему шагу
+   * Переходим к следующему шагу (кнопка Next)
    */
   async aClickNextStep() {
     console.log('➡️ Переходим к следующему шагу...');
     
     try {
+      // Проверяем, что кнопка Next активна
+      await expect(this.eNextStepButton).toBeEnabled({ timeout: 5000 });
       await this.eNextStepButton.click();
       await this.page.waitForLoadState('networkidle', { timeout: 10000 });
       console.log('✅ Переход к следующему шагу выполнен');
     } catch (error) {
-      console.log('⚠️ Кнопка Next Step не найдена или недоступна');
+      console.log('⚠️ Кнопка Next не найдена или недоступна (возможно, не все обязательные поля заполнены)');
+      throw error;
     }
   }
 
@@ -204,22 +222,44 @@ export class ApplicationFormPage {
     switch (sectionName.toLowerCase()) {
       case 'personal':
       case 'personal information':
+      case '1':
         targetSection = this.ePersonalInformationSection;
+        break;
+      case 'requested':
+      case 'requested information':
+      case '2':
+        targetSection = this.eRequestedInformationSection;
         break;
       case 'passport':
       case 'passport information':
+      case '3':
         targetSection = this.ePassportInformationSection;
         break;
       case 'contact':
       case 'contact information':
+      case '4':
         targetSection = this.eContactInformationSection;
         break;
       case 'occupation':
+      case '5':
         targetSection = this.eOccupationSection;
         break;
       case 'trip':
       case 'trip information':
+      case 'information about the trip':
+      case '6':
         targetSection = this.eTripInformationSection;
+        break;
+      case 'children':
+      case 'accompany children':
+      case '7':
+        targetSection = this.eChildrenSection;
+        break;
+      case 'expenses':
+      case 'trip expenses':
+      case 'insurance':
+      case '8':
+        targetSection = this.eExpensesSection;
         break;
       default:
         console.log(`⚠️ Неизвестный раздел: ${sectionName}`);
