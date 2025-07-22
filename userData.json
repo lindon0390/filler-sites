@@ -1,24 +1,20 @@
 {
     "surname": "ТЕСТОВ",
-    "name": "ИВАН ИВАНОВИЧ",
+    "name": "ПОЛЬЗОВАТЕЛЬ ПЕРВЫЙ",
     "birthDate": "15/03/1990",
     "gender": "male",
     "birthPlace": "ТЕСТОВАЯ ОБЛАСТЬ",
     "nationality": "RU",
-    
-    "passportNumber": "12345678901",
+    "passportNumber": "11223344556",
     "passportIssueDate": "15/05/2023",
     "passportExpiryDate": "15/05/2033",
-    "passportIssuePlace": "МВД 1234",
-    
-    "email": "test.user@example.com",
-    "phone": "+7-900-123-45-67",
-    "address": "ул. Тестовая, д. 1, кв. 1, г. Тестовый, Россия, 123456",
-    
+    "passportIssuePlace": "МВД 0001",
+    "email": "user001@test.example.com",
+    "phone": "+7-901-123-45-67",
+    "address": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
     "entryDate": "01/12/2024",
     "exitDate": "15/12/2024",
     "purpose": "Tourism",
-    
     "imgPhotoFilename": "imgPhoto.jpg",
     "imgPassportFilename": "imgPassport.jpg"
 }

@@ -1,0 +1,18 @@
+{
+    "surname": "ФАМИЛИЯ",
+    "name": "ИМЯ ОТЧЕСТВО",
+    "birthDate": "DD/MM/YYYY",
+    "gender": "male",
+    "birthPlace": "МЕСТО РОЖДЕНИЯ",
+    "nationality": "RU",
+    "passportNumber": "000000000",
+    "passportIssueDate": "DD/MM/YYYY",
+    "passportExpiryDate": "DD/MM/YYYY",
+    "passportIssuePlace": "МЕСТО ВЫДАЧИ",
+    "email": "email@example.com",
+    "phone": "+7-XXX-XXX-XX-XX",
+    "address": "АДРЕС ПРОЖИВАНИЯ",
+    "entryDate": "DD/MM/YYYY",
+    "exitDate": "DD/MM/YYYY",
+    "purpose": "Tourism"
+}

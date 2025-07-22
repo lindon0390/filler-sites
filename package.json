@@ -10,8 +10,17 @@
     "test:ui": "playwright test --ui",
     "test:evisa": "playwright test tests/evisa-vietnam.spec.ts",
     "test:evisa:headed": "playwright test tests/evisa-vietnam.spec.ts --headed",
+    "test:multi": "playwright test tests/multi-user.spec.ts",
+    "test:multi:headed": "playwright test tests/multi-user.spec.ts --headed",
     "report": "playwright show-report",
-    "install:browsers": "playwright install"
+    "install:browsers": "playwright install",
+    
+    "user:list": "node scripts/userManager.js list",
+    "user:status": "node scripts/userManager.js status",
+    "user:switch": "node scripts/userManager.js switch",
+    "user:create": "node scripts/userManager.js create",
+    "user:check": "node scripts/userManager.js check",
+    "user:help": "node scripts/userManager.js help"
   },
   "repository": {
     "type": "git",
@@ -22,7 +31,8 @@
     "automation",
     "evisa",
     "vietnam",
-    "form-filling"
+    "form-filling",
+    "multi-user"
   ],
   "author": "",
   "license": "ISC",

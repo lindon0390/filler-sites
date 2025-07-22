@@ -6,7 +6,16 @@ node_modules/
 
 # Блокируем реальные изображения документов
 files/*
-# Но разрешаем тестовые изображения
+# Но разрешаем тестовые изображения и папки пользователей
 !files/imgPhoto.jpg
 !files/imgPassport.jpg
 !files/001/
+!files/002/
+!files/003/
+!files/004/
+!files/005/
+!files/006/
+!files/007/
+!files/008/
+!files/009/
+!files/010/
