@@ -38,7 +38,7 @@ export class ApplicationFormPage {
     this.eContactInformationSection = page.locator('h3:has-text("4. CONTACT INFORMATION")');
     this.eOccupationSection = page.locator('h3:has-text("5. OCCUPATION")');
     this.eTripInformationSection = page.locator('h3:has-text("6. INFORMATION ABOUT THE TRIP")');
-    this.eChildrenSection = page.locator('h3:has-text("7. Accompany child(ren)")');
+    this.eChildrenSection = page.locator('h3:has-text("7. Accompany child(ren) under 14 years old")');
     this.eExpensesSection = page.locator('h3:has-text("8. TRIP\'S EXPENSES, INSURANCE")');
     
     // Кнопки формы
@@ -127,7 +127,7 @@ export class ApplicationFormPage {
     console.log('✅ Раздел "6. INFORMATION ABOUT THE TRIP" виден');
     
     await expect(this.eChildrenSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Раздел "7. ACCOMPANY CHILDREN" виден');
+    console.log('✅ Раздел "7. ACCOMPANY CHILDREN (under 14)" виден');
     
     await expect(this.eExpensesSection).toBeVisible({ timeout: 10000 });
     console.log('✅ Раздел "8. TRIP\'S EXPENSES, INSURANCE" виден');

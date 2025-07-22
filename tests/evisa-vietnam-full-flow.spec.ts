@@ -10,7 +10,7 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
   let loginPage: LoginPage;
   let applicationFormPage: ApplicationFormPage;
 
-  test.beforeEach(async ({ page: playwrightPage }) => {
+  test.beforeEach(async ({ page: playwrightPage, browser: playwrightBrowser }) => {
     // Показываем конфигурацию из .env
     console.log('🔧 Загружаем конфигурацию из .env файла...');
     logCurrentConfig();
@@ -31,7 +31,7 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
         throw new Error('Chrome не запущен с отладочным портом 9222. Запустите: npm run chrome:debug');
       }
       
-      // Подключаемся к существующему Chrome
+      // Подключаемся к существующему Chrome (игнорируем Playwright браузер)
       const { browser, page: connectedPage } = await connectAndGetPage(9222);
       page = connectedPage;
       console.log('✅ Подключение к существующему Chrome выполнено');
