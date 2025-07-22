@@ -1,0 +1,104 @@
+{
+  "personalInformation": {
+    "surname": "ИВАНОВ",
+    "middleAndGivenName": "ПЕТР СЕРГЕЕВИЧ",
+    "dateOfBirth": "15/05/1985",
+    "dateOfBirthType": "D",
+    "sex": "Male",
+    "nationality": "Russia",
+    "identityCard": "",
+    "email": "petr.ivanov@example.com",
+    "agreeCreateAccount": true,
+    "religion": "Orthodox Christian",
+    "placeOfBirth": "Москва, Россия",
+    "reEnterEmail": "petr.ivanov@example.com",
+    "hasOtherPassports": "Yes",
+    "otherPassports": [
+      {
+        "passportNumber": "987654321",
+        "fullName": "ИВАНОВ ПЕТР СЕРГЕЕВИЧ",
+        "dateOfBirth": "15/05/1985",
+        "nationality": "Russia"
+      }
+    ],
+    "hasMultipleNationalities": "No",
+    "violationOfVietnameseLaws": "No"
+  },
+  "requestedInformation": {
+    "visaType": "Single-entry",
+    "validFrom": "01/12/2024",
+    "validTo": "31/12/2024"
+  },
+  "passportInformation": {
+    "passportNumber": "123456789",
+    "issuingAuthority": "МВД России",
+    "type": "P",
+    "dateOfIssue": "10/03/2020",
+    "expiryDate": "10/03/2030",
+    "holdOtherValidPassports": "Yes",
+    "otherValidPassports": [
+      {
+        "type": "P",
+        "otherTypeSpecify": "",
+        "passportNumber": "555666777",
+        "issuingAuthority": "МВД России",
+        "dateOfIssue": "05/01/2015",
+        "expiryDate": "05/01/2025"
+      }
+    ]
+  },
+  "contactInformation": {
+    "permanentResidentialAddress": "ул. Пушкина, д. 10, кв. 5, Москва, Россия, 101000",
+    "contactAddress": "ул. Пушкина, д. 10, кв. 5, Москва, Россия, 101000",
+    "telephoneNumber": "+7-916-123-45-67",
+    "emergencyContact": {
+      "fullName": "ИВАНОВА МАРИЯ ПЕТРОВНА",
+      "currentResidentialAddress": "ул. Пушкина, д. 10, кв. 5, Москва, Россия, 101000",
+      "telephoneNumber": "+7-916-987-65-43",
+      "relationship": "Супруга"
+    }
+  },
+  "occupation": {
+    "occupation": "Engineer",
+    "occupationInfo": "Software Engineer",
+    "nameOfCompanyAgencySchool": "ООО Технологии",
+    "positionCourseOfStudy": "Ведущий разработчик",
+    "addressOfCompanyAgencySchool": "ул. Тверская, д. 5, Москва, Россия",
+    "companyAgencySchoolPhoneNumber": "+7-495-123-45-67"
+  },
+  "tripInformation": {
+    "purposeOfEntry": "Tourism",
+    "intendedDateOfEntry": "05/12/2024",
+    "intendedLengthOfStay": "10 дней",
+    "phoneNumberInVietnam": "+84-123-456-789",
+    "residentialAddressInVietnam": "123 Nguyen Hue Street, District 1, Ho Chi Minh City",
+    "provinceCity": "Ho Chi Minh City",
+    "wardCommune": "Ben Nghe Ward",
+    "intendedBorderGateOfEntry": "Tan Son Nhat Airport Border Gate",
+    "intendedBorderGateOfExit": "Tan Son Nhat Airport Border Gate",
+    "committedToDeclareTempResidence": true,
+    "hasAgencyOrganizationContact": "No",
+    "beenToVietnamLastYear": "Yes",
+    "vietnamVisitsLastYear": [
+      {
+        "fromDate": "15/03/2024",
+        "toDate": "25/03/2024",
+        "purposeOfTrip": "Business"
+      }
+    ],
+    "hasRelativesInVietnam": "No"
+  },
+  "accompanyChildren": [],
+  "tripsExpensesInsurance": {
+    "intendedExpensesUSD": "2000",
+    "didBuyInsurance": "Yes",
+    "whoCoversTripExpenses": "Self"
+  },
+  "images": {
+    "portraitPhoto": "files/001/portrait.jpg",
+    "passportDataPage": "files/001/passport.jpg"
+  },
+  "declaration": {
+    "agreed": true
+  }
+} 

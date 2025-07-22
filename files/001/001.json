@@ -1,21 +1,111 @@
 {
-    "surname": "ТЕСТОВ",
-    "name": "ПОЛЬЗОВАТЕЛЬ ПЕРВЫЙ",
-    "birthDate": "15/03/1990",
-    "gender": "male",
-    "birthPlace": "ТЕСТОВАЯ ОБЛАСТЬ",
-    "nationality": "RU",
-    
-    "passportNumber": "11223344556",
-    "passportIssueDate": "15/05/2023",
-    "passportExpiryDate": "15/05/2033",
-    "passportIssuePlace": "МВД 0001",
-    
-    "email": "user001@test.example.com",
-    "phone": "+7-901-123-45-67",
-    "address": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
-    
-    "entryDate": "01/12/2024",
-    "exitDate": "15/12/2024",
-    "purpose": "Tourism"
+    "login": "lindon0390@gmail.com",
+    "password": "Timur123!",
+  "personalInformation": {
+    "surname": "DONDOKOV",
+    "middleAndGivenName": "TIMUR",
+    "dateOfBirth": "08/05/1989",
+    "dateOfBirthType": "Full",
+    "sex": "Male",
+    "nationality": "Russia",
+    "identityCard": "776381279",
+    "email": "lindon0390@gmail.com",
+    "agreeCreateAccount": true,
+    "religion": "Buddhism",
+    "placeOfBirth": "Russian Federation",
+    "reEnterEmail": "lindon0390@gmail.com",
+    "hasOtherPassports": "Yes",
+    "otherPassports": [
+      {
+        "passportNumber": "665776084",
+        "fullName": "TIMUR DONDOKOV",
+        "dateOfBirth": "08/05/1989",
+        "nationality": "Russia"
+      }
+    ],
+    "hasMultipleNationalities": "No",
+    "violationOfVietnameseLaws": "No"
+  },
+  "requestedInformation": {
+    "visaType": "Single-entry",
+    "validFrom": "26/08/2025",
+    "validTo": "23/11/2025"
+  },
+  "passportInformation": {
+    "passportNumber": "776381279",
+    "issuingAuthority": "MVD 03006",
+    "type": "Ordinary passport",
+    "dateOfIssue": "30/05/2025",
+    "expiryDate": "30/05/2035",
+    "holdOtherValidPassports": "Yes",
+    "otherValidPassports": [
+      {
+        "type": "Ordinary passport",
+        "otherTypeSpecify": "",
+        "passportNumber": "665776084",
+        "issuingAuthority": "MVD 0920",
+        "dateOfIssue": "27/05/2023",
+        "expiryDate": "27/05/2028"
+      }
+    ]
+  },
+  "contactInformation": {
+    "permanentResidentialAddress": "Russian Federation, Ulan-Ude, Stroitelei avenue, 5A, 163",
+    "contactAddress": "Russian Federation, Ulan-Ude, Stroitelei avenue, 5A, 163",
+    "telephoneNumber": "+79244586899",
+    "emergencyContact": {
+      "fullName": "Darima Dondokova",
+      "currentResidentialAddress": "Russian Federation, Ulan-Ude, Stroitelei avenue, 5A, 163",
+      "telephoneNumber": "+79834297943",
+      "relationship": "Mother"
+    }
+  },
+  "occupation": {
+    "occupation": "Employee",
+    "occupationInfo": "Engineer",
+    "nameOfCompanyAgencySchool": "Linked Helper LLC",
+    "positionCourseOfStudy": "QA Engineer",
+    "addressOfCompanyAgencySchool": "2810 N Church St, Wilmington, DE 19802, USA",
+    "companyAgencySchoolPhoneNumber": "+13029079302"
+  },
+  "tripInformation": {
+    "purposeOfEntry": "Tourist",
+    "intendedDateOfEntry": "26/08/2025",
+    "intendedLengthOfStay": "90",
+    "phoneNumberInVietnam": "+84342045982",
+    "residentialAddressInVietnam": "26 Phạm Văn Đồng, Vĩnh Hải, Nha Trang",
+    "provinceCity": "KHAN HOA",
+    "wardCommune": "NHA TRANG WARD",
+    "intendedBorderGateOfEntry": "Cam Ranh Airport (Khanh Hoa)",
+    "intendedBorderGateOfExit": "Cam Ranh Airport (Khanh Hoa)",
+    "committedToDeclareTempResidence": true,
+    "hasAgencyOrganizationContact": "No",
+    "beenToVietnamLastYear": "Yes",
+    "vietnamVisitsLastYear": [
+      {
+        "fromDate": "",
+        "toDate": "",
+        "purposeOfTrip": "Tourist"
+      }
+    ],
+    "hasRelativesInVietnam": "No"
+  },
+  "accompanyChildren": [],
+  "tripsExpensesInsurance": {
+    "intendedExpensesUSD": "8000",
+    "didBuyInsurance": "Yes",
+    "specifyInsurance": "T-Insurance",
+    "whoCoversTripExpenses": "Personal",
+    "Payment method": "Credit card"
+  },
+  "images": {
+    "portraitPhoto": "files/001/imgPhoto.jpg",
+    "passportDataPage": "files/001/imgPassport.jpg"
+  },
+  "loginCredentials": {
+    "password": "Timur123!"
+  },
+  "declaration": {
+    "agreed": false
+  }
 }

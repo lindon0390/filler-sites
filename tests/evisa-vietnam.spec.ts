@@ -26,11 +26,31 @@ test.describe('Evisa Vietnam', () => {
         await evisaVietnamPage.aCheckPage();
         
         // Загрузка изображений
-        await evisaVietnamPage.aUploadFileImgPhoto(userData.imgPhotoFilename);
-        await evisaVietnamPage.aUploadFileImgPassport(userData.imgPassportFilename);
+        await evisaVietnamPage.aUploadFileImgPhoto(userData.images.portraitPhoto);
+        await evisaVietnamPage.aUploadFileImgPassport(userData.images.passportDataPage);
         
         // Заполнение всех данных формы
-        await evisaVietnamPage.aFillAllData(userData as UserData);
+        const legacyUserData: UserData = {
+            surname: userData.personalInformation.surname,
+            name: userData.personalInformation.middleAndGivenName,
+            birthDate: userData.personalInformation.dateOfBirth,
+            gender: userData.personalInformation.sex as 'male' | 'female',
+            birthPlace: userData.personalInformation.placeOfBirth,
+            nationality: userData.personalInformation.nationality,
+            passportNumber: userData.passportInformation.passportNumber,
+            passportIssueDate: userData.passportInformation.dateOfIssue,
+            passportExpiryDate: userData.passportInformation.expiryDate,
+            passportIssuePlace: userData.passportInformation.issuingAuthority,
+            email: userData.personalInformation.email,
+            phone: userData.tripInformation.phoneNumberInVietnam || '',
+            address: userData.tripInformation.residentialAddressInVietnam || '',
+            entryDate: userData.tripInformation.intendedDateOfEntry,
+            exitDate: userData.tripInformation.intendedLengthOfStay,
+            purpose: userData.tripInformation.purposeOfEntry,
+            imgPhotoFilename: userData.images.portraitPhoto,
+            imgPassportFilename: userData.images.passportDataPage
+        };
+        await evisaVietnamPage.aFillAllData(legacyUserData);
         
         await delay(2000); // Пауза для проверки заполнения
 

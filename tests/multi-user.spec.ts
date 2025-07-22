@@ -25,7 +25,7 @@ test.describe('Мультипользовательские тесты', () => {
 
     test('Тест с пользователем 001', async ({ page }) => {
         if (!userManager.isUserReady('001')) {
-            test.skip('Пользователь 001 не готов (нет данных или изображений)');
+            test.skip(true, 'Пользователь 001 не готов (нет данных или изображений)');
         }
 
         logWithTimestamp('Загружаем данные пользователя 001');
@@ -59,7 +59,7 @@ test.describe('Мультипользовательские тесты', () => {
         const availableUsers = userManager.getAvailableUsers();
         
         if (availableUsers.length === 0) {
-            test.skip('Нет доступных пользователей с данными');
+            test.skip(true, 'Нет доступных пользователей с данными');
         }
 
         logWithTimestamp(`Найдено пользователей: ${availableUsers.join(', ')}`);

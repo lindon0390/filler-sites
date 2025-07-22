@@ -1,20 +1,79 @@
 {
+  "personalInformation": {
     "surname": "ТЕСТОВ",
-    "name": "ПОЛЬЗОВАТЕЛЬ ПЕРВЫЙ",
-    "birthDate": "15/03/1990",
-    "gender": "male",
-    "birthPlace": "ТЕСТОВАЯ ОБЛАСТЬ",
-    "nationality": "RU",
-    "passportNumber": "11223344556",
-    "passportIssueDate": "15/05/2023",
-    "passportExpiryDate": "15/05/2033",
-    "passportIssuePlace": "МВД 0001",
+    "middleAndGivenName": "ПОЛЬЗОВАТЕЛЬ ПЕРВЫЙ",
+    "dateOfBirth": "15/03/1990",
+    "dateOfBirthType": "D",
+    "sex": "Male",
+    "nationality": "Russia",
+    "identityCard": "",
     "email": "user001@test.example.com",
-    "phone": "+7-901-123-45-67",
-    "address": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
-    "entryDate": "01/12/2024",
-    "exitDate": "15/12/2024",
-    "purpose": "Tourism",
-    "imgPhotoFilename": "imgPhoto.jpg",
-    "imgPassportFilename": "imgPassport.jpg"
+    "agreeCreateAccount": true,
+    "religion": "Orthodox Christian",
+    "placeOfBirth": "ТЕСТОВАЯ ОБЛАСТЬ",
+    "reEnterEmail": "user001@test.example.com",
+    "hasOtherPassports": "No",
+    "hasMultipleNationalities": "No",
+    "violationOfVietnameseLaws": "No"
+  },
+  "requestedInformation": {
+    "visaType": "Single-entry",
+    "validFrom": "01/12/2024",
+    "validTo": "15/12/2024"
+  },
+  "passportInformation": {
+    "passportNumber": "11223344556",
+    "issuingAuthority": "МВД 0001",
+    "type": "P",
+    "dateOfIssue": "15/05/2023",
+    "expiryDate": "15/05/2033",
+    "holdOtherValidPassports": "No"
+  },
+  "contactInformation": {
+    "permanentResidentialAddress": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
+    "contactAddress": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
+    "telephoneNumber": "+7-901-123-45-67",
+    "emergencyContact": {
+      "fullName": "ТЕСТОВА МАРИЯ ИВАНОВНА",
+      "currentResidentialAddress": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
+      "telephoneNumber": "+7-901-765-43-21",
+      "relationship": "Супруга"
+    }
+  },
+  "occupation": {
+    "occupation": "Engineer",
+    "occupationInfo": "Software Engineer",
+    "nameOfCompanyAgencySchool": "ООО Тест",
+    "positionCourseOfStudy": "Разработчик",
+    "addressOfCompanyAgencySchool": "ул. Рабочая, д. 5, г. Тестовый, Россия",
+    "companyAgencySchoolPhoneNumber": "+7-495-123-45-67"
+  },
+  "tripInformation": {
+    "purposeOfEntry": "Tourism",
+    "intendedDateOfEntry": "01/12/2024",
+    "intendedLengthOfStay": "14 дней",
+    "phoneNumberInVietnam": "",
+    "residentialAddressInVietnam": "Hotel Saigon, Ho Chi Minh City",
+    "provinceCity": "Ho Chi Minh City",
+    "wardCommune": "District 1",
+    "intendedBorderGateOfEntry": "Tan Son Nhat Airport Border Gate",
+    "intendedBorderGateOfExit": "Tan Son Nhat Airport Border Gate",
+    "committedToDeclareTempResidence": true,
+    "hasAgencyOrganizationContact": "No",
+    "beenToVietnamLastYear": "No",
+    "hasRelativesInVietnam": "No"
+  },
+  "accompanyChildren": [],
+  "tripsExpensesInsurance": {
+    "intendedExpensesUSD": "1500",
+    "didBuyInsurance": "Yes",
+    "whoCoversTripExpenses": "Self"
+  },
+  "images": {
+    "portraitPhoto": "files/imgPhoto.jpg",
+    "passportDataPage": "files/imgPassport.jpg"
+  },
+  "declaration": {
+    "agreed": true
+  }
 }

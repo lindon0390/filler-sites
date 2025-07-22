@@ -60,6 +60,26 @@ export default class EvisaVietnamAgreementPage {
         await this.eBtnNext.click();
     }
 
+    async aGoToEvisaPage() {
+        await this.page.goto('https://evisa.gov.vn/e-visa/foreigners');
+    }
+
+    async aAcceptAgreement() {
+        await this.aCheckPage();
+        await this.aCheckCheckboxAgreement();
+        
+        // Проверяем, есть ли второй чекбокс
+        const secondCheckbox = this.page.getByRole('checkbox').nth(1);
+        try {
+            await secondCheckbox.waitFor({ timeout: 2000 });
+            await secondCheckbox.check();
+        } catch {
+            // Если второго чекбокса нет, продолжаем
+        }
+        
+        await this.aClickBtnNext();
+    }
+
     // async aFillInputLIEmail(text: string) {
     //     await this.eInputLIEmail.fill(text);
     // }

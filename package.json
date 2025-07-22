@@ -10,17 +10,27 @@
     "test:ui": "playwright test --ui",
     "test:evisa": "playwright test tests/evisa-vietnam.spec.ts",
     "test:evisa:headed": "playwright test tests/evisa-vietnam.spec.ts --headed",
+    "test:evisa-login": "playwright test tests/evisa-vietnam-login.spec.ts",
+    "test:evisa-login:headed": "playwright test tests/evisa-vietnam-login.spec.ts --headed",
+    "test:evisa-login:debug": "playwright test tests/evisa-vietnam-login.spec.ts --debug",
+    "test:evisa-simple": "playwright test tests/evisa-vietnam-login-simple.spec.ts",
+    "test:evisa-simple:headed": "playwright test tests/evisa-vietnam-login-simple.spec.ts --headed",
+    "test:evisa-simple:debug": "playwright test tests/evisa-vietnam-login-simple.spec.ts --debug",
+    "test:evisa-fixed": "playwright test tests/evisa-vietnam-fixed.spec.ts",
+    "test:evisa-fixed:headed": "playwright test tests/evisa-vietnam-fixed.spec.ts --headed",
+    "test:evisa-fixed:debug": "playwright test tests/evisa-vietnam-fixed.spec.ts --debug",
     "test:multi": "playwright test tests/multi-user.spec.ts",
     "test:multi:headed": "playwright test tests/multi-user.spec.ts --headed",
     "report": "playwright show-report",
     "install:browsers": "playwright install",
-    
     "user:list": "node scripts/userManager.js list",
     "user:status": "node scripts/userManager.js status",
     "user:switch": "node scripts/userManager.js switch",
     "user:create": "node scripts/userManager.js create",
     "user:check": "node scripts/userManager.js check",
-    "user:help": "node scripts/userManager.js help"
+    "user:help": "node scripts/userManager.js help",
+    "build": "tsc --noEmit",
+    "lint": "npx tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -42,6 +52,7 @@
   "homepage": "https://github.com/lindon0390/filler-sites#readme",
   "devDependencies": {
     "@playwright/test": "^1.44.1",
-    "@types/node": "^20.14.2"
+    "@types/node": "^20.14.2",
+    "typescript": "^5.8.3"
   }
 }
