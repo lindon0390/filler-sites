@@ -167,8 +167,8 @@ export class EvisaVietnamLoginFlowPage {
   }
 
   async aGoToMainPage() {
-    await this.page.goto('https://evisa.gov.vn');
-    await expect(this.page).toHaveTitle(/Vietnam/);
+    await this.page.goto('https://evisa.gov.vn', { timeout: 20000 });
+    await expect(this.page).toHaveTitle(/Vietnam/, { timeout: 20000 });
   }
 
   async aLogin(email: string, password: string) {
@@ -178,14 +178,14 @@ export class EvisaVietnamLoginFlowPage {
     await this.eLoginButton.click();
     
     // Ждём загрузки формы входа
-    await this.eAccountField.waitFor();
+    await this.eAccountField.waitFor({ timeout: 20000 });
     
     // Заполняем данные
     await this.eAccountField.fill(email);
     await this.ePasswordField.fill(password);
     
     // Ждём появления капчи
-    await this.eCaptchaField.waitFor({ timeout: 10000 });
+    await this.eCaptchaField.waitFor({ timeout: 20000 });
     
     console.log('⚠️ Пожалуйста, введите капчу вручную и нажмите Enter для продолжения...');
     
@@ -193,7 +193,7 @@ export class EvisaVietnamLoginFlowPage {
     await this.page.pause();
     
     // Ждём успешного входа
-    await expect(this.page.locator('.user-icon, .account-info, text=Profile')).toBeVisible({ timeout: 15000 });
+    await expect(this.page.locator('.user-icon, .account-info, text=Profile')).toBeVisible({ timeout: 20000 });
     console.log('✅ Успешно вошли в систему!');
   }
 
@@ -203,7 +203,7 @@ export class EvisaVietnamLoginFlowPage {
     await this.eApplyNowButton.click();
     
     // Ждём модального окна
-    await this.page.waitForSelector('.ant-modal-content, .modal');
+    await this.page.waitForSelector('.ant-modal-content, .modal', { timeout: 20000 });
     
     // Соглашаемся с условиями
     await this.eAgreementCheckbox1.check();
@@ -213,7 +213,7 @@ export class EvisaVietnamLoginFlowPage {
     await this.eNextButton.click();
     
     // Ждём загрузки основной формы
-    await this.eSurnameField.waitFor();
+    await this.eSurnameField.waitFor({ timeout: 20000 });
     console.log('📝 Форма заявления загружена!');
   }
 

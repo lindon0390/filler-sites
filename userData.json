@@ -1,77 +1,107 @@
 {
   "personalInformation": {
-    "surname": "ТЕСТОВ",
-    "middleAndGivenName": "ПОЛЬЗОВАТЕЛЬ ПЕРВЫЙ",
+    "surname": "JOHNSON",
+    "middleAndGivenName": "MICHAEL ROBERT",
     "dateOfBirth": "15/03/1990",
-    "dateOfBirthType": "D",
+    "dateOfBirthType": "Full",
     "sex": "Male",
     "nationality": "Russia",
-    "identityCard": "",
-    "email": "user001@test.example.com",
+    "identityCard": "445287156",
+    "email": "m.johnson.test@example.com",
     "agreeCreateAccount": true,
-    "religion": "Orthodox Christian",
-    "placeOfBirth": "ТЕСТОВАЯ ОБЛАСТЬ",
-    "reEnterEmail": "user001@test.example.com",
-    "hasOtherPassports": "No",
+    "religion": "Christianity",
+    "placeOfBirth": "Russian Federation",
+    "reEnterEmail": "m.johnson.test@example.com",
+    "hasOtherPassports": "Yes",
+    "otherPassports": [
+      {
+        "passportNumber": "334567891",
+        "fullName": "MICHAEL ROBERT JOHNSON",
+        "dateOfBirth": "15/03/1990",
+        "nationality": "Russia"
+      }
+    ],
     "hasMultipleNationalities": "No",
     "violationOfVietnameseLaws": "No"
   },
   "requestedInformation": {
     "visaType": "Single-entry",
-    "validFrom": "01/12/2024",
-    "validTo": "15/12/2024"
+    "validFrom": "01/09/2025",
+    "validTo": "30/11/2025"
   },
   "passportInformation": {
-    "passportNumber": "11223344556",
-    "issuingAuthority": "МВД 0001",
-    "type": "P",
-    "dateOfIssue": "15/05/2023",
-    "expiryDate": "15/05/2033",
-    "holdOtherValidPassports": "No"
+    "passportNumber": "445287156",
+    "issuingAuthority": "MVD 02007",
+    "type": "Ordinary passport",
+    "dateOfIssue": "10/06/2024",
+    "expiryDate": "10/06/2034",
+    "holdOtherValidPassports": "Yes",
+    "otherValidPassports": [
+      {
+        "type": "Ordinary passport",
+        "otherTypeSpecify": "",
+        "passportNumber": "334567891",
+        "issuingAuthority": "MVD 0815",
+        "dateOfIssue": "12/04/2022",
+        "expiryDate": "12/04/2027"
+      }
+    ]
   },
   "contactInformation": {
-    "permanentResidentialAddress": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
-    "contactAddress": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
-    "telephoneNumber": "+7-901-123-45-67",
+    "permanentResidentialAddress": "Russian Federation, Moscow, Tverskaya street, 12, apt 45",
+    "contactAddress": "Russian Federation, Moscow, Tverskaya street, 12, apt 45",
+    "telephoneNumber": "+79161234567",
     "emergencyContact": {
-      "fullName": "ТЕСТОВА МАРИЯ ИВАНОВНА",
-      "currentResidentialAddress": "ул. Первая, д. 1, кв. 1, г. Тестовый, Россия, 123001",
-      "telephoneNumber": "+7-901-765-43-21",
-      "relationship": "Супруга"
+      "fullName": "Sarah Johnson",
+      "currentResidentialAddress": "Russian Federation, Moscow, Tverskaya street, 12, apt 45",
+      "telephoneNumber": "+79169876543",
+      "relationship": "Wife"
     }
   },
   "occupation": {
-    "occupation": "Engineer",
-    "occupationInfo": "Software Engineer",
-    "nameOfCompanyAgencySchool": "ООО Тест",
-    "positionCourseOfStudy": "Разработчик",
-    "addressOfCompanyAgencySchool": "ул. Рабочая, д. 5, г. Тестовый, Россия",
-    "companyAgencySchoolPhoneNumber": "+7-495-123-45-67"
+    "occupation": "Employee",
+    "occupationInfo": "Software Developer",
+    "nameOfCompanyAgencySchool": "Tech Solutions LLC",
+    "positionCourseOfStudy": "Senior Developer",
+    "addressOfCompanyAgencySchool": "1500 Broadway, New York, NY 10036, USA",
+    "companyAgencySchoolPhoneNumber": "+12125551234"
   },
   "tripInformation": {
-    "purposeOfEntry": "Tourism",
-    "intendedDateOfEntry": "01/12/2024",
-    "intendedLengthOfStay": "14 дней",
-    "phoneNumberInVietnam": "",
-    "residentialAddressInVietnam": "Hotel Saigon, Ho Chi Minh City",
-    "provinceCity": "Ho Chi Minh City",
-    "wardCommune": "District 1",
-    "intendedBorderGateOfEntry": "Tan Son Nhat Airport Border Gate",
-    "intendedBorderGateOfExit": "Tan Son Nhat Airport Border Gate",
+    "purposeOfEntry": "Tourist",
+    "intendedDateOfEntry": "01/09/2025",
+    "intendedLengthOfStay": "90",
+    "phoneNumberInVietnam": "+84987654321",
+    "residentialAddressInVietnam": "15 Nguyen Hue Boulevard, District 1, Ho Chi Minh City",
+    "provinceCity": "HO CHI MINH CITY",
+    "wardCommune": "DISTRICT 1",
+    "intendedBorderGateOfEntry": "Tan Son Nhat Airport (Ho Chi Minh City)",
+    "intendedBorderGateOfExit": "Tan Son Nhat Airport (Ho Chi Minh City)",
     "committedToDeclareTempResidence": true,
     "hasAgencyOrganizationContact": "No",
-    "beenToVietnamLastYear": "No",
+    "beenToVietnamLastYear": "Yes",
+    "vietnamVisitsLastYear": [
+      {
+        "fromDate": "10/01/2024",
+        "toDate": "25/01/2024",
+        "purposeOfTrip": "Tourist"
+      }
+    ],
     "hasRelativesInVietnam": "No"
   },
   "accompanyChildren": [],
   "tripsExpensesInsurance": {
-    "intendedExpensesUSD": "1500",
+    "intendedExpensesUSD": "5000",
     "didBuyInsurance": "Yes",
-    "whoCoversTripExpenses": "Self"
+    "specifyInsurance": "Travel Guard Insurance",
+    "whoCoversTripExpenses": "Personal",
+    "Payment method": "Credit card"
   },
   "images": {
-    "portraitPhoto": "files/imgPhoto.jpg",
-    "passportDataPage": "files/imgPassport.jpg"
+    "portraitPhoto": "files/001/001-01.jpg",
+    "passportDataPage": "files/001/001-02.jpg"
+  },
+  "loginCredentials": {
+    "password": "TestPass123!"
   },
   "declaration": {
     "agreed": true

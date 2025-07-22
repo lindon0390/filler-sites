@@ -28,8 +28,15 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    headless: false
+    headless: false,
+    
+    /* Увеличенные таймауты для медленной загрузки */
+    actionTimeout: 20000,        // 20 секунд для действий
+    navigationTimeout: 20000,    // 20 секунд для навигации
   },
+  
+  /* Глобальный таймаут для тестов */
+  timeout: 120000,  // 2 минуты на тест
 
   /* Configure projects for major browsers */
   projects: [

@@ -19,6 +19,8 @@
     "test:evisa-fixed": "playwright test tests/evisa-vietnam-fixed.spec.ts",
     "test:evisa-fixed:headed": "playwright test tests/evisa-vietnam-fixed.spec.ts --headed",
     "test:evisa-fixed:debug": "playwright test tests/evisa-vietnam-fixed.spec.ts --debug",
+    "test:debug": "playwright test tests/evisa-vietnam-debug.spec.ts --headed",
+    "test:debug:ui": "playwright test tests/evisa-vietnam-debug.spec.ts --ui",
     "test:multi": "playwright test tests/multi-user.spec.ts",
     "test:multi:headed": "playwright test tests/multi-user.spec.ts --headed",
     "report": "playwright show-report",

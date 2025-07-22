@@ -19,7 +19,7 @@ test.describe('Vietnam E-Visa - Полный процесс с авториза�
 
   test('Авторизация и заполнение заявления на визу', async ({ page }) => {
     // Увеличиваем таймаут для медленного интернета
-    test.setTimeout(180000);
+    test.setTimeout(300000); // 5 минут
 
     console.log('🚀 Начинаем полный процесс подачи заявления на визу...');
 
@@ -45,7 +45,7 @@ test.describe('Vietnam E-Visa - Полный процесс с авториза�
   });
 
   test('Только авторизация (для отладки)', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000); // 2 минуты
 
     console.log('🔐 Тестируем только процесс авторизации...');
 
@@ -65,7 +65,7 @@ test.describe('Vietnam E-Visa - Полный процесс с авториза�
   });
 
   test('Только заполнение формы (без авторизации)', async ({ page }) => {
-    test.setTimeout(120000);
+    test.setTimeout(180000); // 3 минуты
 
     console.log('📝 Тестируем только заполнение формы...');
 
@@ -73,13 +73,13 @@ test.describe('Vietnam E-Visa - Полный процесс с авториза�
     await page.goto('https://evisa.gov.vn/e-visa/foreigners');
     
     // Принимаем условия
-    await page.waitForSelector('input[type="checkbox"]');
+    await page.waitForSelector('input[type="checkbox"]', { timeout: 20000 });
     await page.check('input[type="checkbox"]:first-of-type');
     await page.check('input[type="checkbox"]:last-of-type');
     await page.click('button:has-text("Next")');
 
     // Ждём загрузки формы
-    await page.waitForSelector('input[id*="ttcnHo"]');
+    await page.waitForSelector('input[id*="ttcnHo"]', { timeout: 20000 });
 
     // Заполняем форму
     await evisaPage.aFillCompleteForm(userData);

@@ -79,9 +79,9 @@ export async function takeTimestampedScreenshot(page: Page, name: string): Promi
  * Константы таймаутов для различных операций
  */
 export const TIMEOUTS = {
-    SHORT: 5000,
-    MEDIUM: 10000,
-    LONG: 20000,
-    FILE_UPLOAD: 15000,
-    PAGE_LOAD: 30000
+    SHORT: 10000,     // 10 секунд
+    MEDIUM: 20000,    // 20 секунд  
+    LONG: 60000,      // 1 минута
+    FILE_UPLOAD: 20000,  // 20 секунд для загрузки файлов
+    PAGE_LOAD: 20000     // 20 секунд для загрузки страниц
 } as const;

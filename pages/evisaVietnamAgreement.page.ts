@@ -39,8 +39,8 @@ export default class EvisaVietnamAgreementPage {
     }
 
     async aCheckPage() {
-        await expect(this.eCheckboxAgreement).toBeVisible();
-        await expect(this.eBtnNext).toBeVisible();
+        await expect(this.eCheckboxAgreement).toBeVisible({ timeout: 20000 });
+        await expect(this.eBtnNext).toBeVisible({ timeout: 20000 });
     }
 
     async aCheckCheckboxAgreement() {
@@ -61,7 +61,7 @@ export default class EvisaVietnamAgreementPage {
     }
 
     async aGoToEvisaPage() {
-        await this.page.goto('https://evisa.gov.vn/e-visa/foreigners');
+        await this.page.goto('https://evisa.gov.vn/e-visa/foreigners', { timeout: 20000 });
     }
 
     async aAcceptAgreement() {
@@ -71,7 +71,7 @@ export default class EvisaVietnamAgreementPage {
         // Проверяем, есть ли второй чекбокс
         const secondCheckbox = this.page.getByRole('checkbox').nth(1);
         try {
-            await secondCheckbox.waitFor({ timeout: 2000 });
+            await secondCheckbox.waitFor({ timeout: 20000 });
             await secondCheckbox.check();
         } catch {
             // Если второго чекбокса нет, продолжаем

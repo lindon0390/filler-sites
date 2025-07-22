@@ -4,18 +4,17 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-# Блокируем реальные изображения документов
-files/*
-# Но разрешаем тестовые изображения и папки пользователей
-!files/imgPhoto.jpg
-!files/imgPassport.jpg
-!files/001/
-!files/002/
-!files/003/
-!files/004/
-!files/005/
-!files/006/
-!files/007/
-!files/008/
-!files/009/
-!files/010/
+# Блокируем реальные данные пользователей
+files/*/
+# Но разрешаем структуру папок и example файлы
+!files/*/README.md
+!files/*/*-example.json
+# Блокируем реальные изображения и данные
+files/*/*.json
+files/*/*.jpg
+files/*/*.jpeg
+files/*/*.png
+
+# Системные файлы
+.DS_Store
+.env

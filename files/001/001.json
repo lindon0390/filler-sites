@@ -99,8 +99,8 @@
     "Payment method": "Credit card"
   },
   "images": {
-    "portraitPhoto": "files/001/imgPhoto.jpg",
-    "passportDataPage": "files/001/imgPassport.jpg"
+    "portraitPhoto": "files/001/001-01.jpg",
+    "passportDataPage": "files/001/001-02.jpg"
   },
   "loginCredentials": {
     "password": "Timur123!"

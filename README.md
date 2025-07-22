@@ -43,11 +43,11 @@ filler-sites/
 │   ├── evisaVietnam.page.ts            # Основная форма
 │   └── evisaVietnamAgreement.page.ts   # Страница соглашений
 ├── files/001/                          # Данные пользователя
-│   ├── 001.json                        # ✅ Ваши данные (обновленная структура)
+│   ├── 001.json                        # ✅ Ваши реальные данные
 │   ├── 001-example.json                # Пример заполнения
 │   ├── README.md                       # Описание полей JSON
-│   ├── imgPhoto.jpg                    # Ваша фотография
-│   └── imgPassport.jpg                 # Скан паспорта
+│   ├── 001-01.jpg                      # ✅ Ваше портретное фото
+│   └── 001-02.jpg                      # ✅ Ваш скан паспорта
 ├── utils/                              # Вспомогательные утилиты
 │   ├── userManager.ts                  # Управление пользователями
 │   └── index.ts                        # Общие утилиты
@@ -116,8 +116,8 @@ npm run user:create   # Создание нового пользователя
     "issuingAuthority": "МВД России"
   },
   "images": {
-    "portraitPhoto": "files/001/imgPhoto.jpg",
-    "passportDataPage": "files/001/imgPassport.jpg"
+    "portraitPhoto": "files/001/001-01.jpg",
+    "passportDataPage": "files/001/001-02.jpg"
   },
   "loginCredentials": {
     "password": "YourPassword123!"
@@ -126,6 +126,11 @@ npm run user:create   # Создание нового пользователя
 ```
 
 ## ⚠️ Важные особенности
+
+### Безопасность данных
+1. **userData.json** - содержит **тестовые данные** (безопасно для коммитов)
+2. **files/001/001.json** - содержит **ваши реальные данные** (исключено из git)
+3. **Разделение данных** - тестовые и реальные данные четко разделены
 
 ### Процесс авторизации
 1. **Автоматический вход** с вашими данными

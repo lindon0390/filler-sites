@@ -110,8 +110,8 @@ export default class EvisaVietnamPage {
 
     async aCheckPage() {
         await expect(this.eImgPhoto).toBeVisible({ timeout: 20000 });
-        await expect(this.eImgPassport).toBeVisible({ timeout: 15000 });
-        await expect(this.eInputSurname).toBeVisible({ timeout: 15000 });
+        await expect(this.eImgPassport).toBeVisible({ timeout: 20000 });
+        await expect(this.eInputSurname).toBeVisible({ timeout: 20000 });
     }
 
     async aClickImgPhoto() {

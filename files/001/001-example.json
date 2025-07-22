@@ -95,8 +95,8 @@
     "whoCoversTripExpenses": "Self"
   },
   "images": {
-    "portraitPhoto": "files/001/portrait.jpg",
-    "passportDataPage": "files/001/passport.jpg"
+    "portraitPhoto": "files/001/001-01.jpg",
+    "passportDataPage": "files/001/001-02.jpg"
   },
   "declaration": {
     "agreed": true
