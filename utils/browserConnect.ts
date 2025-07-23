@@ -73,68 +73,138 @@ export async function connectToExistingChrome(port: number = 9222): Promise<Brow
 }
 
 /**
- * Получает или создаёт новую вкладку в существующем браузере
+ * Подключается к активной вкладке в существующем браузере
  */
-export async function getOrCreatePage(browser: Browser): Promise<Page> {
-  console.log('📄 Получаем страницу из существующего браузера...');
+export async function connectToActiveTab(port: number = 9222): Promise<Page> {
+  console.log('📄 Подключаемся к активной вкладке...');
   
   try {
-    // Получаем все контексты
+    // Получаем список всех вкладок через CDP API
+    const response = await fetch(`http://localhost:${port}/json/list`);
+    const tabs = await response.json();
+    
+    console.log(`🔍 Найдено вкладок: ${tabs.length}`);
+    
+    // Приоритетно ищем вкладку с E-Visa формой
+    let activeTab = tabs.find((tab: any) => 
+      tab.type === 'page' && 
+      tab.url && 
+      tab.url.includes('evisa.gov.vn') &&
+      tab.webSocketDebuggerUrl
+    );
+    
+    // Если E-Visa вкладка не найдена, ищем любую активную вкладку
+    if (!activeTab) {
+      activeTab = tabs.find((tab: any) => 
+        tab.type === 'page' && 
+        tab.url && 
+        !tab.url.includes('chrome-devtools://') &&
+        !tab.url.includes('about:blank') &&
+        tab.webSocketDebuggerUrl
+      );
+    }
+    
+    if (!activeTab) {
+      throw new Error('Не найдена активная вкладка для подключения');
+    }
+    
+    console.log(`📋 Подключаемся к вкладке: ${activeTab.title}`);
+    console.log(`🔗 URL: ${activeTab.url}`);
+    
+    // Подключаемся к браузеру в целом и ищем нужную страницу
+    console.log(`🔌 Подключаемся к браузеру и ищем активную вкладку`);
+    const browserEndpoint = await getBrowserEndpoint(port);
+    const browser = await chromium.connectOverCDP(browserEndpoint);
+    
+    // Получаем все контексты и ищем нужную страницу
     const contexts = browser.contexts();
     console.log(`🔍 Найдено контекстов: ${contexts.length}`);
     
-    if (contexts.length > 0) {
-      // Ищем контекст с активными страницами
-      for (const context of contexts) {
-        const pages = context.pages();
-        console.log(`📄 Страниц в контексте: ${pages.length}`);
+    // Собираем все страницы из всех контекстов
+    const allPages = [];
+    for (const context of contexts) {
+      const pages = context.pages();
+      console.log(`📄 Страниц в контексте: ${pages.length}`);
+      allPages.push(...pages);
+    }
+    
+    console.log(`📊 Всего страниц найдено: ${allPages.length}`);
+    
+    // Ищем страницы с evisa.gov.vn
+    for (const page of allPages) {
+      try {
+        const pageUrl = page.url();
+        console.log(`🔗 Проверяем страницу: ${pageUrl}`);
         
-        if (pages.length > 0) {
-          // Используем первую доступную страницу
-          const page = pages[0];
-          console.log(`✅ Используем существующую вкладку: ${await page.title()}`);
+        if (pageUrl.includes('evisa.gov.vn')) {
+          console.log(`🎯 Найдена страница E-Visa: ${pageUrl}`);
           
-          // Проверяем, что страница активна
           try {
+            // Проверяем что страница доступна
             await page.evaluate(() => document.readyState);
+            const title = await page.title();
+            console.log(`✅ Страница "${title}" активна и готова к работе`);
             return page;
-          } catch (error) {
-            console.log('⚠️ Страница неактивна, создаём новую');
+          } catch (evalError) {
+            console.log(`⚠️ Страница E-Visa недоступна: ${evalError instanceof Error ? evalError.message : evalError}`);
+            continue;
           }
         }
-      }
-      
-      // Если не нашли активные страницы, создаём новую в первом контексте
-      console.log('📄 Создаём новую страницу в существующем контексте');
-      return await contexts[0].newPage();
-    } else {
-      // Создаём новый контекст и страницу
-      console.log('📄 Создаём новый контекст и страницу');
-      const context = await browser.newContext({
-        // Отключаем автоматическое закрытие контекста
-        // чтобы сохранить сессию в существующем браузере
-      });
-      return await context.newPage();
+              } catch (error) {
+          console.log(`⚠️ Ошибка при проверке страницы: ${error instanceof Error ? error.message : error}`);
+          continue;
+        }
     }
-  } catch (error) {
-    console.error('❌ Ошибка при работе со страницами:', error);
     
-    // Fallback: создаём новый контекст
-    console.log('🔄 Создаём новый контекст в качестве fallback');
-    const context = await browser.newContext();
-    return await context.newPage();
+    // Если E-Visa страница не найдена, берем любую активную страницу
+    console.log(`⚠️ E-Visa страница не найдена, ищем любую активную страницу...`);
+    
+    for (const page of allPages) {
+      try {
+        const pageUrl = page.url();
+        if (!pageUrl.includes('about:blank') && !pageUrl.includes('chrome-devtools://')) {
+          await page.evaluate(() => document.readyState);
+          const title = await page.title();
+          console.log(`📄 Используем активную страницу: "${title}" (${pageUrl})`);
+          return page;
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+    
+    throw new Error(`Не удалось найти активную страницу с URL: ${activeTab.url}`);
+    
+  } catch (error) {
+    console.error('❌ Ошибка при подключении к активной вкладке:', error);
+    throw error;
   }
 }
 
 /**
- * Полный процесс подключения к Chrome и получения страницы
+ * Упрощенное подключение к активной вкладке в Chrome
+ */
+export async function connectAndGetActivePage(port: number = 9222): Promise<{ browser: Browser; page: Page }> {
+  console.log('🚀 Подключаемся к активной вкладке Chrome...');
+  const page = await connectToActiveTab(port);
+  
+  // Получаем браузер из контекста страницы
+  const browser = page.context().browser();
+  if (!browser) {
+    throw new Error('Не удалось получить браузер из контекста страницы');
+  }
+  
+  console.log('🎯 Готово! Подключились к активной вкладке');
+  return { browser, page };
+}
+
+/**
+ * Полный процесс подключения к Chrome и получения страницы (устаревший)
+ * @deprecated Используйте connectAndGetActivePage для подключения к активной вкладке
  */
 export async function connectAndGetPage(port: number = 9222): Promise<{ browser: Browser; page: Page }> {
-  const browser = await connectToExistingChrome(port);
-  const page = await getOrCreatePage(browser);
-  
-  console.log('🎯 Готово! Можно работать с существующим Chrome');
-  return { browser, page };
+  console.log('⚠️ Внимание: используется устаревший метод connectAndGetPage');
+  return connectAndGetActivePage(port);
 }
 
 /**
@@ -154,7 +224,7 @@ export async function checkChromeAvailability(port: number = 9222): Promise<bool
       return true;
     }
   } catch (error) {
-    console.log(`❌ Chrome недоступен на порту ${port}:`, error.message);
+    console.log(`❌ Chrome недоступен на порту ${port}:`, error instanceof Error ? error.message : error);
   }
   return false;
 } 

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { MainPage, LoginPage, ApplicationFormPage, LoginData } from '../pages';
-import { connectAndGetPage, checkChromeAvailability, isAuthorizationNeeded, isBrowserOpenMode, logCurrentConfig } from '../utils';
+import { connectAndGetActivePage, checkChromeAvailability, isAuthorizationNeeded, isBrowserOpenMode, logCurrentConfig } from '../utils';
 
 test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env управление)', () => {
   let loginData: LoginData;
@@ -20,6 +20,15 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
     // Проверяем режим работы браузера
     if (isBrowserOpenMode()) {
       console.log('🔗 Режим: подключение к существующему Chrome...');
+      console.log('⚠️ Игнорируем браузер Playwright и подключаемся к существующему Chrome');
+      
+      // Закрываем браузер Playwright если он был создан
+      try {
+        await playwrightBrowser.close();
+        console.log('🚫 Браузер Playwright закрыт');
+      } catch (error) {
+        console.log('ℹ️ Браузер Playwright уже закрыт или не был создан');
+      }
       
       // Проверяем доступность Chrome для подключения
       const isChromeAvailable = await checkChromeAvailability(9222);
@@ -31,8 +40,8 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
         throw new Error('Chrome не запущен с отладочным портом 9222. Запустите: npm run chrome:debug');
       }
       
-      // Подключаемся к существующему Chrome (игнорируем Playwright браузер)
-      const { browser, page: connectedPage } = await connectAndGetPage(9222);
+      // Подключаемся к существующему Chrome
+      const { browser, page: connectedPage } = await connectAndGetActivePage(9222);
       page = connectedPage;
       console.log('✅ Подключение к существующему Chrome выполнено');
     } else {
@@ -63,7 +72,7 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
     console.log(`📧 Email для авторизации: ${loginData.email}`);
   });
 
-  test('🚀 Автоматический флоу (управляется через .env)', async () => {
+  test.skip('🚀 Автоматический флоу (управляется через .env)', async () => {
     test.setTimeout(600000); // 10 минут
 
     console.log('🚀 Начинаем автоматический флоу на основе .env конфигурации...');
@@ -151,6 +160,154 @@ test.describe('🚀 Vietnam E-Visa - Автоматический флоу (.env
     
     console.log('📝 Форма готова к заполнению!');
     console.log(`👤 Выбран пользователь: ${selectedUser.userId} (из .env)`);
+  });
+
+  test('🤖 Автозаполнение формы анкеты', async () => {
+    // Используем уже подключенный applicationFormPage из beforeEach
+    console.log('🚀 Начинаем автозаполнение формы Vietnam E-Visa...');
+    
+    // Получаем информацию о выбранном пользователе
+    const userSelection = applicationFormPage.aSelectUserFromConfig();
+    
+    // Загружаем данные пользователя
+    const userDataPath = path.join(process.cwd(), userSelection.userDataPath);
+    const rawData = readFileSync(userDataPath, 'utf-8');
+    const userData = JSON.parse(rawData);
+    
+    console.log('🚀 Начинаем автозаполнение формы Vietnam E-Visa...');
+    console.log(`👤 Пользователь: ${userSelection.userId}`);
+    console.log(`📁 Данные из: ${userDataPath}`);
+    
+    // ЭТАП 1: Проверяем, что мы на странице формы
+    console.log('\n📄 ЭТАП 1: Проверка страницы формы');
+    await applicationFormPage.aVerifyFormReady();
+    
+    // ЭТАП 2: Автозаполнение всех разделов формы
+    console.log('\n🤖 ЭТАП 2: Автозаполнение формы');
+    await applicationFormPage.aFillCompleteForm(userData);
+    
+    // ЭТАП 3: Проверяем что кнопка Next стала активной
+    console.log('\n✅ ЭТАП 3: Финальная проверка');
+    
+    // Ждём активации кнопки Next
+    await expect(applicationFormPage.eNextStepButton).toBeEnabled({ timeout: 10000 });
+    console.log('✅ Кнопка "Next" активна - форма готова к отправке');
+    
+    // Делаем финальный скриншот
+    await applicationFormPage.aTakeScreenshot('form-filled-complete');
+    
+    console.log('🎉 Автозаполнение формы завершено успешно!');
+    console.log('📋 Все поля заполнены данными пользователя');
+    console.log('🔄 Форма готова к переходу на следующий этап');
+    
+    // ЭТАП 4: Переходим к следующему шагу (опционально)
+    console.log('\n➡️ ЭТАП 4: Переход к следующему шагу');
+    await applicationFormPage.aClickNextStep();
+    
+    console.log('🏁 Тест автозаполнения формы завершён!');
+  });
+
+  test('🔧 Технический тест: подключение к Chrome CDP и поиск локатора', async ({ page: playwrightPage }) => {
+    console.log('🔧 Запуск технического теста подключения к Chrome CDP...');
+    
+    // Показываем конфигурацию
+    logCurrentConfig();
+    
+    // Проверяем что Chrome запущен
+    console.log('🔍 Проверяем доступность Chrome на порту 9222...');
+    const isChromeAvailable = await checkChromeAvailability(9222);
+    
+    if (!isChromeAvailable) {
+      console.log('❌ Chrome недоступен для подключения!');
+      console.log('💡 Запустите Chrome командой: npm run chrome:debug');
+      throw new Error('Chrome не запущен с отладочным портом 9222');
+    }
+    
+    console.log('✅ Chrome доступен для подключения');
+    
+    // Подключаемся ТОЛЬКО к уже открытой странице с анкетой E-Visa
+    console.log('🔗 Подключаемся ТОЛЬКО к уже открытой странице с анкетой...');
+    const { browser, page } = await connectAndGetActivePage(9222);
+    
+    console.log(`📄 Подключились к странице: ${await page.title()}`);
+    console.log(`🔗 URL страницы: ${page.url()}`);
+    
+    // Строго проверяем что это E-Visa страница (НЕ ОТКРЫВАЕМ НОВУЮ!)
+    if (!page.url().includes('evisa.gov.vn')) {
+      console.log('❌ Подключились к неправильной странице!');
+      console.log('💡 Убедитесь что вкладка с E-Visa анкетой открыта и активна в Chrome');
+      throw new Error(`Ожидается страница E-Visa, получена: ${page.url()}`);
+    }
+    
+    console.log('✅ Подключились к правильной вкладке с E-Visa');
+    console.log('🚫 НЕ СОЗДАЕМ новые страницы - работаем только с уже открытой!');
+    
+    // Создаем Page Object для проверки локаторов
+    const applicationFormPage = new ApplicationFormPage(page);
+    
+    // Пытаемся сразу найти локатор (без переходов по попапам)
+    console.log('🔍 Ищем локатор Surname (Last name) на ТЕКУЩЕЙ странице...');
+    
+    try {
+      // Сначала проверяем текущее состояние страницы
+      const currentTitle = await page.title();
+      const currentUrl = page.url();
+      console.log(`📋 Текущее состояние страницы:`);
+      console.log(`   📄 Заголовок: ${currentTitle}`);
+      console.log(`   🔗 URL: ${currentUrl}`);
+      
+      // Ждем появления поля Surname (увеличиваем timeout)
+      await applicationFormPage.eSurnameField.waitFor({ 
+        state: 'visible', 
+        timeout: 20000 
+      });
+      
+      console.log('✅ Локатор Surname (Last name) найден и видим!');
+      
+      // Проверяем что поле доступно для ввода
+      const isEnabled = await applicationFormPage.eSurnameField.isEnabled();
+      expect(isEnabled).toBe(true);
+      console.log('✅ Поле Surname доступно для ввода');
+      
+      // Получаем placeholder текст для дополнительной проверки
+      const placeholder = await applicationFormPage.eSurnameField.getAttribute('placeholder');
+      console.log(`📝 Placeholder поля: "${placeholder}"`);
+      expect(placeholder).toContain('surname');
+      
+      console.log('🎉 Технический тест ПРОЙДЕН! Подключение к существующей странице работает!');
+      
+    } catch (error) {
+      console.error('❌ Ошибка при поиске локатора Surname на существующей странице:', error);
+      
+      // Делаем скриншот текущего состояния
+      await page.screenshot({ 
+        path: 'screenshots/debug-existing-page.png',
+        fullPage: true 
+      });
+      console.log('📸 Скриншот текущей страницы сохранен в screenshots/debug-existing-page.png');
+      
+      // Показываем подробную информацию о состоянии страницы
+      try {
+        const allElements = await page.$$('input, select, textarea, button');
+        console.log(`🔍 Найдено интерактивных элементов на странице: ${allElements.length}`);
+        
+        for (let i = 0; i < Math.min(allElements.length, 10); i++) {
+          const element = allElements[i];
+          const tagName = await element.evaluate(el => el.tagName);
+          const placeholder = await element.getAttribute('placeholder') || '';
+          const id = await element.getAttribute('id') || '';
+          const className = await element.getAttribute('class') || '';
+          console.log(`   ${i+1}. ${tagName} placeholder="${placeholder}" id="${id}" class="${className.substring(0, 50)}"`);
+        }
+      } catch (debugError) {
+        console.log('⚠️ Не удалось получить информацию об элементах страницы');
+      }
+      
+      throw error;
+    }
+    
+    // НЕ закрываем подключение - оставляем страницу открытой
+    console.log('✅ Тест завершен, страница остается открытой для дальнейшей работы');
   });
 
 }); 

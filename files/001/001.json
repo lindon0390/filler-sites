@@ -83,8 +83,43 @@
     "beenToVietnamLastYear": "Yes",
     "vietnamVisitsLastYear": [
       {
-        "fromDate": "",
-        "toDate": "",
+        "fromDate": "06/04/2025",
+        "toDate": "17/05/2025",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "08/01/2025",
+        "toDate": "06/04/2025",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "30/11/2024",
+        "toDate": "30/12/2024",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "07/09/2024",
+        "toDate": "30/11/2024",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "14/06/2024",
+        "toDate": "07/09/2024",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "23/03/2024",
+        "toDate": "04/05/2024",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "29/12/2023",
+        "toDate": "23/03/2024",
+        "purposeOfTrip": "Tourist"
+      },
+      {
+        "fromDate": "24/09/2023",
+        "toDate": "22/12/2023",
         "purposeOfTrip": "Tourist"
       }
     ],

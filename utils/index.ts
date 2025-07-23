@@ -100,7 +100,8 @@ export {
 // Экспорт утилит для подключения к существующему браузеру
 export {
     connectToExistingChrome,
-    getOrCreatePage,
+    connectToActiveTab,
+    connectAndGetActivePage,
     connectAndGetPage,
     checkChromeAvailability
 } from './browserConnect';
