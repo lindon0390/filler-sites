@@ -6,16 +6,16 @@
 
 ### 1. personalInformation (Личная информация)
 - `surname` - Фамилия (как в паспорте)
-- `middleAndGivenName` - Имя и отчество (обязательное поле)
+- `middleAndGivenName` - Имя (обязательное поле)
 - `dateOfBirth` - Дата рождения в формате DD/MM/YYYY
 - `dateOfBirthType` - Тип даты рождения: "D" (полная дата) или "Y" (только год)
 - `sex` - Пол: "Male" или "Female"
 - `nationality` - Национальность (например: "Russia")
-- `identityCard` - Номер удостоверения личности (необязательно)
+- `identityCard` - Номер удостоверения личности (загранпаспорт)
 - `email` - Электронная почта
 - `agreeCreateAccount` - Согласие на создание аккаунта по email (true/false)
 - `religion` - Религия
-- `placeOfBirth` - Место рождения
+- `placeOfBirth` - Место рождения, страну
 - `reEnterEmail` - Повторный ввод email
 - `hasOtherPassports` - Использовали ли другие паспорта для въезда во Вьетнам: "No"/"Yes"
 - `otherPassports` - Массив других паспортов (если hasOtherPassports = "Yes"):
@@ -29,7 +29,7 @@
 ### 2. requestedInformation (Запрашиваемая информация)
 - `visaType` - Тип визы: "Single-entry" или "Multiple-entry"
 - `validFrom` - Дата начала действия визы (DD/MM/YYYY)
-- `validTo` - Дата окончания действия визы (DD/MM/YYYY)
+- `validTo` - Дата окончания действия визы (DD/MM/YYYY) дата окончания высчитывается как 90 дней. Например "validFrom": "26/08/2025", "validTo": "23/11/2025" рассчитывай вот так
 
 ### 3. passportInformation (Информация о паспорте)
 - `passportNumber` - Номер паспорта
@@ -66,8 +66,8 @@
 
 ### 6. tripInformation (Информация о поездке)
 - `purposeOfEntry` - Цель въезда
-- `intendedDateOfEntry` - Планируемая дата въезда (DD/MM/YYYY)
-- `intendedLengthOfStay` - Планируемая продолжительность пребывания
+- `intendedDateOfEntry` - Планируемая дата въезда (DD/MM/YYYY) такая же как дата визы
+- `intendedLengthOfStay` - Планируемая продолжительность пребывания (90дней) такая же как дата визы
 - `phoneNumberInVietnam` - Номер телефона во Вьетнаме
 - `residentialAddressInVietnam` - Адрес проживания во Вьетнаме
 - `provinceCity` - Провинция/город
@@ -117,6 +117,7 @@
 - Можно добавить несколько записей в массив otherPassports для нескольких паспортов
 - При выборе "Yes" для holdOtherValidPassports появляется таблица для ввода информации о других действующих паспортах
 - При выборе "Yes" для beenToVietnamLastYear появляется таблица для ввода информации о предыдущих поездках во Вьетнам
+- При выборе "Yes" для didBuyInsurance появляется инпут для ввода информации о Страховой организации
 - Можно добавить несколько записей в массивы otherValidPassports и vietnamVisitsLastYear для нескольких паспортов/поездок
 
 ## Файлы изображений

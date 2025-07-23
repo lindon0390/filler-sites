@@ -142,7 +142,7 @@ export class ApplicationFormPage {
     this.eSexSelect = page.getByRole('combobox', { name: 'Sex *' });
     this.eNationalitySelect = page.getByRole('combobox', { name: 'Nationality *' });
     this.eIdentityCardField = page.getByRole('textbox', { name: 'Identity Card' });
-    this.eEmailField = page.getByRole('textbox', { name: 'Email *' });
+    this.eEmailField = page.getByPlaceholder('Enter email', { exact: true });
     this.eAgreeCreateAccountCheckbox = page.getByRole('checkbox', { name: 'Agree to create account by email' });
     this.eReligionField = page.getByRole('textbox', { name: 'Religion *' });
     this.ePlaceOfBirthField = page.getByRole('textbox', { name: 'Place of birth *' });
@@ -164,7 +164,7 @@ export class ApplicationFormPage {
     
     // 3. PASSPORT INFORMATION - обновлены
     this.ePassportNumberField = page.getByRole('textbox', { name: 'Passport *' });
-    this.eIssuingAuthorityField = page.getByRole('textbox', { name: 'Issuing Authority/Place of issue' });
+    this.eIssuingAuthorityField = page.getByPlaceholder('Enter Issuing Authority/Place', { exact: true });
     this.ePassportTypeSelect = page.getByRole('combobox', { name: 'Type *' });
     this.ePassportDateOfIssueField = page.getByRole('textbox', { name: 'Date of issue *' });
     this.ePassportExpiryDateField = page.getByRole('textbox', { name: 'Expiry date *' });
@@ -969,8 +969,8 @@ export class ApplicationFormPage {
     await this.aFillFieldIfNeeded(this.eSurnameField, personal.surname, 'Фамилия');
     await this.aFillFieldIfNeeded(this.eMiddleAndGivenNameField, personal.middleAndGivenName, 'Имя');
     await this.aFillDateFieldIfNeeded(this.eDateOfBirthField, personal.dateOfBirth, 'Дата рождения');
-    await this.aFillSelectFieldIfNeeded(this.eSexSelect, personal.sex, 'Пол');
-    await this.aFillSelectFieldIfNeeded(this.eNationalitySelect, personal.nationality, 'Национальность');
+    await this.aFillAntDesignSelect(this.eSexSelect, personal.sex, 'Пол');
+    await this.aFillAntDesignSelect(this.eNationalitySelect, personal.nationality, 'Национальность');
     await this.aFillFieldIfNeeded(this.eIdentityCardField, personal.identityCard, 'ID карта');
     await this.aFillFieldIfNeeded(this.eEmailField, personal.email, 'Email');
     await this.aFillFieldIfNeeded(this.eReEnterEmailField, personal.reEnterEmail, 'Повторный Email');
@@ -1001,7 +1001,7 @@ export class ApplicationFormPage {
     
     await this.aFillFieldIfNeeded(this.ePassportNumberField, passport.passportNumber, 'Номер паспорта');
     await this.aFillFieldIfNeeded(this.eIssuingAuthorityField, passport.issuingAuthority, 'Орган выдачи');
-    await this.aFillSelectFieldIfNeeded(this.ePassportTypeSelect, passport.type, 'Тип паспорта');
+    await this.aFillAntDesignSelect(this.ePassportTypeSelect, passport.type, 'Тип паспорта');
     await this.aFillDateFieldIfNeeded(this.ePassportDateOfIssueField, passport.dateOfIssue, 'Дата выдачи паспорта');
     await this.aFillDateFieldIfNeeded(this.ePassportExpiryDateField, passport.expiryDate, 'Дата истечения паспорта');
     await this.aCheckRadioButtonIfNeeded(this.eHoldOtherPassportsYes, this.eHoldOtherPassportsNo, passport.holdOtherValidPassports === 'Yes', 'Другие паспорта');
@@ -1024,7 +1024,7 @@ export class ApplicationFormPage {
     console.log('💼 Проверяем раздел "OCCUPATION"...');
     const occupation = userData.occupation;
     
-    await this.aFillSelectFieldIfNeeded(this.eOccupationSelect, occupation.occupation, 'Профессия');
+    await this.aFillAntDesignSelect(this.eOccupationSelect, occupation.occupation, 'Профессия');
     await this.aFillFieldIfNeeded(this.eOccupationInfoField, occupation.occupationInfo, 'Информация о профессии');
     await this.aFillFieldIfNeeded(this.eCompanyNameField, occupation.nameOfCompanyAgencySchool, 'Название компании');
     await this.aFillFieldIfNeeded(this.ePositionField, occupation.positionCourseOfStudy, 'Должность');
@@ -1036,15 +1036,15 @@ export class ApplicationFormPage {
     console.log('✈️ Проверяем раздел "TRIP INFORMATION"...');
     const trip = userData.tripInformation;
     
-    await this.aFillSelectFieldIfNeeded(this.ePurposeOfEntrySelect, trip.purposeOfEntry, 'Цель въезда');
+    await this.aFillAntDesignSelect(this.ePurposeOfEntrySelect, trip.purposeOfEntry, 'Цель въезда');
     await this.aFillDateFieldIfNeeded(this.eIntendedDateOfEntryField, trip.intendedDateOfEntry, 'Предполагаемая дата въезда');
     await this.aFillFieldIfNeeded(this.eIntendedLengthOfStayField, trip.intendedLengthOfStay, 'Предполагаемая продолжительность пребывания');
     await this.aFillFieldIfNeeded(this.ePhoneInVietnamField, trip.phoneNumberInVietnam, 'Телефон во Вьетнаме');
-    await this.aFillSelectFieldIfNeeded(this.eResidentialAddressSelect, trip.residentialAddressInVietnam, 'Адрес проживания');
-    await this.aFillSelectFieldIfNeeded(this.eProvinceSelect, trip.provinceCity, 'Провинция');
-    await this.aFillSelectFieldIfNeeded(this.eWardSelect, trip.wardCommune, 'Район');
-    await this.aFillSelectFieldIfNeeded(this.eBorderGateEntrySelect, trip.intendedBorderGateOfEntry, 'Пункт въезда');
-    await this.aFillSelectFieldIfNeeded(this.eBorderGateExitSelect, trip.intendedBorderGateOfExit, 'Пункт выезда');
+    await this.aFillAntDesignSelect(this.eResidentialAddressSelect, trip.residentialAddressInVietnam, 'Адрес проживания');
+    await this.aFillAntDesignSelect(this.eProvinceSelect, trip.provinceCity, 'Провинция');
+    await this.aFillAntDesignSelect(this.eWardSelect, trip.wardCommune, 'Район');
+    await this.aFillAntDesignSelect(this.eBorderGateEntrySelect, trip.intendedBorderGateOfEntry, 'Пункт въезда');
+    await this.aFillAntDesignSelect(this.eBorderGateExitSelect, trip.intendedBorderGateOfExit, 'Пункт выезда');
     await this.aCheckCheckboxIfNeeded(this.eTempResidenceCheckbox, trip.committedToDeclareTempResidence, 'Временное проживание');
     
     // Проверяем радиокнопки вопросов
@@ -1058,23 +1058,58 @@ export class ApplicationFormPage {
     const expenses = userData.tripsExpensesInsurance;
     
     await this.aFillFieldIfNeeded(this.eIntendedExpensesField, expenses.intendedExpensesUSD, 'Предполагаемые расходы');
-    await this.aFillSelectFieldIfNeeded(this.eInsuranceSelect, expenses.didBuyInsurance, 'Страхование');
-    await this.aFillSelectFieldIfNeeded(this.eExpensesCoveredBySelect, expenses.whoCoversTripExpenses, 'Расходы покрываются');
+    await this.aFillAntDesignSelect(this.eInsuranceSelect, expenses.didBuyInsurance, 'Страхование');
+    await this.aFillAntDesignSelect(this.eExpensesCoveredBySelect, expenses.whoCoversTripExpenses, 'Расходы покрываются');
   }
 
   // Вспомогательные методы для проверки и заполнения полей
   async aFillFieldIfNeeded(field: Locator, expectedValue: string, fieldName: string) {
     try {
+      // Проверяем, является ли поле readonly
+      const isReadonly = await field.getAttribute('readonly');
+      
+      if (isReadonly) {
+        console.log(`📝 ${fieldName}: поле readonly, используем JavaScript`);
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, expectedValue);
+        console.log(`✅ ${fieldName}: заполнено через JavaScript`);
+        return;
+      }
+      
       const currentValue = await field.inputValue();
       if (currentValue === expectedValue) {
         console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
       } else {
         console.log(`📝 ${fieldName}: заполняем (было: "${currentValue}", нужно: "${expectedValue}")`);
+        
+        // Очищаем поле перед заполнением
+        await field.clear();
+        await this.page.waitForTimeout(100);
+        
+        // Заполняем поле
         await field.fill(expectedValue);
+        await this.page.waitForTimeout(100);
+        
         console.log(`✅ ${fieldName}: заполнено`);
       }
     } catch (error) {
       console.log(`⚠️ ${fieldName}: не удалось проверить/заполнить - ${error}`);
+      
+      // Пробуем альтернативный способ через JavaScript
+      try {
+        console.log(`🔄 ${fieldName}: пробуем заполнить через JavaScript`);
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, expectedValue);
+        console.log(`✅ ${fieldName}: заполнено через JavaScript`);
+      } catch (jsError) {
+        console.log(`❌ ${fieldName}: не удалось заполнить даже через JavaScript - ${jsError}`);
+      }
     }
   }
 
@@ -1085,37 +1120,169 @@ export class ApplicationFormPage {
         console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
       } else {
         console.log(`📝 ${fieldName}: заполняем (было: "${currentValue}", нужно: "${expectedValue}")`);
-        // Для readonly полей используем JavaScript
+        
+        // Прокручиваем к элементу
+        await field.scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(200);
+        
+        // Фокусируемся на поле
+        await field.focus();
+        await this.page.waitForTimeout(100);
+        
+        // Очищаем поле
+        await field.clear();
+        await this.page.waitForTimeout(100);
+        
+        // Заполняем через JavaScript для надежности
         await field.evaluate((el: HTMLInputElement, value: string) => {
           el.value = value;
           el.dispatchEvent(new Event('input', { bubbles: true }));
           el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
         }, expectedValue);
+        
+        // Дополнительно заполняем через Playwright
+        await field.fill(expectedValue);
+        
         console.log(`✅ ${fieldName}: заполнено`);
       }
     } catch (error) {
       console.log(`⚠️ ${fieldName}: не удалось проверить/заполнить - ${error}`);
+      
+      // Пробуем только через JavaScript
+      try {
+        console.log(`🔄 ${fieldName}: пробуем заполнить только через JavaScript`);
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
+        }, expectedValue);
+        console.log(`✅ ${fieldName}: заполнено через JavaScript`);
+      } catch (jsError) {
+        console.log(`❌ ${fieldName}: не удалось заполнить даже через JavaScript - ${jsError}`);
+      }
     }
   }
 
   async aFillSelectFieldIfNeeded(field: Locator, expectedValue: string, fieldName: string) {
     try {
+      // Проверяем текущее значение
       const currentValue = await field.textContent();
+      console.log(`🔍 ${fieldName}: текущее значение = "${currentValue}", ожидаемое = "${expectedValue}"`);
+      
       if (currentValue?.includes(expectedValue)) {
         console.log(`✅ ${fieldName}: уже установлено правильно (${expectedValue})`);
-      } else {
-        console.log(`📝 ${fieldName}: устанавливаем (было: "${currentValue}", нужно: "${expectedValue}")`);
-        await field.click();
-        await this.page.waitForTimeout(1000);
+        return;
+      }
+      
+      console.log(`📝 ${fieldName}: устанавливаем (было: "${currentValue}", нужно: "${expectedValue}")`);
+      
+      // Прокручиваем к элементу и кликаем
+      await field.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(500);
+      
+      // Кликаем на поле для открытия выпадающего списка
+      await field.click({ force: true });
+      await this.page.waitForTimeout(1000);
+      
+      // Ждем появления выпадающего списка
+      const dropdown = this.page.locator('.ant-select-dropdown:visible, .ant-select-item-option:visible');
+      await dropdown.first().waitFor({ timeout: 5000 });
+      
+      // Ищем опцию в выпадающем списке разными способами
+      let optionFound = false;
+      
+      // Способ 1: По точному тексту
+      try {
+        const exactOption = this.page.locator('.ant-select-item-option').filter({ hasText: expectedValue });
+        if (await exactOption.count() > 0) {
+          await exactOption.first().click();
+          optionFound = true;
+          console.log(`✅ ${fieldName}: установлено (точное совпадение)`);
+        }
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: не найдено точное совпадение для "${expectedValue}"`);
+      }
+      
+      // Способ 2: По частичному совпадению
+      if (!optionFound) {
         try {
-          await this.page.getByText(expectedValue, { exact: true }).first().click();
-          console.log(`✅ ${fieldName}: установлено`);
+          const partialOption = this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(expectedValue, 'i') });
+          if (await partialOption.count() > 0) {
+            await partialOption.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено (частичное совпадение)`);
+          }
         } catch (error) {
-          console.log(`⚠️ ${fieldName}: не удалось установить ${expectedValue}, используем текущее значение: ${currentValue}`);
+          console.log(`⚠️ ${fieldName}: не найдено частичное совпадение для "${expectedValue}"`);
         }
       }
+      
+      // Способ 3: По атрибуту title
+      if (!optionFound) {
+        try {
+          const titleOption = this.page.locator(`.ant-select-item-option[title*="${expectedValue}"]`);
+          if (await titleOption.count() > 0) {
+            await titleOption.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено (по title)`);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: не найдено по title для "${expectedValue}"`);
+        }
+      }
+      
+      // Способ 4: По содержимому span внутри
+      if (!optionFound) {
+        try {
+          const spanOption = this.page.locator('.ant-select-item-option span').filter({ hasText: expectedValue });
+          if (await spanOption.count() > 0) {
+            await spanOption.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено (по span)`);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: не найдено по span для "${expectedValue}"`);
+        }
+      }
+      
+      // Способ 5: Попробуем кликнуть по любому элементу с нужным текстом
+      if (!optionFound) {
+        try {
+          const anyOption = this.page.locator('*').filter({ hasText: expectedValue }).first();
+          await anyOption.click();
+          optionFound = true;
+          console.log(`✅ ${fieldName}: установлено (общий поиск)`);
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: не найдено общим поиском для "${expectedValue}"`);
+        }
+      }
+      
+      if (!optionFound) {
+        console.log(`❌ ${fieldName}: не удалось найти опцию "${expectedValue}" в выпадающем списке`);
+        
+        // Показываем доступные опции для отладки
+        try {
+          const availableOptions = await this.page.locator('.ant-select-item-option').allTextContents();
+          console.log(`📋 ${fieldName}: доступные опции: ${availableOptions.join(', ')}`);
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: не удалось получить список доступных опций`);
+        }
+        
+        // Закрываем выпадающий список
+        await this.page.keyboard.press('Escape');
+      }
+      
     } catch (error) {
       console.log(`⚠️ ${fieldName}: не удалось проверить/установить - ${error}`);
+      
+      // Пытаемся закрыть выпадающий список в случае ошибки
+      try {
+        await this.page.keyboard.press('Escape');
+      } catch (closeError) {
+        // Игнорируем ошибку закрытия
+      }
     }
   }
 
@@ -1152,6 +1319,226 @@ export class ApplicationFormPage {
       }
     } catch (error) {
       console.log(`⚠️ ${fieldName}: не удалось проверить/установить - ${error}`);
+    }
+  }
+
+  // Специальный метод для работы с Ant Design Select компонентами
+  async aFillAntDesignSelect(field: Locator, expectedValue: string, fieldName: string) {
+    // Специальная обработка для адресов и провинций
+    if (fieldName.includes('адрес') || fieldName.includes('провинция') || fieldName.includes('район')) {
+      return await this.aFillAddressSelect(field, expectedValue, fieldName);
+    }
+    try {
+      console.log(`🔍 ${fieldName}: пытаемся установить "${expectedValue}"`);
+      
+      // Прокручиваем к элементу
+      await field.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(500);
+      
+      // Кликаем на поле для открытия выпадающего списка
+      await field.click({ force: true });
+      await this.page.waitForTimeout(1000);
+      
+      // Ждем появления выпадающего списка
+      try {
+        await this.page.locator('.ant-select-dropdown').waitFor({ timeout: 3000 });
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: выпадающий список не появился, пробуем другой подход`);
+      }
+      
+      // Ищем опцию разными способами
+      let optionFound = false;
+      
+      // Способ 1: По div с классом ant-select-item-option
+      try {
+        const options = this.page.locator('.ant-select-item-option');
+        const count = await options.count();
+        console.log(`📋 ${fieldName}: найдено ${count} опций в выпадающем списке`);
+        
+        for (let i = 0; i < count; i++) {
+          const option = options.nth(i);
+          const text = await option.textContent();
+          console.log(`🔍 ${fieldName}: опция ${i + 1} = "${text}"`);
+          
+          if (text?.includes(expectedValue)) {
+            await option.click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено "${expectedValue}" (способ 1)`);
+            // Ждем закрытия выпадающего списка
+            await this.page.waitForTimeout(500);
+            break;
+          }
+        }
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: ошибка при поиске по ant-select-item-option`);
+      }
+      
+      // Способ 1.5: Поиск по точному совпадению в тексте
+      if (!optionFound) {
+        try {
+          const exactOptions = this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(`^${expectedValue}$`, 'i') });
+          if (await exactOptions.count() > 0) {
+            await exactOptions.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено "${expectedValue}" (точное совпадение)`);
+            // Ждем закрытия выпадающего списка
+            await this.page.waitForTimeout(500);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: ошибка при поиске точного совпадения`);
+        }
+      }
+      
+      // Способ 2: По любому элементу с нужным текстом в выпадающем списке
+      if (!optionFound) {
+        try {
+          const anyOption = this.page.locator('.ant-select-dropdown *').filter({ hasText: expectedValue });
+          if (await anyOption.count() > 0) {
+            await anyOption.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено "${expectedValue}" (способ 2)`);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: ошибка при поиске по любому элементу`);
+        }
+      }
+      
+      // Способ 3: Поиск по частичному совпадению
+      if (!optionFound) {
+        try {
+          const partialOptions = this.page.locator('.ant-select-dropdown *').filter({ hasText: new RegExp(expectedValue, 'i') });
+          if (await partialOptions.count() > 0) {
+            await partialOptions.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено "${expectedValue}" (способ 3 - частичное совпадение)`);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: ошибка при поиске по частичному совпадению`);
+        }
+      }
+      
+      if (!optionFound) {
+        console.log(`❌ ${fieldName}: не удалось найти опцию "${expectedValue}"`);
+        
+        // Показываем все доступные опции
+        try {
+          const allOptions = await this.page.locator('.ant-select-dropdown *').allTextContents();
+          const uniqueOptions = [...new Set(allOptions)].filter(text => text && text.trim());
+          console.log(`📋 ${fieldName}: все доступные опции: ${uniqueOptions.join(', ')}`);
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: не удалось получить список опций`);
+        }
+        
+        // Закрываем выпадающий список
+        await this.page.keyboard.press('Escape');
+      }
+      
+    } catch (error) {
+      console.log(`⚠️ ${fieldName}: общая ошибка - ${error}`);
+      
+      // Пытаемся закрыть выпадающий список
+      try {
+        await this.page.keyboard.press('Escape');
+      } catch (closeError) {
+        // Игнорируем ошибку закрытия
+      }
+    }
+  }
+
+  // Специальный метод для работы с адресами и провинциями
+  async aFillAddressSelect(field: Locator, expectedValue: string, fieldName: string) {
+    try {
+      console.log(`🏠 ${fieldName}: пытаемся установить адрес "${expectedValue}"`);
+      
+      // Прокручиваем к элементу
+      await field.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(500);
+      
+      // Кликаем на поле для открытия выпадающего списка
+      await field.click({ force: true });
+      await this.page.waitForTimeout(1000);
+      
+      // Ждем появления выпадающего списка
+      try {
+        await this.page.locator('.ant-select-dropdown').waitFor({ timeout: 3000 });
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: выпадающий список не появился`);
+        return;
+      }
+      
+      // Для адресов и провинций используем более гибкий поиск
+      let optionFound = false;
+      
+      // Способ 1: Поиск по частичному совпадению
+      try {
+        const partialOptions = this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(expectedValue, 'i') });
+        if (await partialOptions.count() > 0) {
+          await partialOptions.first().click();
+          optionFound = true;
+          console.log(`✅ ${fieldName}: установлено "${expectedValue}" (частичное совпадение)`);
+        }
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: ошибка при поиске частичного совпадения`);
+      }
+      
+      // Способ 2: Поиск по ключевым словам
+      if (!optionFound) {
+        try {
+          const keywords = expectedValue.split(' ').filter(word => word.length > 2);
+          for (const keyword of keywords) {
+            const keywordOptions = this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(keyword, 'i') });
+            if (await keywordOptions.count() > 0) {
+              await keywordOptions.first().click();
+              optionFound = true;
+              console.log(`✅ ${fieldName}: установлено по ключевому слову "${keyword}"`);
+              break;
+            }
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: ошибка при поиске по ключевым словам`);
+        }
+      }
+      
+      // Способ 3: Поиск по первым буквам
+      if (!optionFound) {
+        try {
+          const firstWord = expectedValue.split(' ')[0];
+          const firstLetterOptions = this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(`^${firstWord}`, 'i') });
+          if (await firstLetterOptions.count() > 0) {
+            await firstLetterOptions.first().click();
+            optionFound = true;
+            console.log(`✅ ${fieldName}: установлено по первому слову "${firstWord}"`);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: ошибка при поиске по первому слову`);
+        }
+      }
+      
+      if (!optionFound) {
+        console.log(`❌ ${fieldName}: не удалось найти подходящий адрес для "${expectedValue}"`);
+        
+        // Показываем доступные опции
+        try {
+          const allOptions = await this.page.locator('.ant-select-item-option').allTextContents();
+          const uniqueOptions = [...new Set(allOptions)].filter(text => text && text.trim());
+          console.log(`📋 ${fieldName}: доступные опции: ${uniqueOptions.slice(0, 10).join(', ')}...`);
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: не удалось получить список опций`);
+        }
+        
+        // Закрываем выпадающий список
+        await this.page.keyboard.press('Escape');
+      }
+      
+    } catch (error) {
+      console.log(`⚠️ ${fieldName}: общая ошибка - ${error}`);
+      
+      // Пытаемся закрыть выпадающий список
+      try {
+        await this.page.keyboard.press('Escape');
+      } catch (closeError) {
+        // Игнорируем ошибку закрытия
+      }
     }
   }
 } 
