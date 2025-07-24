@@ -1,6 +1,29 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { getUserIdFromEnv } from '../utils/envConfig';
 
+// Интерфейс для записи лога заполнения
+export interface FormFillLogEntry {
+  section: string;
+  fieldName: string;
+  fieldLabel: string;
+  expectedValue: string;
+  actualValue: string;
+  status: 'success' | 'error' | 'skipped' | 'already_filled';
+  timestamp: string;
+  errorMessage?: string;
+}
+
+export interface FormFillLog {
+  userId: string;
+  testStartTime: string;
+  testEndTime?: string;
+  totalFields: number;
+  successfulFields: number;
+  errorFields: number;
+  skippedFields: number;
+  entries: FormFillLogEntry[];
+}
+
 export interface UserSelection {
   userId: string;
   userDataPath: string;
@@ -8,6 +31,9 @@ export interface UserSelection {
 
 export class ApplicationFormPage {
   readonly page: Page;
+  
+  // Система логирования
+  private formFillLog: FormFillLog;
   
   // Селекторы для основных разделов формы
   readonly ePersonalInformationSection: Locator;
@@ -113,6 +139,17 @@ export class ApplicationFormPage {
 
   constructor(page: Page) {
     this.page = page;
+    
+    // Инициализация системы логирования
+    this.formFillLog = {
+      userId: '',
+      testStartTime: new Date().toISOString(),
+      totalFields: 0,
+      successfulFields: 0,
+      errorFields: 0,
+      skippedFields: 0,
+      entries: []
+    };
     
     // Основные разделы формы с правильными заголовками
     this.eImagesSection = page.locator('h3:has-text("Foreigner\'s images")');
@@ -906,6 +943,10 @@ export class ApplicationFormPage {
   async aFillCompleteForm(userData: any) {
     console.log('🚀 Начинаем автозаполнение полной формы Vietnam E-Visa...');
     
+    // Инициализируем лог для пользователя
+    const userSelection = this.aSelectUserFromConfig();
+    this.aInitializeLog(userSelection.userId);
+    
     try {
       // Загружаем изображения (если еще не загружены)
       await this.aUploadImagesIfNeeded(userData);
@@ -941,11 +982,16 @@ export class ApplicationFormPage {
       console.log('🔍 Выполняем дополнительную проверку проблемных полей...');
       await this.aFillProblematicFields(userData);
       
+      // Выводим таблицу результатов
+      this.aFinalizeLog();
+      
       console.log('🎉 Автозаполнение формы завершено успешно!');
       console.log('🔄 Проверьте данные и нажмите "Next" для продолжения');
       
     } catch (error) {
       console.error('❌ Ошибка при автозаполнении:', error);
+      // Выводим лог даже при ошибке
+      this.aFinalizeLog();
       throw error;
     }
   }
@@ -1078,26 +1124,27 @@ export class ApplicationFormPage {
   async aFillPersonalInformationIfNeeded(userData: any) {
     console.log('👤 Проверяем раздел "PERSONAL INFORMATION"...');
     const personal = userData.personalInformation;
+    const section = 'Personal Information';
     
     // Проверяем и заполняем каждое поле только при необходимости
-    await this.aFillFieldIfNeeded(this.eSurnameField, personal.surname, 'Фамилия');
-    await this.aFillFieldIfNeeded(this.eMiddleAndGivenNameField, personal.middleAndGivenName, 'Имя');
-    await this.aFillDateFieldIfNeeded(this.eDateOfBirthField, personal.dateOfBirth, 'Дата рождения');
-    await this.aFillAntDesignSelect(this.eSexSelect, personal.sex, 'Пол');
-    await this.aFillAntDesignSelect(this.eNationalitySelect, personal.nationality, 'Национальность');
-    await this.aFillFieldIfNeeded(this.eIdentityCardField, personal.identityCard, 'ID карта');
-    await this.aFillFieldIfNeeded(this.eEmailField, personal.email, 'Email');
-    await this.aFillFieldIfNeeded(this.eReEnterEmailField, personal.reEnterEmail, 'Повторный Email');
-    await this.aFillFieldIfNeeded(this.eReligionField, personal.religion, 'Религия');
-    await this.aFillFieldIfNeeded(this.ePlaceOfBirthField, personal.placeOfBirth, 'Место рождения');
+    await this.aFillFieldIfNeededWithLog(this.eSurnameField, personal.surname, 'Фамилия', section);
+    await this.aFillFieldIfNeededWithLog(this.eMiddleAndGivenNameField, personal.middleAndGivenName, 'Имя', section);
+    await this.aFillDateFieldIfNeededWithLog(this.eDateOfBirthField, personal.dateOfBirth, 'Дата рождения', section);
+    await this.aFillAntDesignSelectWithLog(this.eSexSelect, personal.sex, 'Пол', section);
+    await this.aFillAntDesignSelectWithLog(this.eNationalitySelect, personal.nationality, 'Национальность', section);
+    await this.aFillFieldIfNeededWithLog(this.eIdentityCardField, personal.identityCard, 'ID карта', section);
+    await this.aFillFieldIfNeededWithLog(this.eEmailField, personal.email, 'Email', section);
+    await this.aFillFieldIfNeededWithLog(this.eReEnterEmailField, personal.reEnterEmail, 'Повторный Email', section);
+    await this.aFillFieldIfNeededWithLog(this.eReligionField, personal.religion, 'Религия', section);
+    await this.aFillFieldIfNeededWithLog(this.ePlaceOfBirthField, personal.placeOfBirth, 'Место рождения', section);
     
     // Проверяем чекбоксы
-    await this.aCheckCheckboxIfNeeded(this.eAgreeCreateAccountCheckbox, personal.agreeCreateAccount, 'Согласие на создание аккаунта');
+    await this.aCheckCheckboxIfNeededWithLog(this.eAgreeCreateAccountCheckbox, personal.agreeCreateAccount, 'Согласие на создание аккаунта', section);
     
     // Проверяем радиокнопки
-    await this.aCheckRadioButtonIfNeeded(this.eOtherPassportsYes, this.eOtherPassportsNo, personal.hasOtherPassports === 'Yes', 'Другие паспорта');
-    await this.aCheckRadioButtonIfNeeded(this.eMultipleNationalitiesYes, this.eMultipleNationalitiesNo, personal.hasMultipleNationalities === 'Yes', 'Множественное гражданство');
-    await this.aCheckRadioButtonIfNeeded(this.eViolationOfLawsYes, this.eViolationOfLawsNo, personal.violationOfVietnameseLaws === 'Yes', 'Нарушения законов');
+    await this.aCheckRadioButtonIfNeededWithLog(this.eOtherPassportsYes, this.eOtherPassportsNo, personal.hasOtherPassports === 'Yes', 'Другие паспорта', section);
+    await this.aCheckRadioButtonIfNeededWithLog(this.eMultipleNationalitiesYes, this.eMultipleNationalitiesNo, personal.hasMultipleNationalities === 'Yes', 'Множественное гражданство', section);
+    await this.aCheckRadioButtonIfNeededWithLog(this.eViolationOfLawsYes, this.eViolationOfLawsNo, personal.violationOfVietnameseLaws === 'Yes', 'Нарушения законов', section);
     
     // Заполняем поля "Other Used Passports" если есть данные
     if (personal.otherUsedPassports && personal.otherUsedPassports.length > 0) {
@@ -2261,6 +2308,326 @@ export class ApplicationFormPage {
     } catch (error) {
       console.log(`⚠️ Ошибка при заполнении полей "Other Used Passports": ${error}`);
       // Не выбрасываем ошибку, так как поля могут быть необязательными
+    }
+  }
+
+  /**
+   * Логирует заполнение поля в таблицу
+   */
+  private aLogFieldFill(
+    section: string,
+    fieldName: string,
+    fieldLabel: string,
+    expectedValue: string,
+    actualValue: string,
+    status: 'success' | 'error' | 'skipped' | 'already_filled',
+    errorMessage?: string
+  ): void {
+    const entry: FormFillLogEntry = {
+      section,
+      fieldName,
+      fieldLabel,
+      expectedValue,
+      actualValue,
+      status,
+      timestamp: new Date().toISOString(),
+      errorMessage
+    };
+    
+    this.formFillLog.entries.push(entry);
+    this.formFillLog.totalFields++;
+    
+    switch (status) {
+      case 'success':
+        this.formFillLog.successfulFields++;
+        break;
+      case 'error':
+        this.formFillLog.errorFields++;
+        break;
+      case 'skipped':
+      case 'already_filled':
+        this.formFillLog.skippedFields++;
+        break;
+    }
+  }
+
+  /**
+   * Инициализирует лог для пользователя
+   */
+  aInitializeLog(userId: string): void {
+    this.formFillLog.userId = userId;
+    this.formFillLog.testStartTime = new Date().toISOString();
+    this.formFillLog.entries = [];
+    this.formFillLog.totalFields = 0;
+    this.formFillLog.successfulFields = 0;
+    this.formFillLog.errorFields = 0;
+    this.formFillLog.skippedFields = 0;
+    
+    console.log('📊 Инициализирован лог заполнения формы для пользователя:', userId);
+  }
+
+  /**
+   * Завершает лог и выводит таблицу результатов
+   */
+  aFinalizeLog(): void {
+    this.formFillLog.testEndTime = new Date().toISOString();
+    
+    console.log('\n' + '='.repeat(80));
+    console.log('📊 ТАБЛИЦА ЗАПОЛНЕНИЯ АНКЕТЫ E-VISA VIETNAM');
+    console.log('='.repeat(80));
+    
+    // Статистика
+    console.log(`👤 Пользователь: ${this.formFillLog.userId}`);
+    console.log(`⏰ Время начала: ${new Date(this.formFillLog.testStartTime).toLocaleString()}`);
+    console.log(`⏰ Время завершения: ${new Date(this.formFillLog.testEndTime).toISOString()}`);
+    console.log(`📈 Статистика:`);
+    console.log(`   ✅ Успешно заполнено: ${this.formFillLog.successfulFields}`);
+    console.log(`   ❌ Ошибки: ${this.formFillLog.errorFields}`);
+    console.log(`   ⏭️ Пропущено: ${this.formFillLog.skippedFields}`);
+    console.log(`   📊 Всего полей: ${this.formFillLog.totalFields}`);
+    
+    // Таблица результатов
+    console.log('\n📋 ДЕТАЛЬНАЯ ТАБЛИЦА ЗАПОЛНЕНИЯ:');
+    console.log('─'.repeat(120));
+    console.log('│ Раздел'.padEnd(25) + '│ Поле'.padEnd(30) + '│ Ожидаемое'.padEnd(20) + '│ Фактическое'.padEnd(20) + '│ Статус'.padEnd(12) + '│');
+    console.log('─'.repeat(120));
+    
+    this.formFillLog.entries.forEach(entry => {
+      const section = entry.section.padEnd(23);
+      const field = entry.fieldName.padEnd(28);
+      const expected = entry.expectedValue.padEnd(18);
+      const actual = entry.actualValue.padEnd(18);
+      const status = this.getStatusIcon(entry.status).padEnd(10);
+      
+      console.log(`│ ${section}│ ${field}│ ${expected}│ ${actual}│ ${status}│`);
+    });
+    
+    console.log('─'.repeat(120));
+    
+    // Сводка по разделам
+    console.log('\n📊 СВОДКА ПО РАЗДЕЛАМ:');
+    const sectionStats = this.getSectionStats();
+    Object.entries(sectionStats).forEach(([section, stats]) => {
+      console.log(`📁 ${section}: ${stats.success}/${stats.total} (${Math.round(stats.success/stats.total*100)}%)`);
+    });
+    
+    console.log('='.repeat(80));
+  }
+
+  /**
+   * Возвращает иконку статуса
+   */
+  private getStatusIcon(status: string): string {
+    switch (status) {
+      case 'success': return '✅';
+      case 'error': return '❌';
+      case 'skipped': return '⏭️';
+      case 'already_filled': return '✅';
+      default: return '❓';
+    }
+  }
+
+  /**
+   * Возвращает статистику по разделам
+   */
+  private getSectionStats(): Record<string, { success: number; total: number }> {
+    const stats: Record<string, { success: number; total: number }> = {};
+    
+    this.formFillLog.entries.forEach(entry => {
+      if (!stats[entry.section]) {
+        stats[entry.section] = { success: 0, total: 0 };
+      }
+      
+      stats[entry.section].total++;
+      if (entry.status === 'success' || entry.status === 'already_filled') {
+        stats[entry.section].success++;
+      }
+    });
+    
+    return stats;
+  }
+
+  /**
+   * Обновляет методы заполнения для логирования
+   */
+  async aFillFieldIfNeededWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const isReadonly = await field.getAttribute('readonly');
+      
+      if (isReadonly) {
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, expectedValue);
+        
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+        console.log(`✅ ${fieldName}: заполнено через JavaScript`);
+        return;
+      }
+      
+      const currentValue = await field.inputValue();
+      if (currentValue === expectedValue) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, currentValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+      } else {
+        await field.clear();
+        await this.page.waitForTimeout(100);
+        await field.fill(expectedValue);
+        await this.page.waitForTimeout(100);
+        
+        const newValue = await field.inputValue();
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, newValue, 'success');
+        console.log(`✅ ${fieldName}: заполнено`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось проверить/заполнить - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение поля даты с логированием
+   */
+  async aFillDateFieldIfNeededWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const currentValue = await field.inputValue();
+      if (currentValue === expectedValue) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, currentValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+      } else {
+        await field.scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(200);
+        await field.focus();
+        await this.page.waitForTimeout(100);
+        await field.clear();
+        await this.page.waitForTimeout(100);
+        
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
+        }, expectedValue);
+        
+        await field.fill(expectedValue);
+        
+        const newValue = await field.inputValue();
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, newValue, 'success');
+        console.log(`✅ ${fieldName}: заполнено`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось проверить/заполнить - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение Ant Design Select с логированием
+   */
+  async aFillAntDesignSelectWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const isAlreadyFilled = await this.aIsAntDesignSelectFilled(field, expectedValue, fieldName);
+      
+      if (isAlreadyFilled) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+        return;
+      }
+      
+      await field.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(1000);
+      await field.click({ force: true });
+      await this.page.waitForTimeout(2000);
+      
+      try {
+        await this.page.locator('.ant-select-dropdown').waitFor({ timeout: 5000 });
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: выпадающий список не появился, пробуем другой подход`);
+      }
+      
+      let optionFound = false;
+      
+      // Способ 1: По точному тексту
+      try {
+        const exactOption = this.page.locator('.ant-select-item-option').filter({ hasText: expectedValue });
+        if (await exactOption.count() > 0) {
+          await exactOption.first().click();
+          optionFound = true;
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+          console.log(`✅ ${fieldName}: установлено (точное совпадение)`);
+        }
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: не найдено точное совпадение для "${expectedValue}"`);
+      }
+      
+      if (!optionFound) {
+        const errorMessage = `Не удалось найти опцию "${expectedValue}" в выпадающем списке`;
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'NOT_FOUND', 'error', errorMessage);
+        console.log(`❌ ${fieldName}: ${errorMessage}`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Проверка чекбокса с логированием
+   */
+  async aCheckCheckboxIfNeededWithLog(checkbox: Locator, shouldBeChecked: boolean, fieldName: string, section: string): Promise<void> {
+    try {
+      const isChecked = await checkbox.isChecked();
+      
+      if (isChecked === shouldBeChecked) {
+        this.aLogFieldFill(section, fieldName, fieldName, shouldBeChecked.toString(), isChecked.toString(), 'already_filled');
+        console.log(`✅ ${fieldName}: уже установлено правильно (${shouldBeChecked})`);
+      } else {
+        if (shouldBeChecked) {
+          await checkbox.check();
+        } else {
+          await checkbox.uncheck();
+        }
+        
+        const newValue = await checkbox.isChecked();
+        this.aLogFieldFill(section, fieldName, fieldName, shouldBeChecked.toString(), newValue.toString(), 'success');
+        console.log(`✅ ${fieldName}: установлено (${shouldBeChecked})`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, shouldBeChecked.toString(), 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось установить - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Проверка радиокнопки с логированием
+   */
+  async aCheckRadioButtonIfNeededWithLog(yesRadio: Locator, noRadio: Locator, shouldBeYes: boolean, fieldName: string, section: string): Promise<void> {
+    try {
+      const yesChecked = await yesRadio.isChecked();
+      const noChecked = await noRadio.isChecked();
+      
+      if ((shouldBeYes && yesChecked) || (!shouldBeYes && noChecked)) {
+        this.aLogFieldFill(section, fieldName, fieldName, shouldBeYes.toString(), shouldBeYes.toString(), 'already_filled');
+        console.log(`✅ ${fieldName}: уже установлено правильно (${shouldBeYes ? 'Yes' : 'No'})`);
+      } else {
+        if (shouldBeYes) {
+          await yesRadio.click();
+        } else {
+          await noRadio.click();
+        }
+        
+        this.aLogFieldFill(section, fieldName, fieldName, shouldBeYes.toString(), shouldBeYes.toString(), 'success');
+        console.log(`✅ ${fieldName}: установлено (${shouldBeYes ? 'Yes' : 'No'})`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, shouldBeYes.toString(), 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось установить - ${errorMessage}`);
     }
   }
 } 
