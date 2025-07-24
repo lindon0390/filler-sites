@@ -1195,6 +1195,15 @@ export class ApplicationFormPage {
     await this.aFillFieldIfNeeded(this.eIntendedExpensesField, expenses.intendedExpensesUSD, 'Предполагаемые расходы');
     await this.aFillAntDesignSelect(this.eInsuranceSelect, expenses.didBuyInsurance, 'Страхование');
     
+    // Заполняем поле "Specify" для страхования
+    if (expenses.specifyInsurance) {
+      try {
+        await this.fillInsuranceSpecifyField(expenses.specifyInsurance);
+      } catch (error) {
+        console.log(`⚠️ Ошибка при заполнении поля "Specify" для страхования: ${error}`);
+      }
+    }
+    
     // Специальная обработка для поля "Who will cover the trip's expenses"
     try {
       console.log('🔍 Расходы покрываются: пытаемся найти поле...');
@@ -1253,6 +1262,15 @@ export class ApplicationFormPage {
       
     } catch (error) {
       console.log(`⚠️ Ошибка при заполнении поля "Who will cover the trip's expenses": ${error}`);
+    }
+    
+    // Заполняем поле "Payment method" (способ оплаты)
+    if (expenses['Payment method']) {
+      try {
+        await this.fillPaymentMethodField(expenses['Payment method']);
+      } catch (error) {
+        console.log(`⚠️ Ошибка при заполнении поля "Payment method": ${error}`);
+      }
     }
   }
 
@@ -2008,6 +2026,118 @@ export class ApplicationFormPage {
     } catch (error) {
       console.log(`⚠️ ${fieldName}: ошибка при проверке заполненности - ${error}`);
       return false;
+    }
+  }
+
+  /**
+   * Заполняет поле "Specify" для страхования
+   */
+  async fillInsuranceSpecifyField(specifyValue: string): Promise<void> {
+    try {
+      console.log(`🔧 Заполняю поле "Specify" для страхования значением: ${specifyValue}`);
+      
+      // Локатор для поля "Specify" страхования
+      const specifyField = this.page.locator('input[id="basic_kpbhGhiCuThe"]');
+      
+      // Проверяем, что поле существует
+      await specifyField.waitFor({ state: 'visible', timeout: 5000 });
+      
+      // Проверяем, не заполнено ли уже поле
+      const currentValue = await specifyField.inputValue();
+      if (currentValue && currentValue.trim() !== '') {
+        console.log(`✅ Поле "Specify" уже заполнено значением: "${currentValue}"`);
+        return;
+      }
+      
+      // Заполняем поле
+      await specifyField.fill(specifyValue);
+      
+      // Проверяем, что значение заполнилось
+      const filledValue = await specifyField.inputValue();
+      if (filledValue === specifyValue) {
+        console.log(`✅ Поле "Specify" успешно заполнено значением: "${specifyValue}"`);
+      } else {
+        console.log(`⚠️ Поле "Specify" заполнено, но значение не совпадает. Ожидалось: "${specifyValue}", получено: "${filledValue}"`);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Ошибка при заполнении поля "Specify" для страхования:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Заполняет поле "Payment method" (способ оплаты)
+   */
+  async fillPaymentMethodField(paymentMethod: string): Promise<void> {
+    try {
+      console.log(`🔧 Заполняю поле "Payment method" значением: ${paymentMethod}`);
+      
+      // Попробуем найти поле разными способами
+      let paymentMethodField = null;
+      
+      // Способ 1: По placeholder
+      try {
+        paymentMethodField = this.page.locator('input[placeholder*="payment" i], input[placeholder*="method" i], select[id*="payment"], select[id*="method"]');
+        if (await paymentMethodField.isVisible({ timeout: 2000 })) {
+          console.log('✅ Поле "Payment method" найдено (способ 1)');
+        } else {
+          paymentMethodField = null;
+        }
+      } catch (error) {
+        console.log('⚠️ Поле не найдено способом 1');
+      }
+      
+      // Способ 2: По тексту "Choose one"
+      if (!paymentMethodField) {
+        try {
+          paymentMethodField = this.page.locator('[role="combobox"]:has-text("Choose one")');
+          if (await paymentMethodField.isVisible({ timeout: 2000 })) {
+            console.log('✅ Поле "Payment method" найдено (способ 2)');
+          } else {
+            paymentMethodField = null;
+          }
+        } catch (error) {
+          console.log('⚠️ Поле не найдено способом 2');
+        }
+      }
+      
+      // Способ 3: Последний combobox в разделе страхования
+      if (!paymentMethodField) {
+        try {
+          const insuranceSection = this.page.locator('h3:has-text("TRIP\'S EXPENSES, INSURANCE")');
+          const comboboxes = insuranceSection.locator('[role="combobox"]');
+          const count = await comboboxes.count();
+          if (count > 0) {
+            paymentMethodField = comboboxes.nth(count - 1); // Последний combobox
+            console.log('✅ Поле "Payment method" найдено (способ 3)');
+          }
+        } catch (error) {
+          console.log('⚠️ Поле не найдено способом 3');
+        }
+      }
+      
+      if (paymentMethodField) {
+        // Проверяем, не заполнено ли уже поле
+        const currentValue = await paymentMethodField.textContent();
+        if (currentValue && currentValue.trim() !== '' && currentValue.trim() !== 'Choose one') {
+          console.log(`✅ Поле "Payment method" уже заполнено значением: "${currentValue}"`);
+          return;
+        }
+        
+        // Заполняем поле
+        await paymentMethodField.click();
+        await this.page.waitForTimeout(1000);
+        await this.page.getByText(paymentMethod, { exact: true }).click();
+        
+        console.log(`✅ Поле "Payment method" успешно заполнено значением: "${paymentMethod}"`);
+      } else {
+        console.log('⚠️ Поле "Payment method" не найдено - возможно, оно скрыто или не отображается');
+      }
+      
+    } catch (error) {
+      console.log(`⚠️ Ошибка при заполнении поля "Payment method": ${error}`);
+      // Не выбрасываем ошибку, так как поле может быть необязательным
     }
   }
 } 
