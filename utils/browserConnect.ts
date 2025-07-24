@@ -38,30 +38,18 @@ async function getActiveTabs(port: number = 9222): Promise<any[]> {
  * Подключается к существующему Chrome браузеру
  */
 export async function connectToExistingChrome(port: number = 9222): Promise<Browser> {
-  console.log(`🔗 Подключаемся к Chrome на порту ${port}...`);
-  
   try {
     // Сначала проверяем, указан ли endpoint в .env
     let browserEndpoint = getChromeCdpEndpoint();
     
-    if (browserEndpoint) {
-      console.log(`🔧 Используем endpoint из .env: ${browserEndpoint}`);
-    } else {
+    if (!browserEndpoint) {
       // Получаем актуальный browser endpoint автоматически
       browserEndpoint = await getBrowserEndpoint(port);
-      console.log(`🔍 Автоматически определён endpoint: ${browserEndpoint}`);
     }
     
     // Подключаемся через WebSocket endpoint
     const browser = await chromium.connectOverCDP(browserEndpoint);
-    console.log('✅ Успешно подключились к существующему Chrome');
-    
-    // Показываем информацию о доступных вкладках
-    const tabs = await getActiveTabs(port);
-    console.log(`📋 Найдено вкладок: ${tabs.length}`);
-    tabs.forEach((tab, index) => {
-      console.log(`  ${index + 1}. ${tab.title} - ${tab.url}`);
-    });
+    console.log('✅ Подключились к Chrome');
     
     return browser;
   } catch (error) {
@@ -76,14 +64,10 @@ export async function connectToExistingChrome(port: number = 9222): Promise<Brow
  * Подключается к активной вкладке в существующем браузере
  */
 export async function connectToActiveTab(port: number = 9222): Promise<Page> {
-  console.log('📄 Подключаемся к активной вкладке...');
-  
   try {
     // Получаем список всех вкладок через CDP API
     const response = await fetch(`http://localhost:${port}/json/list`);
     const tabs = await response.json();
-    
-    console.log(`🔍 Найдено вкладок: ${tabs.length}`);
     
     // Приоритетно ищем вкладку с E-Visa формой
     let activeTab = tabs.find((tab: any) => 
@@ -108,64 +92,49 @@ export async function connectToActiveTab(port: number = 9222): Promise<Page> {
       throw new Error('Не найдена активная вкладка для подключения');
     }
     
-    console.log(`📋 Подключаемся к вкладке: ${activeTab.title}`);
-    console.log(`🔗 URL: ${activeTab.url}`);
-    
     // Подключаемся к браузеру в целом и ищем нужную страницу
-    console.log(`🔌 Подключаемся к браузеру и ищем активную вкладку`);
     const browserEndpoint = await getBrowserEndpoint(port);
     const browser = await chromium.connectOverCDP(browserEndpoint);
     
     // Получаем все контексты и ищем нужную страницу
     const contexts = browser.contexts();
-    console.log(`🔍 Найдено контекстов: ${contexts.length}`);
     
     // Собираем все страницы из всех контекстов
     const allPages = [];
     for (const context of contexts) {
       const pages = context.pages();
-      console.log(`📄 Страниц в контексте: ${pages.length}`);
       allPages.push(...pages);
     }
-    
-    console.log(`📊 Всего страниц найдено: ${allPages.length}`);
     
     // Ищем страницы с evisa.gov.vn
     for (const page of allPages) {
       try {
         const pageUrl = page.url();
-        console.log(`🔗 Проверяем страницу: ${pageUrl}`);
         
         if (pageUrl.includes('evisa.gov.vn')) {
-          console.log(`🎯 Найдена страница E-Visa: ${pageUrl}`);
-          
           try {
             // Проверяем что страница доступна
             await page.evaluate(() => document.readyState);
             const title = await page.title();
-            console.log(`✅ Страница "${title}" активна и готова к работе`);
+            console.log(`✅ Подключились к странице: "${title}"`);
             return page;
           } catch (evalError) {
-            console.log(`⚠️ Страница E-Visa недоступна: ${evalError instanceof Error ? evalError.message : evalError}`);
             continue;
           }
         }
-              } catch (error) {
-          console.log(`⚠️ Ошибка при проверке страницы: ${error instanceof Error ? error.message : error}`);
-          continue;
-        }
+      } catch (error) {
+        continue;
+      }
     }
     
     // Если E-Visa страница не найдена, берем любую активную страницу
-    console.log(`⚠️ E-Visa страница не найдена, ищем любую активную страницу...`);
-    
     for (const page of allPages) {
       try {
         const pageUrl = page.url();
         if (!pageUrl.includes('about:blank') && !pageUrl.includes('chrome-devtools://')) {
           await page.evaluate(() => document.readyState);
           const title = await page.title();
-          console.log(`📄 Используем активную страницу: "${title}" (${pageUrl})`);
+          console.log(`✅ Подключились к странице: "${title}"`);
           return page;
         }
       } catch (error) {
@@ -185,7 +154,6 @@ export async function connectToActiveTab(port: number = 9222): Promise<Page> {
  * Упрощенное подключение к активной вкладке в Chrome
  */
 export async function connectAndGetActivePage(port: number = 9222): Promise<{ browser: Browser; page: Page }> {
-  console.log('🚀 Подключаемся к активной вкладке Chrome...');
   const page = await connectToActiveTab(port);
   
   // Получаем браузер из контекста страницы
@@ -194,7 +162,6 @@ export async function connectAndGetActivePage(port: number = 9222): Promise<{ br
     throw new Error('Не удалось получить браузер из контекста страницы');
   }
   
-  console.log('🎯 Готово! Подключились к активной вкладке');
   return { browser, page };
 }
 

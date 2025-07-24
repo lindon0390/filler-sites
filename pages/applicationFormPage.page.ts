@@ -584,98 +584,156 @@ export class ApplicationFormPage {
   }
 
   /**
-   * Заполняем раздел 1 - Personal Information
+   * Конфигурация полей согласно field-classification
    */
-  async aFillPersonalInformation(userData: any) {
-    console.log('📝 Заполняем раздел "1. PERSONAL INFORMATION"...');
+  private readonly fieldConfiguration = {
+    // 0. Foreigner's images (изображения иностранца)
+    'images.portraitPhoto': { type: undefined, section: 'Images' },
+    'images.passportDataPage': { type: undefined, section: 'Images' },
     
+    // 1. Personal Information (личная информация)
+    'personalInformation.surname': { type: 1, section: 'Personal Information' },
+    'personalInformation.middleAndGivenName': { type: 1, section: 'Personal Information' },
+    'personalInformation.dateOfBirth': { type: 5, section: 'Personal Information' },
+    'personalInformation.dateOfBirthType': { type: 6, section: 'Personal Information' },
+    'personalInformation.sex': { type: 2, section: 'Personal Information' },
+    'personalInformation.nationality': { type: 3, section: 'Personal Information' },
+    'personalInformation.identityCard': { type: 1, section: 'Personal Information' },
+    'personalInformation.email': { type: 1, section: 'Personal Information' },
+    'personalInformation.agreeCreateAccount': { type: 7, section: 'Personal Information' },
+    'personalInformation.religion': { type: 1, section: 'Personal Information' },
+    'personalInformation.placeOfBirth': { type: 1, section: 'Personal Information' },
+    'personalInformation.reEnterEmail': { type: 1, section: 'Personal Information' },
+    'personalInformation.hasOtherPassports': { type: 6, section: 'Personal Information' },
+    'personalInformation.hasMultipleNationalities': { type: 6, section: 'Personal Information' },
+    'personalInformation.violationOfVietnameseLaws': { type: 6, section: 'Personal Information' },
+    
+    // 2. Requested Information (запрашиваемая информация)
+    'requestedInformation.visaType': { type: 6, section: 'Requested Information' },
+    'requestedInformation.validFrom': { type: 5, section: 'Requested Information' },
+    'requestedInformation.validTo': { type: 5, section: 'Requested Information' },
+    
+    // 3. Passport Information (информация о паспорте)
+    'passportInformation.passportNumber': { type: 1, section: 'Passport Information' },
+    'passportInformation.issuingAuthority': { type: 1, section: 'Passport Information' },
+    'passportInformation.type': { type: 3, section: 'Passport Information' },
+    'passportInformation.dateOfIssue': { type: 5, section: 'Passport Information' },
+    'passportInformation.expiryDate': { type: 5, section: 'Passport Information' },
+    'passportInformation.holdOtherValidPassports': { type: 6, section: 'Passport Information' },
+    
+    // 4. Contact Information (контактная информация)
+    'contactInformation.permanentResidentialAddress': { type: 1, section: 'Contact Information' },
+    'contactInformation.contactAddress': { type: 1, section: 'Contact Information' },
+    'contactInformation.telephoneNumber': { type: 1, section: 'Contact Information' },
+    'contactInformation.emergencyContact.fullName': { type: 1, section: 'Contact Information' },
+    'contactInformation.emergencyContact.currentResidentialAddress': { type: 1, section: 'Contact Information' },
+    'contactInformation.emergencyContact.telephoneNumber': { type: 1, section: 'Contact Information' },
+    'contactInformation.emergencyContact.relationship': { type: 2, section: 'Contact Information' },
+    
+    // 5. Occupation (занятость)
+    'occupation.occupation': { type: 2, section: 'Occupation' },
+    'occupation.occupationInfo': { type: 1, section: 'Occupation' },
+    'occupation.nameOfCompanyAgencySchool': { type: 1, section: 'Occupation' },
+    'occupation.positionCourseOfStudy': { type: 1, section: 'Occupation' },
+    'occupation.addressOfCompanyAgencySchool': { type: 1, section: 'Occupation' },
+    'occupation.companyAgencySchoolPhoneNumber': { type: 1, section: 'Occupation' },
+    
+    // 6. Trip Information (информация о поездке)
+    'tripInformation.purposeOfEntry': { type: 3, section: 'Trip Information' },
+    'tripInformation.intendedDateOfEntry': { type: 5, section: 'Trip Information' },
+    'tripInformation.intendedLengthOfStay': { type: 1, section: 'Trip Information' },
+    'tripInformation.phoneNumberInVietnam': { type: 1, section: 'Trip Information' },
+    'tripInformation.residentialAddressInVietnam': { type: 1, section: 'Trip Information' },
+    'tripInformation.provinceCity': { type: 3, section: 'Trip Information' },
+    'tripInformation.wardCommune': { 
+      type: 4, 
+      section: 'Trip Information',
+      dependsOn: 'tripInformation.provinceCity'
+    },
+    'tripInformation.intendedBorderGateOfEntry': { type: 3, section: 'Trip Information' },
+    'tripInformation.intendedBorderGateOfExit': { type: 3, section: 'Trip Information' },
+    'tripInformation.committedToDeclareTempResidence': { type: 7, section: 'Trip Information' },
+    'tripInformation.hasAgencyOrganizationContact': { type: 6, section: 'Trip Information' },
+    'tripInformation.beenToVietnamLastYear': { type: 6, section: 'Trip Information' },
+    'tripInformation.hasRelativesInVietnam': { type: 6, section: 'Trip Information' },
+    
+    // 8. Trips Expenses Insurance (расходы на поездку и страхование)
+    'tripsExpensesInsurance.intendedExpensesUSD': { type: 1, section: 'Trip Expenses' },
+    'tripsExpensesInsurance.didBuyInsurance': { type: 2, section: 'Trip Expenses' },
+    'tripsExpensesInsurance.specifyInsurance': { type: 1, section: 'Trip Expenses' },
+    'tripsExpensesInsurance.whoCoversTripExpenses': { type: 2, section: 'Trip Expenses' },
+    'tripsExpensesInsurance["Payment method"]': { type: 2, section: 'Trip Expenses' },
+    
+    // 9. Declaration (декларация)
+    'declaration.agreed': { type: 7, section: 'Declaration' }
+  };
+
+  /**
+   * Получение конфигурации поля
+   */
+  private getFieldConfig(fieldPath: string) {
+    return (this.fieldConfiguration as any)[fieldPath] || { type: 1, section: 'Unknown' };
+  }
+
+  /**
+   * Обновленный метод заполнения Personal Information с использованием единой системы
+   */
+  async aFillPersonalInformationIfNeeded(userData: any) {
+    console.log('👤 Проверяем раздел "PERSONAL INFORMATION"...');
     const personal = userData.personalInformation;
     
-    // Основные поля
-    await this.eSurnameField.fill(personal.surname);
-    console.log(`✅ Фамилия: ${personal.surname}`);
+    // Заполняем поля согласно их типам
+    await this.aFillFieldByType(this.eSurnameField, personal.surname, 'personalInformation.surname', 'Personal Information', 1);
+    // await this.aFillFieldByType(this.eMiddleAndGivenNameField, personal.middleAndGivenName, 'personalInformation.middleAndGivenName', 'Personal Information', 1);
+    // await this.aFillFieldByType(this.eDateOfBirthField, personal.dateOfBirth, 'personalInformation.dateOfBirth', 'Personal Information', 5);
     
-    await this.eMiddleAndGivenNameField.fill(personal.middleAndGivenName);
-    console.log(`✅ Имя: ${personal.middleAndGivenName}`);
+    // Радиокнопка для типа даты рождения
+    // await this.aFillFieldByType(
+    //   personal.dateOfBirthType === 'Full' ? this.eDateOfBirthFullRadio : this.eDateOfBirthYearOnlyRadio,
+    //   personal.dateOfBirthType,
+    //   'personalInformation.dateOfBirthType',
+    //   'Personal Information',
+    //   6
+    // );
     
-    // Тип даты рождения
-    if (personal.dateOfBirthType === 'Full') {
-      await this.eDateOfBirthFullRadio.click();
-    } else {
-      await this.eDateOfBirthYearOnlyRadio.click();
-    }
-    console.log(`✅ Тип даты рождения: ${personal.dateOfBirthType}`);
+    // await this.aFillFieldByType(this.eSexSelect, personal.sex, 'personalInformation.sex', 'Personal Information', 2);
+    // await this.aFillFieldByType(this.eNationalitySelect, personal.nationality, 'personalInformation.nationality', 'Personal Information', 3);
+    // await this.aFillFieldByType(this.eIdentityCardField, personal.identityCard, 'personalInformation.identityCard', 'Personal Information', 1);
+    // await this.aFillFieldByType(this.eEmailField, personal.email, 'personalInformation.email', 'Personal Information', 1);
+    // await this.aFillFieldByType(this.eReEnterEmailField, personal.reEnterEmail, 'personalInformation.reEnterEmail', 'Personal Information', 1);
+    // await this.aFillFieldByType(this.eReligionField, personal.religion, 'personalInformation.religion', 'Personal Information', 1);
+    // await this.aFillFieldByType(this.ePlaceOfBirthField, personal.placeOfBirth, 'personalInformation.placeOfBirth', 'Personal Information', 1);
     
-    // Дата рождения - используем JavaScript для установки значения
-    await this.eDateOfBirthField.evaluate((el, value) => {
-      if (el instanceof HTMLInputElement) {
-        el.value = value;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }, personal.dateOfBirth);
-    console.log(`✅ Дата рождения: ${personal.dateOfBirth}`);
+    // Чекбокс
+    // await this.aFillFieldByType(this.eAgreeCreateAccountCheckbox, personal.agreeCreateAccount, 'personalInformation.agreeCreateAccount', 'Personal Information', 7);
     
-    // Пол - используем клик для открытия выпадающего списка
-    await this.eSexSelect.click();
-    await this.page.waitForTimeout(1000);
-    await this.page.getByText(personal.sex, { exact: true }).click();
-    console.log(`✅ Пол: ${personal.sex}`);
+    // Радиокнопки
+    // await this.aFillFieldByType(
+    //   personal.hasOtherPassports === 'Yes' ? this.eOtherPassportsYes : this.eOtherPassportsNo,
+    //   personal.hasOtherPassports,
+    //   'personalInformation.hasOtherPassports',
+    //   'Personal Information',
+    //   6,
+    //   { yesRadio: this.eOtherPassportsYes, noRadio: this.eOtherPassportsNo }
+    // );
     
-    // Национальность
-    await this.eNationalitySelect.click();
-    await this.page.waitForTimeout(1000);
-    await this.page.getByText(personal.nationality, { exact: true }).click();
-    console.log(`✅ Национальность: ${personal.nationality}`);
+    // await this.aFillFieldByType(
+    //   personal.hasMultipleNationalities === 'Yes' ? this.eMultipleNationalitiesYes : this.eMultipleNationalitiesNo,
+    //   personal.hasMultipleNationalities,
+    //   'personalInformation.hasMultipleNationalities',
+    //   'Personal Information',
+    //   6,
+    //   { yesRadio: this.eMultipleNationalitiesYes, noRadio: this.eMultipleNationalitiesNo }
+    // );
     
-    await this.eIdentityCardField.fill(personal.identityCard);
-    console.log(`✅ ID карта: ${personal.identityCard}`);
-    
-    // Email уже заполнен, но проверим
-    const currentEmail = await this.eEmailField.inputValue();
-    if (currentEmail !== personal.email) {
-      await this.eEmailField.fill(personal.email);
-    }
-    console.log(`✅ Email: ${personal.email}`);
-    
-    // Чекбокс согласия на создание аккаунта
-    if (personal.agreeCreateAccount) {
-      await this.eAgreeCreateAccountCheckbox.check();
-    }
-    console.log(`✅ Согласие на создание аккаунта: ${personal.agreeCreateAccount}`);
-    
-    await this.eReligionField.fill(personal.religion);
-    console.log(`✅ Религия: ${personal.religion}`);
-    
-    await this.ePlaceOfBirthField.fill(personal.placeOfBirth);
-    console.log(`✅ Место рождения: ${personal.placeOfBirth}`);
-    
-    await this.eReEnterEmailField.fill(personal.reEnterEmail);
-    console.log(`✅ Повторный email: ${personal.reEnterEmail}`);
-    
-    // Radio buttons
-    if (personal.hasOtherPassports === 'Yes') {
-      await this.eOtherPassportsYes.click();
-    } else {
-      await this.eOtherPassportsNo.click();
-    }
-    console.log(`✅ Другие паспорта: ${personal.hasOtherPassports}`);
-    
-    if (personal.hasMultipleNationalities === 'Yes') {
-      await this.eMultipleNationalitiesYes.click();
-    } else {
-      await this.eMultipleNationalitiesNo.click();
-    }
-    console.log(`✅ Множественное гражданство: ${personal.hasMultipleNationalities}`);
-    
-    if (personal.violationOfVietnameseLaws === 'Yes') {
-      await this.eViolationOfLawsYes.click();
-    } else {
-      await this.eViolationOfLawsNo.click();
-    }
-    console.log(`✅ Нарушения законов: ${personal.violationOfVietnameseLaws}`);
-    
-    console.log('✅ Раздел "1. PERSONAL INFORMATION" заполнен');
+    // await this.aFillFieldByType(
+    //   personal.violationOfVietnameseLaws === 'Yes' ? this.eViolationOfLawsYes : this.eViolationOfLawsNo,
+    //   personal.violationOfVietnameseLaws,
+    //   'personalInformation.violationOfVietnameseLaws',
+    //   'Personal Information',
+    //   6,
+    //   { yesRadio: this.eViolationOfLawsYes, noRadio: this.eViolationOfLawsNo }
+    // );
   }
 
   /**
@@ -931,10 +989,16 @@ export class ApplicationFormPage {
    * Ставим финальную галочку согласия
    */
   async aCheckFinalDeclaration() {
-    console.log('📝 Ставим финальную галочку согласия...');
+    console.log('📋 Проверяем финальную декларацию...');
     
-    await this.eDeclarationCheckbox.check();
-    console.log('✅ Декларация о согласии отмечена');
+    try {
+      // Чекбокс согласия с декларацией
+      await this.aFillFieldByType(this.eDeclarationCheckbox, 'Yes', 'declaration.agreed', 'Declaration', 7);
+      
+      console.log('✅ Финальная декларация проверена');
+    } catch (error) {
+      console.log(`⚠️ Ошибка при проверке финальной декларации: ${error}`);
+    }
   }
 
   /**
@@ -1072,30 +1136,30 @@ export class ApplicationFormPage {
 
   // Методы для проверки и заполнения полей только при необходимости
   async aUploadImagesIfNeeded(userData: any) {
-    console.log('📸 Проверяем загруженные изображения...');
+    console.log('📸 Проверяем загрузку изображений...');
     
-    const images = userData.images;
-    
-    // Проверяем фото
-    const photoUploaded = await this.aIsPhotoUploaded();
-    if (!photoUploaded && images?.portraitPhoto) {
-      console.log('📸 Загружаем фото...');
-      await this.aUploadPhoto(images.portraitPhoto);
-    } else if (photoUploaded) {
-      console.log('✅ Фото уже загружено');
-    } else {
-      console.log('⚠️ Путь к фото не указан в данных');
-    }
-    
-    // Проверяем паспорт
-    const passportUploaded = await this.aIsPassportUploaded();
-    if (!passportUploaded && images?.passportDataPage) {
-      console.log('📸 Загружаем паспорт...');
-      await this.aUploadPassport(images.passportDataPage);
-    } else if (passportUploaded) {
-      console.log('✅ Паспорт уже загружен');
-    } else {
-      console.log('⚠️ Путь к паспорту не указан в данных');
+    try {
+      // Проверяем, загружены ли уже изображения
+      const photoUploaded = await this.aIsPhotoUploaded();
+      const passportUploaded = await this.aIsPassportUploaded();
+      
+      if (!photoUploaded) {
+        console.log('📸 Загружаем фото...');
+        await this.aUploadPhoto(userData.images.portraitPhoto);
+      } else {
+        console.log('✅ Фото уже загружено');
+      }
+      
+      if (!passportUploaded) {
+        console.log('📸 Загружаем страницу паспорта...');
+        await this.aUploadPassport(userData.images.passportDataPage);
+      } else {
+        console.log('✅ Страница паспорта уже загружена');
+      }
+      
+      console.log('✅ Загрузка изображений завершена');
+    } catch (error) {
+      console.log(`⚠️ Ошибка при загрузке изображений: ${error}`);
     }
   }
 
@@ -1121,213 +1185,232 @@ export class ApplicationFormPage {
     }
   }
 
-  async aFillPersonalInformationIfNeeded(userData: any) {
-    console.log('👤 Проверяем раздел "PERSONAL INFORMATION"...');
-    const personal = userData.personalInformation;
-    const section = 'Personal Information';
-    
-    // Проверяем и заполняем каждое поле только при необходимости
-    await this.aFillFieldIfNeededWithLog(this.eSurnameField, personal.surname, 'Фамилия', section);
-    await this.aFillFieldIfNeededWithLog(this.eMiddleAndGivenNameField, personal.middleAndGivenName, 'Имя', section);
-    await this.aFillDateFieldIfNeededWithLog(this.eDateOfBirthField, personal.dateOfBirth, 'Дата рождения', section);
-    await this.aFillAntDesignSelectWithLog(this.eSexSelect, personal.sex, 'Пол', section);
-    await this.aFillAntDesignSelectWithLog(this.eNationalitySelect, personal.nationality, 'Национальность', section);
-    await this.aFillFieldIfNeededWithLog(this.eIdentityCardField, personal.identityCard, 'ID карта', section);
-    await this.aFillFieldIfNeededWithLog(this.eEmailField, personal.email, 'Email', section);
-    await this.aFillFieldIfNeededWithLog(this.eReEnterEmailField, personal.reEnterEmail, 'Повторный Email', section);
-    await this.aFillFieldIfNeededWithLog(this.eReligionField, personal.religion, 'Религия', section);
-    await this.aFillFieldIfNeededWithLog(this.ePlaceOfBirthField, personal.placeOfBirth, 'Место рождения', section);
-    
-    // Проверяем чекбоксы
-    await this.aCheckCheckboxIfNeededWithLog(this.eAgreeCreateAccountCheckbox, personal.agreeCreateAccount, 'Согласие на создание аккаунта', section);
-    
-    // Проверяем радиокнопки
-    await this.aCheckRadioButtonIfNeededWithLog(this.eOtherPassportsYes, this.eOtherPassportsNo, personal.hasOtherPassports === 'Yes', 'Другие паспорта', section);
-    await this.aCheckRadioButtonIfNeededWithLog(this.eMultipleNationalitiesYes, this.eMultipleNationalitiesNo, personal.hasMultipleNationalities === 'Yes', 'Множественное гражданство', section);
-    await this.aCheckRadioButtonIfNeededWithLog(this.eViolationOfLawsYes, this.eViolationOfLawsNo, personal.violationOfVietnameseLaws === 'Yes', 'Нарушения законов', section);
-    
-    // Заполняем поля "Other Used Passports" если есть данные
-    if (personal.otherUsedPassports && personal.otherUsedPassports.length > 0) {
-      try {
-        await this.fillOtherPassportsFields(personal.otherUsedPassports);
-      } catch (error) {
-        console.log(`⚠️ Ошибка при заполнении полей "Other Used Passports": ${error}`);
-      }
-    }
-  }
-
   async aFillRequestedInformationIfNeeded(userData: any) {
     console.log('📋 Проверяем раздел "REQUESTED INFORMATION"...');
     const requested = userData.requestedInformation;
     
-    await this.aCheckRadioButtonIfNeeded(this.eSingleEntryRadio, this.eMultipleEntryRadio, requested.visaType === 'Single-entry', 'Тип въезда');
-    await this.aFillDateFieldIfNeeded(this.eValidFromField, requested.validFrom, 'Действителен с');
-    await this.aFillDateFieldIfNeeded(this.eValidToField, requested.validTo, 'Действителен до');
+    // Радиокнопка для типа визы
+    // await this.aFillFieldByType(
+    //   requested.visaType === 'Single-entry' ? this.eSingleEntryRadio : this.eMultipleEntryRadio,
+    //   requested.visaType === 'Single-entry' ? 'Yes' : 'No',
+    //   'requestedInformation.visaType',
+    //   'Requested Information',
+    //   6,
+    //   { yesRadio: this.eSingleEntryRadio, noRadio: this.eMultipleEntryRadio }
+    // );
+    
+    // Поля даты
+    // await this.aFillFieldByType(this.eValidFromField, requested.validFrom, 'requestedInformation.validFrom', 'Requested Information', 5);
+    // await this.aFillFieldByType(this.eValidToField, requested.validTo, 'requestedInformation.validTo', 'Requested Information', 5);
   }
 
   async aFillPassportInformationIfNeeded(userData: any) {
     console.log('🛂 Проверяем раздел "PASSPORT INFORMATION"...');
     const passport = userData.passportInformation;
     
-    await this.aFillFieldIfNeeded(this.ePassportNumberField, passport.passportNumber, 'Номер паспорта');
-    await this.aFillFieldIfNeeded(this.eIssuingAuthorityField, passport.issuingAuthority, 'Орган выдачи');
-    await this.aFillAntDesignSelect(this.ePassportTypeSelect, passport.type, 'Тип паспорта');
-    await this.aFillDateFieldIfNeeded(this.ePassportDateOfIssueField, passport.dateOfIssue, 'Дата выдачи паспорта');
-    await this.aFillDateFieldIfNeeded(this.ePassportExpiryDateField, passport.expiryDate, 'Дата истечения паспорта');
-    await this.aCheckRadioButtonIfNeeded(this.eHoldOtherPassportsYes, this.eHoldOtherPassportsNo, passport.holdOtherValidPassports === 'Yes', 'Другие паспорта');
+    // Простые текстовые поля
+    // await this.aFillFieldByType(this.ePassportNumberField, passport.passportNumber, 'passportInformation.passportNumber', 'Passport Information', 1);
+    // await this.aFillFieldByType(this.eIssuingAuthorityField, passport.issuingAuthority, 'passportInformation.issuingAuthority', 'Passport Information', 1);
+    
+    // Большой выпадающий список
+    // await this.aFillFieldByType(this.ePassportTypeSelect, passport.type, 'passportInformation.type', 'Passport Information', 3);
+    
+    // Поля даты
+    // await this.aFillFieldByType(this.ePassportDateOfIssueField, passport.dateOfIssue, 'passportInformation.dateOfIssue', 'Passport Information', 5);
+    // await this.aFillFieldByType(this.ePassportExpiryDateField, passport.expiryDate, 'passportInformation.expiryDate', 'Passport Information', 5);
+    
+    // Радиокнопка для других паспортов
+    // await this.aFillFieldByType(
+    //   passport.holdOtherValidPassports === 'Yes' ? this.eHoldOtherPassportsYes : this.eHoldOtherPassportsNo,
+    //   passport.holdOtherValidPassports,
+    //   'passportInformation.holdOtherValidPassports',
+    //   'Passport Information',
+    //   6,
+    //   { yesRadio: this.eHoldOtherPassportsYes, noRadio: this.eHoldOtherPassportsNo }
+    // );
   }
 
   async aFillContactInformationIfNeeded(userData: any) {
     console.log('📞 Проверяем раздел "CONTACT INFORMATION"...');
     const contact = userData.contactInformation;
     
-    await this.aFillFieldIfNeeded(this.ePermanentAddressField, contact.permanentResidentialAddress, 'Постоянный адрес');
-    await this.aFillFieldIfNeeded(this.eContactAddressField, contact.contactAddress, 'Контактный адрес');
-    await this.aFillFieldIfNeeded(this.eTelephoneNumberField, contact.telephoneNumber, 'Телефон');
-    await this.aFillFieldIfNeeded(this.eEmergencyContactNameField, contact.emergencyContact.fullName, 'Имя экстренного контакта');
-    await this.aFillFieldIfNeeded(this.eEmergencyContactAddressField, contact.emergencyContact.currentResidentialAddress, 'Адрес экстренного контакта');
-    await this.aFillFieldIfNeeded(this.eEmergencyContactPhoneField, contact.emergencyContact.telephoneNumber, 'Телефон экстренного контакта');
-    await this.aFillFieldIfNeeded(this.eEmergencyContactRelationshipField, contact.emergencyContact.relationship, 'Отношение экстренного контакта');
+    // Простые текстовые поля
+    // await this.aFillFieldByType(this.ePermanentAddressField, contact.permanentResidentialAddress, 'contactInformation.permanentResidentialAddress', 'Contact Information', 1);
+    // await this.aFillFieldByType(this.eContactAddressField, contact.contactAddress, 'contactInformation.contactAddress', 'Contact Information', 1);
+    // await this.aFillFieldByType(this.eTelephoneNumberField, contact.telephoneNumber, 'contactInformation.telephoneNumber', 'Contact Information', 1);
+    
+    // Поля экстренного контакта
+    // await this.aFillFieldByType(this.eEmergencyContactNameField, contact.emergencyContact.fullName, 'contactInformation.emergencyContact.fullName', 'Contact Information', 1);
+    // await this.aFillFieldByType(this.eEmergencyContactAddressField, contact.emergencyContact.currentResidentialAddress, 'contactInformation.emergencyContact.currentResidentialAddress', 'Contact Information', 1);
+    // await this.aFillFieldByType(this.eEmergencyContactPhoneField, contact.emergencyContact.telephoneNumber, 'contactInformation.emergencyContact.telephoneNumber', 'Contact Information', 1);
+    
+    // Выпадающий список для отношения
+    // await this.aFillFieldByType(this.eEmergencyContactRelationshipField, contact.emergencyContact.relationship, 'contactInformation.emergencyContact.relationship', 'Contact Information', 2);
   }
 
   async aFillOccupationIfNeeded(userData: any) {
     console.log('💼 Проверяем раздел "OCCUPATION"...');
     const occupation = userData.occupation;
     
-    await this.aFillAntDesignSelect(this.eOccupationSelect, occupation.occupation, 'Профессия');
-    await this.aFillFieldIfNeeded(this.eOccupationInfoField, occupation.occupationInfo, 'Информация о профессии');
-    await this.aFillFieldIfNeeded(this.eCompanyNameField, occupation.nameOfCompanyAgencySchool, 'Название компании');
-    await this.aFillFieldIfNeeded(this.ePositionField, occupation.positionCourseOfStudy, 'Должность');
-    await this.aFillFieldIfNeeded(this.eCompanyAddressField, occupation.addressOfCompanyAgencySchool, 'Адрес компании');
-    await this.aFillFieldIfNeeded(this.eCompanyPhoneField, occupation.companyAgencySchoolPhoneNumber, 'Телефон компании');
+    // Выпадающий список для профессии
+    // await this.aFillFieldByType(this.eOccupationSelect, occupation.occupation, 'occupation.occupation', 'Occupation', 2);
+    
+    // Простые текстовые поля
+    // await this.aFillFieldByType(this.eOccupationInfoField, occupation.occupationInfo, 'occupation.occupationInfo', 'Occupation', 1);
+    // await this.aFillFieldByType(this.eCompanyNameField, occupation.nameOfCompanyAgencySchool, 'occupation.nameOfCompanyAgencySchool', 'Occupation', 1);
+    // await this.aFillFieldByType(this.ePositionField, occupation.positionCourseOfStudy, 'occupation.positionCourseOfStudy', 'Occupation', 1);
+    // await this.aFillFieldByType(this.eCompanyAddressField, occupation.addressOfCompanyAgencySchool, 'occupation.addressOfCompanyAgencySchool', 'Occupation', 1);
+    // await this.aFillFieldByType(this.eCompanyPhoneField, occupation.companyAgencySchoolPhoneNumber, 'occupation.companyAgencySchoolPhoneNumber', 'Occupation', 1);
   }
 
   async aFillTripInformationIfNeeded(userData: any) {
     console.log('✈️ Проверяем раздел "TRIP INFORMATION"...');
     const trip = userData.tripInformation;
     
-    await this.aFillAntDesignSelect(this.ePurposeOfEntrySelect, trip.purposeOfEntry, 'Цель въезда');
-    await this.page.waitForTimeout(1000);
+    // Большой выпадающий список для цели въезда
+    // await this.aFillFieldByType(this.ePurposeOfEntrySelect, trip.purposeOfEntry, 'tripInformation.purposeOfEntry', 'Trip Information', 3);
+    // await this.page.waitForTimeout(1000);
     
-    await this.aFillDateFieldIfNeeded(this.eIntendedDateOfEntryField, trip.intendedDateOfEntry, 'Предполагаемая дата въезда');
-    await this.page.waitForTimeout(1000);
+    // Поле даты
+    // await this.aFillFieldByType(this.eIntendedDateOfEntryField, trip.intendedDateOfEntry, 'tripInformation.intendedDateOfEntry', 'Trip Information', 5);
+    // await this.page.waitForTimeout(1000);
     
-    await this.aFillFieldIfNeeded(this.eIntendedLengthOfStayField, trip.intendedLengthOfStay, 'Предполагаемая продолжительность пребывания');
-    await this.page.waitForTimeout(1000);
+    // Простые текстовые поля
+    // await this.aFillFieldByType(this.eIntendedLengthOfStayField, trip.intendedLengthOfStay, 'tripInformation.intendedLengthOfStay', 'Trip Information', 1);
+    // await this.page.waitForTimeout(1000);
+    // await this.aFillFieldByType(this.ePhoneInVietnamField, trip.phoneNumberInVietnam, 'tripInformation.phoneNumberInVietnam', 'Trip Information', 1);
+    // await this.page.waitForTimeout(1000);
+    // await this.aFillFieldByType(this.eResidentialAddressSelect, trip.residentialAddressInVietnam, 'tripInformation.residentialAddressInVietnam', 'Trip Information', 1);
+    // await this.page.waitForTimeout(1000);
     
-    await this.aFillFieldIfNeeded(this.ePhoneInVietnamField, trip.phoneNumberInVietnam, 'Телефон во Вьетнаме');
-    await this.page.waitForTimeout(1000);
+    // Большие выпадающие списки для провинции и пунктов въезда/выезда
+    // await this.aFillFieldByType(this.eProvinceSelect, trip.provinceCity, 'tripInformation.provinceCity', 'Trip Information', 3);
+    // await this.page.waitForTimeout(2000);
     
-    await this.aFillFieldIfNeeded(this.eResidentialAddressSelect, trip.residentialAddressInVietnam, 'Адрес проживания');
-    await this.page.waitForTimeout(1000);
+    // Зависимый выпадающий список для района
+    // await this.aFillFieldByType(
+    //   this.eWardSelect, 
+    //   trip.wardCommune, 
+    //   'tripInformation.wardCommune', 
+    //   'Trip Information', 
+    //   4,
+    //   { dependsOn: this.eProvinceSelect, dependsOnValue: trip.provinceCity }
+    // );
+    // await this.page.waitForTimeout(2000);
     
-    // Специальная обработка для провинции - может зависеть от адреса
-    await this.aFillAntDesignSelect(this.eProvinceSelect, trip.provinceCity, 'Провинция');
-    await this.page.waitForTimeout(2000); // Увеличенная задержка для загрузки зависимых данных
+    // Большие выпадающие списки для пунктов въезда/выезда
+    // await this.aFillFieldByType(this.eBorderGateEntrySelect, trip.intendedBorderGateOfEntry, 'tripInformation.intendedBorderGateOfEntry', 'Trip Information', 3);
+    // await this.page.waitForTimeout(1000);
+    // await this.aFillFieldByType(this.eBorderGateExitSelect, trip.intendedBorderGateOfExit, 'tripInformation.intendedBorderGateOfExit', 'Trip Information', 3);
+    // await this.page.waitForTimeout(1000);
     
-    // Специальная обработка для района - зависит от провинции
-    await this.aFillAntDesignSelect(this.eWardSelect, trip.wardCommune, 'Район');
-    await this.page.waitForTimeout(2000); // Увеличенная задержка для загрузки зависимых данных
+    // Чекбокс для обязательства заявить о временном проживании
+    // await this.aFillFieldByType(this.eTempResidenceCheckbox, trip.committedToDeclareTempResidence, 'tripInformation.committedToDeclareTempResidence', 'Trip Information', 7);
     
-    // Специальная обработка для пунктов въезда/выезда - могут зависеть от провинции
-    await this.aFillAntDesignSelect(this.eBorderGateEntrySelect, trip.intendedBorderGateOfEntry, 'Пункт въезда');
-    await this.page.waitForTimeout(1000);
+    // Радиокнопки
+    // await this.aFillFieldByType(
+    //   trip.hasAgencyOrganizationContact === 'Yes' ? this.eAgencyContactYes : this.eAgencyContactNo,
+    //   trip.hasAgencyOrganizationContact,
+    //   'tripInformation.hasAgencyOrganizationContact',
+    //   'Trip Information',
+    //   6,
+    //   { yesRadio: this.eAgencyContactYes, noRadio: this.eAgencyContactNo }
+    // );
     
-    await this.aFillAntDesignSelect(this.eBorderGateExitSelect, trip.intendedBorderGateOfExit, 'Пункт выезда');
-    await this.page.waitForTimeout(1000);
+    // await this.aFillFieldByType(
+    //   trip.beenToVietnamLastYear === 'Yes' ? this.eBeenToVietnamYes : this.eBeenToVietnamNo,
+    //   trip.beenToVietnamLastYear,
+    //   'tripInformation.beenToVietnamLastYear',
+    //   'Trip Information',
+    //   6,
+    //   { yesRadio: this.eBeenToVietnamYes, noRadio: this.eBeenToVietnamNo }
+    // );
     
-    await this.aCheckCheckboxIfNeeded(this.eTempResidenceCheckbox, trip.committedToDeclareTempResidence, 'Временное проживание');
-    
-    // Проверяем радиокнопки вопросов
-    await this.aCheckRadioButtonIfNeeded(this.eAgencyContactYes, this.eAgencyContactNo, trip.hasAgencyOrganizationContact === 'Yes', 'Контакт с агентством');
-    await this.aCheckRadioButtonIfNeeded(this.eBeenToVietnamYes, this.eBeenToVietnamNo, trip.beenToVietnamLastYear === 'Yes', 'Был ли во Вьетнаме');
-    await this.aCheckRadioButtonIfNeeded(this.eHasRelativesYes, this.eHasRelativesNo, trip.hasRelativesInVietnam === 'Yes', 'Есть ли родственники');
+    // await this.aFillFieldByType(
+    //   trip.hasRelativesInVietnam === 'Yes' ? this.eHasRelativesYes : this.eHasRelativesNo,
+    //   trip.hasRelativesInVietnam,
+    //   'tripInformation.hasRelativesInVietnam',
+    //   'Trip Information',
+    //   6,
+    //   { yesRadio: this.eHasRelativesYes, noRadio: this.eHasRelativesNo }
+    // );
   }
 
   async aFillTripExpensesIfNeeded(userData: any) {
     console.log('💰 Проверяем раздел "TRIP EXPENSES"...');
     const expenses = userData.tripsExpensesInsurance;
     
-    await this.aFillFieldIfNeeded(this.eIntendedExpensesField, expenses.intendedExpensesUSD, 'Предполагаемые расходы');
-    await this.aFillAntDesignSelect(this.eInsuranceSelect, expenses.didBuyInsurance, 'Страхование');
+    // Простое текстовое поле для расходов
+    // await this.aFillFieldByType(this.eIntendedExpensesField, expenses.intendedExpensesUSD, 'tripsExpensesInsurance.intendedExpensesUSD', 'Trip Expenses', 1);
     
-    // Заполняем поле "Specify" для страхования
-    if (expenses.specifyInsurance) {
-      try {
-        await this.fillInsuranceSpecifyField(expenses.specifyInsurance);
-      } catch (error) {
-        console.log(`⚠️ Ошибка при заполнении поля "Specify" для страхования: ${error}`);
-      }
-    }
+    // Выпадающий список для страхования
+    // await this.aFillFieldByType(this.eInsuranceSelect, expenses.didBuyInsurance, 'tripsExpensesInsurance.didBuyInsurance', 'Trip Expenses', 2);
     
-    // Специальная обработка для поля "Who will cover the trip's expenses"
-    try {
-      console.log('🔍 Расходы покрываются: пытаемся найти поле...');
-      
-      // Прокручиваем к разделу расходов
-      await this.eExpensesSection.scrollIntoViewIfNeeded();
-      await this.page.waitForTimeout(1000);
-      
-      // Пробуем найти поле разными способами
-      let expensesField = null;
-      
-      // Способ 1: По точному названию
-      try {
-        expensesField = this.page.getByRole('combobox', { name: 'Who will cover the trip\'s expenses of the applicant' });
-        if (await expensesField.isVisible({ timeout: 5000 })) {
-          console.log('✅ Поле "Who will cover the trip\'s expenses" найдено (способ 1)');
-        } else {
-          expensesField = null;
-        }
-      } catch (error) {
-        console.log('⚠️ Поле не найдено способом 1');
-      }
-      
-      // Способ 2: По частичному названию
-      if (!expensesField) {
-        try {
-          expensesField = this.page.getByRole('combobox', { name: /Who will cover/ });
-          if (await expensesField.isVisible({ timeout: 5000 })) {
-            console.log('✅ Поле "Who will cover the trip\'s expenses" найдено (способ 2)');
-          } else {
-            expensesField = null;
-          }
-        } catch (error) {
-          console.log('⚠️ Поле не найдено способом 2');
-        }
-      }
-      
-      // Способ 3: По первому combobox в разделе расходов
-      if (!expensesField) {
-        try {
-          const comboboxes = this.eExpensesSection.locator('combobox');
-          if (await comboboxes.count() > 0) {
-            expensesField = comboboxes.nth(1); // Второй combobox (первый - это страхование)
-            console.log('✅ Поле "Who will cover the trip\'s expenses" найдено (способ 3)');
-          }
-        } catch (error) {
-          console.log('⚠️ Поле не найдено способом 3');
-        }
-      }
-      
-      if (expensesField) {
-        await this.aFillAntDesignSelect(expensesField, expenses.whoCoversTripExpenses, 'Расходы покрываются');
-      } else {
-        console.log('❌ Поле "Who will cover the trip\'s expenses" не найдено');
-      }
-      
-    } catch (error) {
-      console.log(`⚠️ Ошибка при заполнении поля "Who will cover the trip's expenses": ${error}`);
-    }
+    // Простое текстовое поле для указания страхования (если есть)
+    // if (expenses.specifyInsurance) {
+    //   try {
+    //     await this.fillInsuranceSpecifyField(expenses.specifyInsurance);
+    //   } catch (error) {
+    //     console.log(`⚠️ Ошибка при заполнении поля "Specify" для страхования: ${error}`);
+    //   }
+    // }
     
-    // Заполняем поле "Payment method" (способ оплаты)
-    if (expenses['Payment method']) {
-      try {
-        await this.fillPaymentMethodField(expenses['Payment method']);
-      } catch (error) {
-        console.log(`⚠️ Ошибка при заполнении поля "Payment method": ${error}`);
-      }
-    }
+    // Выпадающий список для покрытия расходов
+    // try {
+    //   let expensesField = null;
+      
+    //   // Способ 1: По тексту "Who will cover"
+    //   try {
+    //     expensesField = this.page.locator('text=Who will cover').first();
+    //     if (await expensesField.count() > 0) {
+    //       console.log('✅ Поле "Who will cover the trip\'s expenses" найдено (способ 1)');
+    //     }
+    //   } catch (error) {
+    //     console.log('⚠️ Поле не найдено способом 1');
+    //   }
+      
+    //   // Способ 2: По атрибуту name
+    //   if (!expensesField) {
+    //     try {
+    //       expensesField = this.page.locator('[name*="expenses"], [name*="cover"]').first();
+    //       if (await expensesField.count() > 0) {
+    //         console.log('✅ Поле "Who will cover the trip\'s expenses" найдено (способ 2)');
+    //       }
+    //     } catch (error) {
+    //       console.log('⚠️ Поле не найдено способом 2');
+    //   }
+      
+    //   // Способ 3: По первому combobox в разделе расходов
+    //   if (!expensesField) {
+    //     try {
+    //       const comboboxes = this.eExpensesSection.locator('combobox');
+    //       if (await comboboxes.count() > 0) {
+    //         expensesField = comboboxes.nth(1); // Второй combobox (первый - это страхование)
+    //         console.log('✅ Поле "Who will cover the trip\'s expenses" найдено (способ 3)');
+    //       }
+    //     } catch (error) {
+    //       console.log('⚠️ Поле не найдено способом 3');
+    //     }
+    //   }
+      
+    //   if (expensesField) {
+    //     await this.aFillFieldByType(expensesField, expenses.whoCoversTripExpenses, 'tripsExpensesInsurance.whoCoversTripExpenses', 'Trip Expenses', 2);
+    //   } else {
+    //     console.log('❌ Поле "Who will cover the trip\'s expenses" не найдено');
+    //   }
+      
+    // } catch (error) {
+    //   console.log(`⚠️ Ошибка при заполнении поля "Who will cover the trip's expenses": ${error}`);
+    // }
+    
+    // Выпадающий список для способа оплаты
+    // if (expenses['Payment method']) {
+    //   try {
+    //     await this.fillPaymentMethodField(expenses['Payment method']);
+    //   } catch (error) {
+    //     console.log(`⚠️ Ошибка при заполнении поля "Payment method": ${error}`);
+    //   }
+    // }
   }
 
   // Вспомогательные методы для проверки и заполнения полей
@@ -2395,8 +2478,8 @@ export class ApplicationFormPage {
     this.formFillLog.entries.forEach(entry => {
       const section = entry.section.padEnd(23);
       const field = entry.fieldName.padEnd(28);
-      const expected = entry.expectedValue.padEnd(18);
-      const actual = entry.actualValue.padEnd(18);
+      const expected = String(entry.expectedValue).padEnd(18);
+      const actual = String(entry.actualValue).padEnd(18);
       const status = this.getStatusIcon(entry.status).padEnd(10);
       
       console.log(`│ ${section}│ ${field}│ ${expected}│ ${actual}│ ${status}│`);
@@ -2463,8 +2546,8 @@ export class ApplicationFormPage {
       this.formFillLog.entries.forEach(entry => {
         const section = entry.section.padEnd(23);
         const field = entry.fieldName.padEnd(28);
-        const expected = entry.expectedValue.padEnd(18);
-        const actual = entry.actualValue.padEnd(18);
+        const expected = String(entry.expectedValue).padEnd(18);
+        const actual = String(entry.actualValue).padEnd(18);
         const status = this.getStatusIcon(entry.status).padEnd(10);
         
         logContent += `│ ${section}│ ${field}│ ${expected}│ ${actual}│ ${status}│\n`;
@@ -2725,6 +2808,420 @@ export class ApplicationFormPage {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.aLogFieldFill(section, fieldName, fieldName, shouldBeYes.toString(), 'ERROR', 'error', errorMessage);
       console.log(`⚠️ ${fieldName}: не удалось установить - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Единая система правил заполнения полей согласно их типам
+   */
+  private getFieldFillRule(fieldPath: string, fieldType: number): string {
+    const rules: { [key: number]: string } = {
+      1: 'simple_input',      // Простой инпут с вводом текста
+      2: 'dropdown_select',   // Инпут с выпадающим списком
+      3: 'large_dropdown',    // Инпут с выпадающим списком, большой список
+      4: 'dependent_dropdown', // Зависимый выпадающий список
+      5: 'date_picker',       // Выбор даты
+      6: 'radio_button',      // Радио кнопка
+      7: 'checkbox',          // Чекбокс
+    };
+    
+    return rules[fieldType] || 'simple_input';
+  }
+
+  /**
+   * Универсальный метод заполнения поля согласно его типу
+   */
+  async aFillFieldByType(
+    field: Locator, 
+    expectedValue: string, 
+    fieldName: string, 
+    section: string,
+    fieldType: number,
+    additionalParams?: any
+  ): Promise<void> {
+    const rule = this.getFieldFillRule(fieldName, fieldType);
+    
+    try {
+      switch (rule) {
+        case 'simple_input':
+          await this.aFillSimpleInputWithLog(field, expectedValue, fieldName, section);
+          break;
+          
+        case 'dropdown_select':
+          await this.aFillDropdownSelectWithLog(field, expectedValue, fieldName, section);
+          break;
+          
+        case 'large_dropdown':
+          await this.aFillLargeDropdownWithLog(field, expectedValue, fieldName, section);
+          break;
+          
+        case 'dependent_dropdown':
+          await this.aFillDependentDropdownWithLog(field, expectedValue, fieldName, section, additionalParams);
+          break;
+          
+        case 'date_picker':
+          await this.aFillDatePickerWithLog(field, expectedValue, fieldName, section);
+          break;
+          
+        case 'radio_button':
+          await this.aFillRadioButtonWithLog(field, expectedValue, fieldName, section, additionalParams);
+          break;
+          
+        case 'checkbox':
+          await this.aFillCheckboxWithLog(field, expectedValue, fieldName, section);
+          break;
+          
+        case 'file_upload':
+          await this.aFillFileUploadWithLog(field, expectedValue, fieldName, section);
+          break;
+          
+        default:
+          await this.aFillSimpleInputWithLog(field, expectedValue, fieldName, section);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить (тип: ${rule}) - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение простого текстового поля (тип 1)
+   */
+  async aFillSimpleInputWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const isReadonly = await field.getAttribute('readonly');
+      
+      if (isReadonly) {
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, expectedValue);
+        
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+        console.log(`✅ ${fieldName}: заполнено через JavaScript (readonly)`);
+        return;
+      }
+      
+      const currentValue = await field.inputValue();
+      if (currentValue === expectedValue) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, currentValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+      } else {
+        await field.clear();
+        await this.page.waitForTimeout(100);
+        await field.fill(expectedValue);
+        await this.page.waitForTimeout(100);
+        
+        const newValue = await field.inputValue();
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, newValue, 'success');
+        console.log(`✅ ${fieldName}: заполнено (простой инпут)`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить простой инпут - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение выпадающего списка (тип 2)
+   */
+  async aFillDropdownSelectWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const isAlreadyFilled = await this.aIsAntDesignSelectFilled(field, expectedValue, fieldName);
+      
+      if (isAlreadyFilled) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+        return;
+      }
+      
+      await field.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(1000);
+      await field.click({ force: true });
+      await this.page.waitForTimeout(1500);
+      
+      try {
+        await this.page.locator('.ant-select-dropdown').waitFor({ timeout: 3000 });
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: выпадающий список не появился`);
+      }
+      
+      let optionFound = false;
+      
+      // Поиск опции
+      try {
+        const exactOption = this.page.locator('.ant-select-item-option').filter({ hasText: expectedValue });
+        if (await exactOption.count() > 0) {
+          await exactOption.first().click();
+          optionFound = true;
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+          console.log(`✅ ${fieldName}: установлено (выпадающий список)`);
+        }
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: не найдено точное совпадение для "${expectedValue}"`);
+      }
+      
+      if (!optionFound) {
+        const errorMessage = `Не удалось найти опцию "${expectedValue}" в выпадающем списке`;
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'NOT_FOUND', 'error', errorMessage);
+        console.log(`❌ ${fieldName}: ${errorMessage}`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить выпадающий список - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение большого выпадающего списка (тип 3)
+   */
+  async aFillLargeDropdownWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const isAlreadyFilled = await this.aIsAntDesignSelectFilled(field, expectedValue, fieldName);
+      
+      if (isAlreadyFilled) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+        return;
+      }
+      
+      await field.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(1000);
+      await field.click({ force: true });
+      await this.page.waitForTimeout(2000);
+      
+      try {
+        await this.page.locator('.ant-select-dropdown').waitFor({ timeout: 5000 });
+      } catch (error) {
+        console.log(`⚠️ ${fieldName}: большой выпадающий список не появился`);
+      }
+      
+      let optionFound = false;
+      
+      // Множественные способы поиска для больших списков
+      const searchMethods = [
+        () => this.page.locator('.ant-select-item-option').filter({ hasText: expectedValue }),
+        () => this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(expectedValue, 'i') }),
+        () => this.page.locator(`.ant-select-item-option[title*="${expectedValue}"]`),
+        () => this.page.locator('.ant-select-item-option span').filter({ hasText: expectedValue })
+      ];
+      
+      for (const searchMethod of searchMethods) {
+        if (optionFound) break;
+        
+        try {
+          const option = searchMethod();
+          if (await option.count() > 0) {
+            await option.first().click();
+            optionFound = true;
+            this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+            console.log(`✅ ${fieldName}: установлено (большой выпадающий список)`);
+          }
+        } catch (error) {
+          console.log(`⚠️ ${fieldName}: метод поиска не сработал`);
+        }
+      }
+      
+      if (!optionFound) {
+        const errorMessage = `Не удалось найти опцию "${expectedValue}" в большом выпадающем списке`;
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'NOT_FOUND', 'error', errorMessage);
+        console.log(`❌ ${fieldName}: ${errorMessage}`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить большой выпадающий список - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение зависимого выпадающего списка (тип 4)
+   */
+  async aFillDependentDropdownWithLog(
+    field: Locator, 
+    expectedValue: string, 
+    fieldName: string, 
+    section: string,
+    additionalParams?: any
+  ): Promise<void> {
+    try {
+      // Проверяем, заполнено ли зависимое поле
+      if (additionalParams?.dependsOn && additionalParams?.dependsOnValue) {
+        const dependentField = additionalParams.dependsOn;
+        const dependentValue = additionalParams.dependsOnValue;
+        
+        const isDependentFilled = await this.aIsAntDesignSelectFilled(dependentField, dependentValue, 'Зависимое поле');
+        
+        if (!isDependentFilled) {
+          const errorMessage = `Зависимое поле не заполнено: ${dependentValue}`;
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'DEPENDENCY_NOT_MET', 'error', errorMessage);
+          console.log(`❌ ${fieldName}: ${errorMessage}`);
+          return;
+        }
+        
+        // Ждем загрузки зависимых данных
+        await this.page.waitForTimeout(2000);
+      }
+      
+      // Используем логику большого выпадающего списка
+      await this.aFillLargeDropdownWithLog(field, expectedValue, fieldName, section);
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить зависимый выпадающий список - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение поля даты (тип 5)
+   */
+  async aFillDatePickerWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      const currentValue = await field.inputValue();
+      if (currentValue === expectedValue) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, currentValue, 'already_filled');
+        console.log(`✅ ${fieldName}: уже заполнено правильно (${expectedValue})`);
+      } else {
+        await field.scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(200);
+        await field.focus();
+        await this.page.waitForTimeout(100);
+        await field.clear();
+        await this.page.waitForTimeout(100);
+        
+        // Заполнение через JavaScript для надежности
+        await field.evaluate((el: HTMLInputElement, value: string) => {
+          el.value = value;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
+        }, expectedValue);
+        
+        // Дополнительно заполняем через Playwright
+        await field.fill(expectedValue);
+        
+        const newValue = await field.inputValue();
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, newValue, 'success');
+        console.log(`✅ ${fieldName}: заполнено (поле даты)`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось заполнить поле даты - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение радиокнопки (тип 6)
+   */
+  async aFillRadioButtonWithLog(
+    field: Locator, 
+    expectedValue: any, 
+    fieldName: string, 
+    section: string,
+    additionalParams?: any
+  ): Promise<void> {
+    try {
+      const { yesRadio, noRadio } = additionalParams || {};
+      
+      if (yesRadio && noRadio) {
+        const yesChecked = await yesRadio.isChecked();
+        const noChecked = await noRadio.isChecked();
+        const shouldBeYes = expectedValue === 'Yes';
+        
+        if ((shouldBeYes && yesChecked) || (!shouldBeYes && noChecked)) {
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'already_filled');
+          console.log(`✅ ${fieldName}: уже установлено правильно (${expectedValue})`);
+        } else {
+          if (shouldBeYes) {
+            await yesRadio.click();
+          } else {
+            await noRadio.click();
+          }
+          
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+          console.log(`✅ ${fieldName}: установлено (радиокнопка: ${expectedValue})`);
+        }
+      } else {
+        // Одиночная радиокнопка
+        const isChecked = await field.isChecked();
+        const shouldBeChecked = expectedValue === 'Yes' || expectedValue === 'true';
+        
+        if (isChecked === shouldBeChecked) {
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'already_filled');
+          console.log(`✅ ${fieldName}: уже установлено правильно (${expectedValue})`);
+        } else {
+          await field.click();
+          this.aLogFieldFill(section, fieldName, fieldName, expectedValue, expectedValue, 'success');
+          console.log(`✅ ${fieldName}: установлено (радиокнопка)`);
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось установить радиокнопку - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Заполнение чекбокса (тип 7)
+   */
+  async aFillCheckboxWithLog(field: Locator, expectedValue: any, fieldName: string, section: string): Promise<void> {
+    try {
+      const isChecked = await field.isChecked();
+      const shouldBeChecked = expectedValue === 'Yes' || expectedValue === 'true' || expectedValue === true;
+      
+      if (isChecked === shouldBeChecked) {
+        this.aLogFieldFill(section, fieldName, fieldName, String(expectedValue), String(expectedValue), 'already_filled');
+        console.log(`✅ ${fieldName}: уже установлено правильно (${expectedValue})`);
+      } else {
+        if (shouldBeChecked) {
+          await field.check();
+        } else {
+          await field.uncheck();
+        }
+        
+        const newValue = await field.isChecked();
+        this.aLogFieldFill(section, fieldName, fieldName, String(expectedValue), newValue.toString(), 'success');
+        console.log(`✅ ${fieldName}: установлено (чекбокс: ${expectedValue})`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, String(expectedValue), 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось установить чекбокс - ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Загрузка файла (тип undefined)
+   */
+  async aFillFileUploadWithLog(field: Locator, expectedValue: string, fieldName: string, section: string): Promise<void> {
+    try {
+      // Проверяем, загружен ли уже файл
+      const isUploaded = await this.aIsPhotoUploaded() || await this.aIsPassportUploaded();
+      
+      if (isUploaded) {
+        this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'UPLOADED', 'already_filled');
+        console.log(`✅ ${fieldName}: файл уже загружен`);
+        return;
+      }
+      
+      // Загружаем файл
+      await field.setInputFiles(expectedValue);
+      await this.page.waitForTimeout(2000);
+      
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'UPLOADED', 'success');
+      console.log(`✅ ${fieldName}: файл загружен`);
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.aLogFieldFill(section, fieldName, fieldName, expectedValue, 'ERROR', 'error', errorMessage);
+      console.log(`⚠️ ${fieldName}: не удалось загрузить файл - ${errorMessage}`);
     }
   }
 } 

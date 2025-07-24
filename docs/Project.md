@@ -28,6 +28,62 @@
 3. **Separation of Concerns:** Разделение UI, бизнес-логики и данных
 4. **Fail-Safe Design:** Graceful handling of errors and edge cases
 5. **Extensibility:** Легкое добавление новых форм и сайтов
+6. **Field Utils Pattern:** Вынесение логики работы с полями в отдельные утилиты
+
+### Новая архитектура работы с полями (v2.5)
+
+#### Принципы рефакторинга:
+- **Разделение ответственности:** Логика работы с полями вынесена в `utils/fieldUtils.ts`
+- **Переиспользование:** Утилиты можно использовать в разных POM
+- **Чистота кода:** POM содержит только методы поиска, заполнения и проверки
+- **Масштабируемость:** Легко добавлять новые типы полей в утилиты
+
+#### Структура утилит (`utils/fieldUtils.ts`):
+```typescript
+export class FieldUtils {
+  // Получение номера поля из классификации
+  getFieldNumber(fieldName: string): string
+  
+  // Заполнение простых текстовых полей
+  async fillSimpleTextField(fieldName: string, value: string, locator: Locator): Promise<void>
+  
+  // Заполнение радио кнопок
+  async fillRadioButton(fieldName: string, value: string, locator: Locator): Promise<void>
+  
+  // Проверка текстовых полей
+  async verifySimpleTextField(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean>
+  
+  // Проверка радио кнопок
+  async verifyRadioButton(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean>
+}
+```
+
+#### Структура POM (`pages/personalInformationTestPage.page.ts`):
+```typescript
+export class PersonalInformationTestPage {
+  // Методы поиска полей
+  async aFindSurnameField(): Promise<Locator | null>
+  async aFindMiddleAndGivenNameField(): Promise<Locator | null>
+  async aFindDateOfBirthTypeRadioByValue(value: string): Promise<Locator | null>
+  
+  // Методы заполнения полей
+  async aFillSurnameField(surname: string): Promise<void>
+  async aFillMiddleAndGivenNameField(givenName: string): Promise<void>
+  async aFillDateOfBirthTypeField(dateType: string): Promise<void>
+  
+  // Методы проверки полей
+  async aVerifySurnameField(expectedSurname: string): Promise<boolean>
+  async aVerifyMiddleAndGivenNameField(expectedGivenName: string): Promise<boolean>
+  async aVerifyDateOfBirthTypeField(expectedType: string): Promise<boolean>
+}
+```
+
+#### Преимущества новой архитектуры:
+1. **Чистота кода:** POM содержит только специфичную логику поиска полей
+2. **Переиспользование:** Утилиты можно использовать в разных POM
+3. **Тестируемость:** Каждый компонент можно тестировать отдельно
+4. **Масштабируемость:** Легко добавлять новые типы полей
+5. **Поддержка:** Проще поддерживать и отлаживать код
 
 ### Компоненты системы
 
@@ -36,13 +92,16 @@
 ├── pages/                    # Page Object классы
 │   ├── applicationFormPage.page.ts  # Форма заявления
 │   ├── loginPage.page.ts     # Страница авторизации
-│   └── mainPage.page.ts      # Главная страница
+│   ├── mainPage.page.ts      # Главная страница
+│   └── personalInformationTestPage.page.ts  # Отладочный POM для Personal Information
 ├── utils/                    # Утилиты и хелперы
 │   ├── browserConnect.ts     # Подключение к браузеру
 │   ├── envConfig.ts         # Конфигурация окружения
+│   ├── fieldUtils.ts        # Утилиты для работы с полями формы
 │   └── index.ts             # Экспорты
 └── tests/                    # Тестовые сценарии
-    └── evisa-vietnam-full-flow.spec.ts
+    ├── evisa-vietnam-full-flow.spec.ts
+    └── personal-information-debug.spec.ts  # Отладочные тесты
 ```
 
 #### 2. Data Management
