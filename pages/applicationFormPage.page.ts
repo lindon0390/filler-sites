@@ -2073,66 +2073,58 @@ export class ApplicationFormPage {
     try {
       console.log(`🔧 Заполняю поле "Payment method" значением: ${paymentMethod}`);
       
-      // Попробуем найти поле разными способами
-      let paymentMethodField = null;
+      // Найдем последний элемент с текстом "Choose one" - это Payment method
+      const chooseOneElements = this.page.locator('*:has-text("Choose one")');
+      const count = await chooseOneElements.count();
       
-      // Способ 1: По placeholder
-      try {
-        paymentMethodField = this.page.locator('input[placeholder*="payment" i], input[placeholder*="method" i], select[id*="payment"], select[id*="method"]');
-        if (await paymentMethodField.isVisible({ timeout: 2000 })) {
-          console.log('✅ Поле "Payment method" найдено (способ 1)');
+      if (count > 0) {
+        // Берем последний элемент с "Choose one"
+        const lastChooseOne = chooseOneElements.nth(count - 1);
+        
+        // Найдем ближайший combobox через JavaScript
+        const result = await this.page.evaluate(() => {
+          const chooseOneElements = document.querySelectorAll('*');
+          const chooseOneElementsArray = Array.from(chooseOneElements).filter(el => {
+            const text = el.textContent?.trim();
+            return text === 'Choose one' || text === 'Choose One';
+          });
+          
+          if (chooseOneElementsArray.length > 0) {
+            const lastChooseOne = chooseOneElementsArray[chooseOneElementsArray.length - 1];
+            const combobox = lastChooseOne.closest('[role="combobox"]');
+            if (combobox) {
+              return {
+                found: true,
+                text: combobox.textContent?.trim(),
+                id: combobox.id,
+                className: combobox.className
+              };
+            }
+          }
+          return { found: false };
+        });
+        
+        if (result.found) {
+          console.log('✅ Поле "Payment method" найдено (последний элемент с "Choose one")');
+          
+          // Проверяем, не заполнено ли уже поле
+          if (result.text && result.text !== '' && result.text !== 'Choose one') {
+            console.log(`✅ Поле "Payment method" уже заполнено значением: "${result.text}"`);
+            return;
+          }
+          
+          // Заполняем поле через Playwright
+          const paymentMethodField = this.page.locator(`[id="${result.id}"]`);
+          await paymentMethodField.click();
+          await this.page.waitForTimeout(1000);
+          await this.page.getByText(paymentMethod, { exact: true }).click();
+          
+          console.log(`✅ Поле "Payment method" успешно заполнено значением: "${paymentMethod}"`);
         } else {
-          paymentMethodField = null;
+          console.log('⚠️ Combobox для Payment method не найден');
         }
-      } catch (error) {
-        console.log('⚠️ Поле не найдено способом 1');
-      }
-      
-      // Способ 2: По тексту "Choose one"
-      if (!paymentMethodField) {
-        try {
-          paymentMethodField = this.page.locator('[role="combobox"]:has-text("Choose one")');
-          if (await paymentMethodField.isVisible({ timeout: 2000 })) {
-            console.log('✅ Поле "Payment method" найдено (способ 2)');
-          } else {
-            paymentMethodField = null;
-          }
-        } catch (error) {
-          console.log('⚠️ Поле не найдено способом 2');
-        }
-      }
-      
-      // Способ 3: Последний combobox в разделе страхования
-      if (!paymentMethodField) {
-        try {
-          const insuranceSection = this.page.locator('h3:has-text("TRIP\'S EXPENSES, INSURANCE")');
-          const comboboxes = insuranceSection.locator('[role="combobox"]');
-          const count = await comboboxes.count();
-          if (count > 0) {
-            paymentMethodField = comboboxes.nth(count - 1); // Последний combobox
-            console.log('✅ Поле "Payment method" найдено (способ 3)');
-          }
-        } catch (error) {
-          console.log('⚠️ Поле не найдено способом 3');
-        }
-      }
-      
-      if (paymentMethodField) {
-        // Проверяем, не заполнено ли уже поле
-        const currentValue = await paymentMethodField.textContent();
-        if (currentValue && currentValue.trim() !== '' && currentValue.trim() !== 'Choose one') {
-          console.log(`✅ Поле "Payment method" уже заполнено значением: "${currentValue}"`);
-          return;
-        }
-        
-        // Заполняем поле
-        await paymentMethodField.click();
-        await this.page.waitForTimeout(1000);
-        await this.page.getByText(paymentMethod, { exact: true }).click();
-        
-        console.log(`✅ Поле "Payment method" успешно заполнено значением: "${paymentMethod}"`);
       } else {
-        console.log('⚠️ Поле "Payment method" не найдено - возможно, оно скрыто или не отображается');
+        console.log('⚠️ Элементы с "Choose one" не найдены');
       }
       
     } catch (error) {
