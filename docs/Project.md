@@ -85,6 +85,54 @@ export class PersonalInformationTestPage {
 4. **Масштабируемость:** Легко добавлять новые типы полей
 5. **Поддержка:** Проще поддерживать и отлаживать код
 
+### Core Components
+
+#### **Pages (Page Object Models)**
+- **`applicationFormPage.page.ts`** - Основной POM для полной формы заявки
+- **`personalInformationTestPage.page.ts`** - Специализированный POM для отладки полей Personal Information
+- **`loginPage.page.ts`** - POM для страницы авторизации
+- **`mainPage.page.ts`** - POM для главной страницы
+
+#### **Utils (Утилиты)**
+- **`fieldUtils.ts`** - Универсальные методы для работы с различными типами полей
+- **`browserConnect.ts`** - Подключение к существующему браузеру Chrome
+- **`envConfig.ts`** - Конфигурация окружения
+- **`userManager.js`** - Управление данными пользователей
+
+#### **Tests (Тесты)**
+- **`evisa-vietnam-full-flow.spec.ts`** - Полный тест заполнения формы
+- **`personal-information-debug.spec.ts`** - Отладочный тест для полей Personal Information
+
+### Architectural Principles
+
+#### **Field Utils Pattern (v2.7)**
+**Принципы:**
+- **Разделение ответственности** - POM содержит только локаторы и вызовы утилит
+- **Переиспользуемость** - общая логика в FieldUtils
+- **Безопасность** - специфичные локаторы без конфликтов
+- **Единообразие** - единый паттерн для всех типов полей
+
+**Структура:**
+```typescript
+// POM - только локаторы и вызовы
+async aFillRadioField(value: string): Promise<void> {
+  const radioLocators = {
+    'Option1': this.eRadioOption1,
+    'Option2': this.eRadioOption2
+  };
+  await this.fieldUtils.fillRadioButtonGroup('fieldName', value, radioLocators);
+}
+
+// FieldUtils - вся бизнес-логика
+async fillRadioButtonGroup(fieldName: string, expectedValue: string, radioLocators: { [key: string]: Locator }): Promise<void>
+```
+
+**Преимущества:**
+- **Масштабируемость** - легко добавлять новые поля
+- **Читаемость** - чёткое разделение по типам полей
+- **Надёжность** - проверка состояния перед действием
+- **Диагностика** - подробное логирование состояния
+
 ### Компоненты системы
 
 #### 1. Core Components

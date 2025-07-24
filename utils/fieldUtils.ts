@@ -1,11 +1,8 @@
-import { Locator, Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class FieldUtils {
   constructor(private page: Page) {}
 
-  /**
-   * Получить номер поля из классификации
-   */
   getFieldNumber(fieldName: string): string {
     const fieldNumbers: { [key: string]: string } = {
       'surname': '1.1',
@@ -19,40 +16,34 @@ export class FieldUtils {
       'agreeCreateAccount': '1.9',
       'religion': '1.10',
       'placeOfBirth': '1.11',
-      'reEnterEmail': '1.12'
+      'reEnterEmail': '1.12',
+      'hasOtherPassports': '1.13',
+      'otherUsedPassports': '1.14',
+      'hasMultipleNationalities': '1.15'
     };
     return fieldNumbers[fieldName] || '?';
   }
 
-  /**
-   * Заполнить простое текстовое поле
-   */
+  // === ТЕКСТОВЫЕ ПОЛЯ ===
+  
   async fillSimpleTextField(fieldName: string, value: string, locator: Locator): Promise<void> {
     const fieldNumber = this.getFieldNumber(fieldName);
     console.log(`📝 [${fieldNumber}] ${fieldName}: ${value}`);
-    
+
     try {
-      await locator.waitFor({ state: 'visible', timeout: 5000 });
-      const beforeValue = await locator.inputValue();
-      
-      if (beforeValue === value) {
+      const currentValue = await locator.inputValue();
+      if (currentValue === value) {
         console.log(`✅ [${fieldNumber}] Уже заполнено правильно`);
         return;
       }
-      
-      if (beforeValue !== '') {
-        console.log(`⚠️ [${fieldNumber}] Содержит: "${beforeValue}" → очищаем`);
+
+      if (currentValue) {
+        console.log(`🔄 [${fieldNumber}] Очищаем поле (было: "${currentValue}")`);
         await locator.clear();
       }
-      
+
       await locator.fill(value);
-      const afterFillValue = await locator.inputValue();
-      
-      if (afterFillValue === value) {
-        console.log(`✅ [${fieldNumber}] Заполнено: ${value}`);
-      } else {
-        console.log(`❌ [${fieldNumber}] Ошибка: ожидалось "${value}", получено "${afterFillValue}"`);
-      }
+      console.log(`✅ [${fieldNumber}] Заполнено: ${value}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.log(`❌ [${fieldNumber}] Ошибка: ${errorMessage}`);
@@ -60,66 +51,16 @@ export class FieldUtils {
     }
   }
 
-  /**
-   * Заполнить радио кнопку
-   */
-  async fillRadioButton(fieldName: string, value: string, locator: Locator): Promise<void> {
-    const fieldNumber = this.getFieldNumber(fieldName);
-    console.log(`📝 [${fieldNumber}] ${fieldName}: ${value}`);
-    
-    try {
-      await locator.waitFor({ state: 'visible', timeout: 5000 });
-      const beforeValue = await locator.isChecked();
-      
-      // Для поля dateOfBirthType специальная логика
-      if (fieldName === 'dateOfBirthType') {
-        if (value === 'Full' && beforeValue) {
-          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
-          return;
-        } else if (value === 'Only year is known' && !beforeValue) {
-          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
-          return;
-        } else {
-          // Нужно кликнуть на кнопку
-          await locator.click();
-          console.log(`✅ [${fieldNumber}] Выбрано: ${value}`);
-        }
-      } else {
-        // Для других радио кнопок стандартная логика
-        if (beforeValue && value === 'Full') {
-          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
-          return;
-        }
-        
-        if (!beforeValue && value === 'Only year is known') {
-          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
-          return;
-        }
-        
-        await locator.click();
-        console.log(`✅ [${fieldNumber}] Выбрано: ${value}`);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log(`❌ [${fieldNumber}] Ошибка: ${errorMessage}`);
-      throw error;
-    }
-  }
-
-  /**
-   * Проверить простое текстовое поле
-   */
   async verifySimpleTextField(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean> {
     const fieldNumber = this.getFieldNumber(fieldName);
-    
+
     try {
-      const actualValue = await locator.inputValue();
-      
-      if (actualValue === expectedValue) {
+      const currentValue = await locator.inputValue();
+      if (currentValue === expectedValue) {
         console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
         return true;
       } else {
-        console.log(`❌ [${fieldNumber}] Неверное значение: "${actualValue}" (ожидалось "${expectedValue}")`);
+        console.log(`❌ [${fieldNumber}] Неверное значение: ожидалось "${expectedValue}", получено "${currentValue}"`);
         return false;
       }
     } catch (error) {
@@ -128,35 +69,71 @@ export class FieldUtils {
     }
   }
 
-  /**
-   * Проверить радио кнопку
-   */
-  async verifyRadioButton(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean> {
+  // === РАДИО КНОПКИ ===
+  
+  async fillRadioButtonGroup(fieldName: string, expectedValue: string, radioLocators: { [key: string]: Locator }): Promise<void> {
     const fieldNumber = this.getFieldNumber(fieldName);
-    
+    console.log(`📝 [${fieldNumber}] ${fieldName}: ${expectedValue}`);
+
     try {
-      const isChecked = await locator.isChecked();
-      
-      // Для поля dateOfBirthType проверяем по значению
-      if (fieldName === 'dateOfBirthType') {
-        if (expectedValue === 'Full' && isChecked) {
-          console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
-          return true;
-        } else if (expectedValue === 'Only year is known' && !isChecked) {
-          console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
-          return true;
-        } else {
-          console.log(`❌ [${fieldNumber}] Неверное значение: ожидалось "${expectedValue}", выбрано: ${isChecked ? 'Full' : 'Only year is known'}`);
-          return false;
-        }
+      // Проверяем состояние всех радио кнопок
+      const currentStates: { [key: string]: boolean } = {};
+      for (const [optionName, locator] of Object.entries(radioLocators)) {
+        currentStates[optionName] = await locator.isChecked();
       }
-      
-      // Для других радио кнопок стандартная логика
-      if (isChecked) {
+
+      // Логируем текущее состояние
+      const stateLog = Object.entries(currentStates)
+        .map(([name, checked]) => `${name}=${checked}`)
+        .join(', ');
+      console.log(`🔍 [${fieldNumber}] Текущее состояние: ${stateLog}`);
+
+      // Проверяем, уже ли выбрано нужное значение
+      const expectedOption = Object.keys(radioLocators).find(key => key === expectedValue);
+      if (expectedOption && currentStates[expectedOption]) {
+        console.log(`✅ [${fieldNumber}] Уже выбрано правильно: ${expectedValue}`);
+        return;
+      }
+
+      // Кликаем на нужную радио кнопку
+      const targetLocator = radioLocators[expectedValue];
+      if (targetLocator) {
+        console.log(`🔄 [${fieldNumber}] Переключаем на ${expectedValue}`);
+        await targetLocator.click();
+        console.log(`✅ [${fieldNumber}] Выбрано: ${expectedValue}`);
+      } else {
+        throw new Error(`Локатор для значения "${expectedValue}" не найден`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`❌ [${fieldNumber}] Ошибка: ${errorMessage}`);
+      throw error;
+    }
+  }
+
+  async verifyRadioButtonGroup(fieldName: string, expectedValue: string, radioLocators: { [key: string]: Locator }): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+
+    try {
+      // Проверяем состояние всех радио кнопок
+      const currentStates: { [key: string]: boolean } = {};
+      for (const [optionName, locator] of Object.entries(radioLocators)) {
+        currentStates[optionName] = await locator.isChecked();
+      }
+
+      // Логируем текущее состояние
+      const stateLog = Object.entries(currentStates)
+        .map(([name, checked]) => `${name}=${checked}`)
+        .join(', ');
+      console.log(`🔍 [${fieldNumber}] Проверка: ${stateLog}, ожидается: ${expectedValue}`);
+
+      // Проверяем, выбрано ли нужное значение
+      const expectedOption = Object.keys(radioLocators).find(key => key === expectedValue);
+      if (expectedOption && currentStates[expectedOption]) {
         console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
         return true;
       } else {
-        console.log(`❌ [${fieldNumber}] Неверное значение: радио кнопка "${expectedValue}" не выбрана`);
+        console.log(`❌ [${fieldNumber}] Неверное значение: ожидалось "${expectedValue}", выбрано: ${stateLog}`);
         return false;
       }
     } catch (error) {
