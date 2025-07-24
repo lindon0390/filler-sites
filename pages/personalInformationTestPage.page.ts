@@ -4,17 +4,56 @@ import { FieldUtils } from '../utils/fieldUtils';
 export class PersonalInformationTestPage {
   private fieldUtils: FieldUtils;
 
-  // Локаторы для текстовых полей
+  // === ЛОКАТОРЫ ПОЛЕЙ ===
+  // 1.1 - 1.2: Текстовые поля
   private eSurnameField: Locator;
   private eMiddleAndGivenNameField: Locator;
 
-  // Локаторы для радио кнопок dateOfBirthType
+  // 1.3: Радио кнопки dateOfBirthType
   private eDateOfBirthFullRadio: Locator;
   private eDateOfBirthYearOnlyRadio: Locator;
 
-  // Локаторы для радио кнопок hasOtherPassports
+  // 1.4: Поле даты рождения (пока не реализовано)
+  // private eDateOfBirthField: Locator;
+
+  // 1.5: Поле Sex (Ant Design Select)
+  // private eSexSelect: Locator;
+
+  // 1.6: Поле Nationality (большой выпадающий список)
+  // private eNationalitySelect: Locator;
+
+  // 1.7: Поле Identity Card
+  // private eIdentityCardField: Locator;
+
+  // 1.8: Поле Email
+  // private eEmailField: Locator;
+
+  // 1.9: Чекбокс Agree create account
+  // private eAgreeCreateAccountCheckbox: Locator;
+
+  // 1.10: Поле Religion
+  // private eReligionField: Locator;
+
+  // 1.11: Поле Place of birth
+  // private ePlaceOfBirthField: Locator;
+
+  // 1.12: Поле Re-enter email
+  // private eReEnterEmailField: Locator;
+
+  // 1.13: Радио кнопки hasOtherPassports
   private eHasOtherPassportsNoRadio: Locator;
   private eHasOtherPassportsYesRadio: Locator;
+
+  // 1.14: Динамическая таблица Other used passports (видна только если hasOtherPassports = "Yes")
+  // private eOtherUsedPassportsTable: Locator;
+
+  // 1.15: Радио кнопки hasMultipleNationalities
+  // private eHasMultipleNationalitiesYesRadio: Locator;
+  // private eHasMultipleNationalitiesNoRadio: Locator;
+
+  // 1.16: Радио кнопки violationOfVietnameseLaws
+  // private eViolationOfVietnameseLawsYesRadio: Locator;
+  // private eViolationOfVietnameseLawsNoRadio: Locator;
 
   constructor(private page: Page) {
     this.fieldUtils = new FieldUtils(page);

@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 test.describe('🔧 Отладка полей Personal Information', () => {
-  test('📝 Тест заполнения полей 1.1, 1.2, 1.3 и 1.13', async () => {
+  test('📝 Тест заполнения полей 1.1, 1.2, 1.3, 1.5 и 1.13', async () => {
     // Подключаемся к существующему Chrome
     const { page } = await connectAndGetActivePage();
     
@@ -57,6 +57,6 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     expect(isDateTypeCorrect).toBe(true);
     expect(isHasOtherPassportsCorrect).toBe(true);
     
-    console.log('✅ Тест полей 1.1, 1.2, 1.3 и 1.13 завершен успешно!');
+    console.log('✅ Тест полей 1.1, 1.2, 1.3, 1.5 и 1.13 завершен успешно!');
   });
 }); 

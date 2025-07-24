@@ -5,6 +5,7 @@ export class FieldUtils {
 
   getFieldNumber(fieldName: string): string {
     const fieldNumbers: { [key: string]: string } = {
+      // Personal Information
       'surname': '1.1',
       'middleAndGivenName': '1.2',
       'dateOfBirthType': '1.3',
@@ -19,7 +20,63 @@ export class FieldUtils {
       'reEnterEmail': '1.12',
       'hasOtherPassports': '1.13',
       'otherUsedPassports': '1.14',
-      'hasMultipleNationalities': '1.15'
+      'hasMultipleNationalities': '1.15',
+      'violationOfVietnameseLaws': '1.16',
+      
+      // Requested Information
+      'visaType': '2.1',
+      'validFrom': '2.2',
+      'validTo': '2.3',
+      
+      // Passport Information
+      'passportNumber': '3.1',
+      'issuingAuthority': '3.2',
+      'type': '3.3',
+      'dateOfIssue': '3.4',
+      'expiryDate': '3.5',
+      'holdOtherValidPassports': '3.6',
+      'otherValidPassports': '3.7',
+      
+      // Contact Information
+      'permanentResidentialAddress': '4.1',
+      'contactAddress': '4.2',
+      'telephoneNumber': '4.3',
+      'emergencyContact': '4.4',
+      
+      // Occupation
+      'occupation': '5.1',
+      'occupationInfo': '5.2',
+      'nameOfCompanyAgencySchool': '5.3',
+      'positionCourseOfStudy': '5.4',
+      'addressOfCompanyAgencySchool': '5.5',
+      'companyAgencySchoolPhoneNumber': '5.6',
+      
+      // Trip Information
+      'purposeOfEntry': '6.1',
+      'intendedDateOfEntry': '6.2',
+      'intendedLengthOfStay': '6.3',
+      'phoneNumberInVietnam': '6.4',
+      'residentialAddressInVietnam': '6.5',
+      'provinceCity': '6.6',
+      'wardCommune': '6.7',
+      'intendedBorderGateOfEntry': '6.8',
+      'intendedBorderGateOfExit': '6.9',
+      'committedToDeclareTempResidence': '6.10',
+      'hasAgencyOrganizationContact': '6.11',
+      'beenToVietnamLastYear': '6.12',
+      'vietnamVisitsLastYear': '6.13',
+      'hasRelativesInVietnam': '6.14',
+      'relativesInVietnam': '6.15',
+      
+      // Trips Expenses Insurance
+      'intendedExpensesUSD': '8.1',
+      'didBuyInsurance': '8.2',
+      'specifyInsurance': '8.3',
+      'whoCoversTripExpenses': '8.4',
+      'Payment method': '8.5',
+      
+      // Declaration
+      'agreed': '9.1'
     };
     return fieldNumbers[fieldName] || '?';
   }
@@ -113,20 +170,20 @@ export class FieldUtils {
 
   async verifyRadioButtonGroup(fieldName: string, expectedValue: string, radioLocators: { [key: string]: Locator }): Promise<boolean> {
     const fieldNumber = this.getFieldNumber(fieldName);
-
+    
     try {
       // Проверяем состояние всех радио кнопок
       const currentStates: { [key: string]: boolean } = {};
       for (const [optionName, locator] of Object.entries(radioLocators)) {
         currentStates[optionName] = await locator.isChecked();
       }
-
+      
       // Логируем текущее состояние
       const stateLog = Object.entries(currentStates)
         .map(([name, checked]) => `${name}=${checked}`)
         .join(', ');
       console.log(`🔍 [${fieldNumber}] Проверка: ${stateLog}, ожидается: ${expectedValue}`);
-
+      
       // Проверяем, выбрано ли нужное значение
       const expectedOption = Object.keys(radioLocators).find(key => key === expectedValue);
       if (expectedOption && currentStates[expectedOption]) {
