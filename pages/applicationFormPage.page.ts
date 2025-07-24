@@ -1098,6 +1098,15 @@ export class ApplicationFormPage {
     await this.aCheckRadioButtonIfNeeded(this.eOtherPassportsYes, this.eOtherPassportsNo, personal.hasOtherPassports === 'Yes', 'Другие паспорта');
     await this.aCheckRadioButtonIfNeeded(this.eMultipleNationalitiesYes, this.eMultipleNationalitiesNo, personal.hasMultipleNationalities === 'Yes', 'Множественное гражданство');
     await this.aCheckRadioButtonIfNeeded(this.eViolationOfLawsYes, this.eViolationOfLawsNo, personal.violationOfVietnameseLaws === 'Yes', 'Нарушения законов');
+    
+    // Заполняем поля "Other Used Passports" если есть данные
+    if (personal.otherUsedPassports && personal.otherUsedPassports.length > 0) {
+      try {
+        await this.fillOtherPassportsFields(personal.otherUsedPassports);
+      } catch (error) {
+        console.log(`⚠️ Ошибка при заполнении полей "Other Used Passports": ${error}`);
+      }
+    }
   }
 
   async aFillRequestedInformationIfNeeded(userData: any) {
@@ -2135,6 +2144,91 @@ export class ApplicationFormPage {
     } catch (error) {
       console.log(`⚠️ Ошибка при заполнении поля "Payment method": ${error}`);
       // Не выбрасываем ошибку, так как поле может быть необязательным
+    }
+  }
+
+  /**
+   * Заполняет поля "Other Used Passports" (другие использованные паспорта)
+   */
+  async fillOtherPassportsFields(otherUsedPassports: any[]): Promise<void> {
+    try {
+      console.log(`🔧 Заполняю поля "Other Used Passports" для ${otherUsedPassports.length} паспорта(ов)`);
+      
+      for (let i = 0; i < otherUsedPassports.length; i++) {
+        const passport = otherUsedPassports[i];
+        console.log(`📝 Заполняю данные для паспорта ${i + 1}: ${passport.passportNumber}`);
+        
+        // 1. Номер паспорта
+        const passportNumberField = this.page.locator('#basic_hcKhac_0_soHc');
+        await passportNumberField.fill(passport.passportNumber);
+        console.log(`✅ Номер паспорта заполнен: ${passport.passportNumber}`);
+        
+        // 2. Полное имя
+        const fullNameField = this.page.locator('#basic_hcKhac_0_hoTen');
+        await fullNameField.fill(passport.fullName);
+        console.log(`✅ Полное имя заполнено: ${passport.fullName}`);
+        
+        // 3. Дата рождения (используем Playwright методы)
+        const dateOfBirthField = this.page.locator('#basic_hcKhac_0_ngaySinhStr');
+        try {
+          await dateOfBirthField.clear();
+          await dateOfBirthField.type(passport.dateOfBirth);
+          console.log(`✅ Дата рождения заполнена: ${passport.dateOfBirth}`);
+        } catch (error) {
+          console.log(`⚠️ Не удалось заполнить дату рождения "${passport.dateOfBirth}": ${error}`);
+        }
+        
+        // 4. Национальность (select) - используем прямой JavaScript подход
+        try {
+          // Используем JavaScript для прямого заполнения поля
+          const success = await this.page.evaluate((nationality) => {
+            const field = document.querySelector('#basic_hcKhac_0_quocTich');
+            if (field) {
+              // Устанавливаем значение напрямую в input
+              const input = field as HTMLInputElement;
+              input.value = nationality;
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+              
+              // Также обновляем отображаемое значение в селекторе
+              const selector = field.closest('.ant-select')?.querySelector('.ant-select-selection-item');
+              if (selector) {
+                selector.textContent = nationality;
+              }
+              
+              // Удаляем placeholder если есть
+              const placeholder = field.closest('.ant-select')?.querySelector('.ant-select-selection-placeholder');
+              if (placeholder) {
+                placeholder.remove();
+              }
+              
+              return true;
+            }
+            return false;
+          }, passport.nationality);
+          
+          if (success) {
+            console.log(`✅ Национальность установлена через JavaScript: ${passport.nationality}`);
+          } else {
+            console.log(`⚠️ Не удалось установить национальность через JavaScript: ${passport.nationality}`);
+          }
+          
+          // Ждем обновления DOM
+          await this.page.waitForTimeout(500);
+          
+        } catch (error) {
+          console.log(`⚠️ Не удалось заполнить национальность "${passport.nationality}": ${error}`);
+        }
+        
+        // Ждем немного между заполнением полей
+        await this.page.waitForTimeout(500);
+      }
+      
+      console.log(`✅ Все поля "Other Used Passports" успешно заполнены`);
+      
+    } catch (error) {
+      console.log(`⚠️ Ошибка при заполнении полей "Other Used Passports": ${error}`);
+      // Не выбрасываем ошибку, так как поля могут быть необязательными
     }
   }
 } 

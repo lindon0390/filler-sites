@@ -15,7 +15,7 @@
     "placeOfBirth": "Russian Federation",
     "reEnterEmail": "lindon0390@gmail.com",
     "hasOtherPassports": "Yes",
-    "otherPassports": [
+    "otherUsedPassports": [
       {
         "passportNumber": "665776084",
         "fullName": "TIMUR DONDOKOV",
