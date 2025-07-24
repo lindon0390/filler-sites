@@ -1921,111 +1921,143 @@ export class ApplicationFormPage {
     try {
       console.log(`🔍 [DEBUG] Проверяем поле ${fieldName} с ожидаемым значением "${expectedValue}"`);
       
-      // Создаем маппинг русских названий на английские для поиска
-      const fieldNameMapping: { [key: string]: string[] } = {
-        'Пол': ['Sex', 'Пол'],
-        'Национальность': ['Nationality', 'Национальность'],
-        'Район': ['Ward', 'Район'],
-        'Пункт въезда': ['border gate', 'Entry Gate', 'Пункт въезда'],
-        'Пункт выезда': ['border gate', 'Exit Gate', 'Пункт выезда'],
-        'Профессия': ['Occupation', 'Профессия'],
-        'Цель въезда': ['Purpose', 'Цель въезда'],
-        'Провинция': ['Province', 'Провинция'],
-        'Страхование': ['Insurance', 'Страхование', 'Did you buy insurance'],
-        'Расходы покрываются': ['Expenses', 'Расходы покрываются', 'Who will cover', 'cover the trip'],
-        'Тип паспорта': ['Passport Type', 'Тип паспорта', 'Type']
-      };
+      // Получаем название поля из локатора
+      const fieldLabel = await field.getAttribute('aria-label') || 
+                        await field.getAttribute('name') || 
+                        await field.getAttribute('placeholder') || 
+                        fieldName;
       
-      // Получаем варианты названий для поиска
-      const searchNames = fieldNameMapping[fieldName] || [fieldName];
-      
-      // Метод 1: Проверяем .ant-select-selection-item с нужным значением
-      const selectionItems = this.page.locator('.ant-select-selection-item');
-      const targetItem = selectionItems.filter({ hasText: expectedValue });
-      
-      const targetItemCount = await targetItem.count();
-      console.log(`🔍 [DEBUG] Найдено элементов с "${expectedValue}": ${targetItemCount}`);
-      
-      if (targetItemCount > 0) {
-        // Проверяем, связан ли с нужным полем через JavaScript
-        const isRelatedToField = await this.page.evaluate(({ expectedValue, searchNames, fieldName }) => {
-          const selectionItems = document.querySelectorAll('.ant-select-selection-item');
-          const targetItems = Array.from(selectionItems).filter(item => {
-            const text = item.textContent || '';
-            return text.trim() === expectedValue;
-          });
+      const result = await this.page.evaluate((params: { expectedValue: string, fieldName: string, fieldLabel: string }) => {
+        const { expectedValue, fieldName, fieldLabel } = params;
+        // Ищем все элементы с нужным значением
+        const elements = document.querySelectorAll('.ant-select-selection-item');
+        const matchingElements: Element[] = [];
+        
+        elements.forEach((element) => {
+          if (element.textContent && element.textContent.includes(expectedValue)) {
+            matchingElements.push(element);
+          }
+        });
+        
+        console.log(`🔍 [DEBUG] Найдено элементов с "${expectedValue}": ${matchingElements.length}`);
+        
+        // Проверяем каждый найденный элемент
+        for (const element of matchingElements) {
+          let currentElement: Element | null = element;
+          let level = 0;
           
-          console.log(`🔍 [DEBUG] В JavaScript найдено ${targetItems.length} элементов с "${expectedValue}"`);
-          
-          if (targetItems.length === 0) return false;
-          
-          // Проверяем, связан ли хотя бы один с нужным полем
-          for (const item of targetItems) {
-            let parent = item.parentElement;
-            let level = 0;
-            
-            while (parent && parent !== document.body && level < 10) {
-              const parentText = parent.textContent || '';
-              console.log(`🔍 [DEBUG] Уровень ${level}: "${parentText.substring(0, 100)}"`);
-              
-              // Проверяем все варианты названий поля
-              for (const searchName of searchNames) {
-                if (parentText.includes(searchName)) {
-                  console.log(`✅ [DEBUG] Найдена связь с полем "${searchName}" на уровне ${level}`);
+          // Поднимаемся по DOM дереву, чтобы найти название поля
+          while (currentElement && level < 10) {
+            // Ищем label или название поля в родительских элементах
+            const parentElement = currentElement.parentElement;
+            if (parentElement) {
+              const labels = parentElement.querySelectorAll('label, .ant-form-item-label label, .ant-form-item-label');
+              if (labels && labels.length > 0) {
+                const labelText = labels[0].textContent?.trim() || '';
+                
+                // Проверяем, соответствует ли найденный label нужному полю
+                if (labelText.includes(fieldName) || 
+                    labelText.includes(fieldLabel) ||
+                    (fieldName === 'Пункт выезда' && labelText.includes('exit')) ||
+                    (fieldName === 'Пункт въезда' && labelText.includes('entry')) ||
+                    (fieldName === 'Провинция' && labelText.includes('Province')) ||
+                    (fieldName === 'Район' && labelText.includes('Ward')) ||
+                    (fieldName === 'Цель въезда' && labelText.includes('Purpose')) ||
+                    (fieldName === 'Профессия' && labelText.includes('Occupation')) ||
+                    (fieldName === 'Тип паспорта' && labelText.includes('Type')) ||
+                    (fieldName === 'Страхование' && labelText.includes('insurance')) ||
+                    (fieldName === 'Расходы покрываются' && labelText.includes('cover'))) {
+                  
+                  console.log(`✅ [DEBUG] Найдена связь с полем "${labelText}" на уровне ${level}`);
                   return true;
                 }
               }
-              
-              // Дополнительная проверка: ищем частичные совпадения для сложных названий
-              if (fieldName.includes('Страхование') && parentText.toLowerCase().includes('insurance')) {
-                console.log(`✅ [DEBUG] Найдена связь с полем "Insurance" на уровне ${level}`);
-                return true;
-              }
-              
-              if (fieldName.includes('Расходы покрываются') && parentText.toLowerCase().includes('cover')) {
-                console.log(`✅ [DEBUG] Найдена связь с полем "Expenses" на уровне ${level}`);
-                return true;
-              }
-              
-              if (fieldName.includes('Тип паспорта') && parentText.toLowerCase().includes('type')) {
-                console.log(`✅ [DEBUG] Найдена связь с полем "Type" на уровне ${level}`);
-                return true;
-              }
-              parent = parent.parentElement;
-              level++;
             }
+            
+            // Проверяем атрибуты самого элемента
+            const ariaLabel = currentElement.getAttribute('aria-label');
+            const name = currentElement.getAttribute('name');
+            const placeholder = currentElement.getAttribute('placeholder');
+            
+            if ((ariaLabel && (ariaLabel.includes(fieldName) || ariaLabel.includes(fieldLabel))) ||
+                (name && (name.includes(fieldName) || name.includes(fieldLabel))) ||
+                (placeholder && (placeholder.includes(fieldName) || placeholder.includes(fieldLabel)))) {
+              console.log(`✅ [DEBUG] Найдена связь через атрибуты на уровне ${level}`);
+              return true;
+            }
+            
+            currentElement = currentElement.parentElement;
+            level++;
           }
-          
-          return false;
-        }, { expectedValue, searchNames, fieldName });
-        
-        if (isRelatedToField) {
-          console.log(`✅ ${fieldName}: правильно заполнено (метод 1 - .ant-select-selection-item)`);
-          return true;
-        } else {
-          console.log(`❌ [DEBUG] ${fieldName}: элемент найден, но не связан с полем`);
         }
+        
+        return false;
+      }, { expectedValue, fieldName, fieldLabel });
+      
+      if (result) {
+        console.log(`✅ ${fieldName}: правильно заполнено (метод 1 - .ant-select-selection-item)`);
+        return true;
       }
       
-      // Метод 2: Ищем элемент с объединенным текстом (например, "SexMale")
-      const combinedText = await this.page.evaluate(({ expectedValue, searchNames }) => {
-        const allElements = document.querySelectorAll('*');
-        const combinedElement = Array.from(allElements).find(el => {
-          const text = el.textContent || '';
-          // Проверяем все варианты названий поля
-          for (const searchName of searchNames) {
-            if (text.includes(searchName) && text.includes(expectedValue) && text.length < 200) {
+      // Метод 2: Проверяем объединенный текст
+      const combinedText = await this.page.evaluate((params: { expectedValue: string, fieldName: string }) => {
+        const { expectedValue, fieldName } = params;
+        const elements = document.querySelectorAll('.ant-select-selection-item');
+        
+        for (const element of Array.from(elements)) {
+          if (element.textContent && element.textContent.includes(expectedValue)) {
+            // Ищем родительский элемент с названием поля
+            let parent: Element | null = element.parentElement;
+            let combinedText = '';
+            
+            // Собираем текст из родительских элементов
+            for (let i = 0; i < 5; i++) {
+              if (parent) {
+                const labels = parent.querySelectorAll('label, .ant-form-item-label');
+                if (labels.length > 0) {
+                  combinedText = (labels[0].textContent || '') + (element.textContent || '');
+                  break;
+                }
+                parent = parent.parentElement;
+              }
+            }
+            
+            // Проверяем частичные совпадения для сложных названий
+            if (fieldName.includes('Страхование') && combinedText.toLowerCase().includes('insurance')) {
+              return true;
+            }
+            if (fieldName.includes('Расходы покрываются') && combinedText.toLowerCase().includes('cover')) {
+              return true;
+            }
+            if (fieldName.includes('Тип паспорта') && combinedText.toLowerCase().includes('type')) {
+              return true;
+            }
+            if (fieldName.includes('Пункт выезда') && combinedText.toLowerCase().includes('exit')) {
+              return true;
+            }
+            if (fieldName.includes('Пункт въезда') && combinedText.toLowerCase().includes('entry')) {
+              return true;
+            }
+            if (fieldName.includes('Провинция') && combinedText.toLowerCase().includes('province')) {
+              return true;
+            }
+            if (fieldName.includes('Район') && combinedText.toLowerCase().includes('ward')) {
+              return true;
+            }
+            if (fieldName.includes('Цель въезда') && combinedText.toLowerCase().includes('purpose')) {
+              return true;
+            }
+            if (fieldName.includes('Профессия') && combinedText.toLowerCase().includes('occupation')) {
               return true;
             }
           }
-          return false;
-        });
+        }
         
-        return combinedElement ? combinedElement.textContent : null;
-      }, { expectedValue, searchNames });
+        return false;
+      }, { expectedValue, fieldName });
       
       if (combinedText) {
-        console.log(`✅ ${fieldName}: правильно заполнено (метод 2 - объединенный текст: "${combinedText}")`);
+        console.log(`✅ ${fieldName}: правильно заполнено (метод 2 - объединенный текст)`);
         return true;
       }
       
@@ -2033,7 +2065,7 @@ export class ApplicationFormPage {
       return false;
       
     } catch (error) {
-      console.log(`⚠️ ${fieldName}: ошибка при проверке заполненности - ${error}`);
+      console.log(`⚠️ Ошибка при проверке поля ${fieldName}: ${error}`);
       return false;
     }
   }
