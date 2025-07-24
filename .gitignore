@@ -4,6 +4,7 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /screenshots/
+/logs/
 
 # Блокируем реальные данные пользователей
 files/*/

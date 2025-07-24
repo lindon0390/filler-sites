@@ -2412,6 +2412,103 @@ export class ApplicationFormPage {
     });
     
     console.log('='.repeat(80));
+    
+    // Сохраняем лог в файл
+    this.aSaveLogToFile();
+  }
+
+  /**
+   * Сохраняет лог в файл с таблицей
+   */
+  private aSaveLogToFile(): void {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      // Создаем директорию для логов если её нет
+      const logsDir = path.join(process.cwd(), 'logs');
+      if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+      }
+      
+      // Генерируем имя файла с временной меткой
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `form-fill-log-${this.formFillLog.userId}-${timestamp}.txt`;
+      const filepath = path.join(logsDir, filename);
+      
+      // Формируем содержимое файла
+      let logContent = '';
+      
+      // Заголовок
+      logContent += '='.repeat(80) + '\n';
+      logContent += '📊 ТАБЛИЦА ЗАПОЛНЕНИЯ АНКЕТЫ E-VISA VIETNAM\n';
+      logContent += '='.repeat(80) + '\n\n';
+      
+      // Статистика
+      logContent += `👤 Пользователь: ${this.formFillLog.userId}\n`;
+      logContent += `⏰ Время начала: ${new Date(this.formFillLog.testStartTime).toLocaleString()}\n`;
+      logContent += `⏰ Время завершения: ${this.formFillLog.testEndTime ? new Date(this.formFillLog.testEndTime).toISOString() : 'Не завершено'}\n`;
+      logContent += `📈 Статистика:\n`;
+      logContent += `   ✅ Успешно заполнено: ${this.formFillLog.successfulFields}\n`;
+      logContent += `   ❌ Ошибки: ${this.formFillLog.errorFields}\n`;
+      logContent += `   ⏭️ Пропущено: ${this.formFillLog.skippedFields}\n`;
+      logContent += `   📊 Всего полей: ${this.formFillLog.totalFields}\n\n`;
+      
+      // Таблица результатов
+      logContent += '📋 ДЕТАЛЬНАЯ ТАБЛИЦА ЗАПОЛНЕНИЯ:\n';
+      logContent += '─'.repeat(120) + '\n';
+      logContent += '│ Раздел'.padEnd(25) + '│ Поле'.padEnd(30) + '│ Ожидаемое'.padEnd(20) + '│ Фактическое'.padEnd(20) + '│ Статус'.padEnd(12) + '│\n';
+      logContent += '─'.repeat(120) + '\n';
+      
+      this.formFillLog.entries.forEach(entry => {
+        const section = entry.section.padEnd(23);
+        const field = entry.fieldName.padEnd(28);
+        const expected = entry.expectedValue.padEnd(18);
+        const actual = entry.actualValue.padEnd(18);
+        const status = this.getStatusIcon(entry.status).padEnd(10);
+        
+        logContent += `│ ${section}│ ${field}│ ${expected}│ ${actual}│ ${status}│\n`;
+      });
+      
+      logContent += '─'.repeat(120) + '\n\n';
+      
+      // Сводка по разделам
+      logContent += '📊 СВОДКА ПО РАЗДЕЛАМ:\n';
+      const sectionStats = this.getSectionStats();
+      Object.entries(sectionStats).forEach(([section, stats]) => {
+        logContent += `📁 ${section}: ${stats.success}/${stats.total} (${Math.round(stats.success/stats.total*100)}%)\n`;
+      });
+      
+      logContent += '\n' + '='.repeat(80) + '\n';
+      
+      // Детальная информация об ошибках
+      const errorEntries = this.formFillLog.entries.filter(entry => entry.status === 'error');
+      if (errorEntries.length > 0) {
+        logContent += '\n❌ ДЕТАЛЬНАЯ ИНФОРМАЦИЯ ОБ ОШИБКАХ:\n';
+        logContent += '─'.repeat(80) + '\n';
+        errorEntries.forEach(entry => {
+          logContent += `🔴 ${entry.section} > ${entry.fieldName}\n`;
+          logContent += `   Ожидаемое: ${entry.expectedValue}\n`;
+          logContent += `   Фактическое: ${entry.actualValue}\n`;
+          logContent += `   Ошибка: ${entry.errorMessage}\n`;
+          logContent += `   Время: ${new Date(entry.timestamp).toLocaleString()}\n\n`;
+        });
+      }
+      
+      // JSON данные для программного анализа
+      logContent += '\n📄 JSON ДАННЫЕ ДЛЯ АНАЛИЗА:\n';
+      logContent += '─'.repeat(80) + '\n';
+      logContent += JSON.stringify(this.formFillLog, null, 2) + '\n';
+      
+      // Записываем файл
+      fs.writeFileSync(filepath, logContent, 'utf8');
+      
+      console.log(`💾 Лог сохранен в файл: ${filepath}`);
+      console.log(`📁 Директория логов: ${logsDir}`);
+      
+    } catch (error) {
+      console.error('❌ Ошибка при сохранении лога в файл:', error);
+    }
   }
 
   /**
