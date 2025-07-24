@@ -1,9 +1,5 @@
 import { Locator, Page } from '@playwright/test';
 
-export interface FieldUtils {
-  page: Page;
-}
-
 export class FieldUtils {
   constructor(private page: Page) {}
 
@@ -75,18 +71,34 @@ export class FieldUtils {
       await locator.waitFor({ state: 'visible', timeout: 5000 });
       const beforeValue = await locator.isChecked();
       
-      if (beforeValue && value === 'Full') {
-        console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
-        return;
+      // Для поля dateOfBirthType специальная логика
+      if (fieldName === 'dateOfBirthType') {
+        if (value === 'Full' && beforeValue) {
+          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
+          return;
+        } else if (value === 'Only year is known' && !beforeValue) {
+          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
+          return;
+        } else {
+          // Нужно кликнуть на кнопку
+          await locator.click();
+          console.log(`✅ [${fieldNumber}] Выбрано: ${value}`);
+        }
+      } else {
+        // Для других радио кнопок стандартная логика
+        if (beforeValue && value === 'Full') {
+          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
+          return;
+        }
+        
+        if (!beforeValue && value === 'Only year is known') {
+          console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
+          return;
+        }
+        
+        await locator.click();
+        console.log(`✅ [${fieldNumber}] Выбрано: ${value}`);
       }
-      
-      if (!beforeValue && value === 'Only year is known') {
-        console.log(`✅ [${fieldNumber}] Уже выбрано правильно`);
-        return;
-      }
-      
-      await locator.click();
-      console.log(`✅ [${fieldNumber}] Выбрано: ${value}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.log(`❌ [${fieldNumber}] Ошибка: ${errorMessage}`);
@@ -125,6 +137,21 @@ export class FieldUtils {
     try {
       const isChecked = await locator.isChecked();
       
+      // Для поля dateOfBirthType проверяем по значению
+      if (fieldName === 'dateOfBirthType') {
+        if (expectedValue === 'Full' && isChecked) {
+          console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
+          return true;
+        } else if (expectedValue === 'Only year is known' && !isChecked) {
+          console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
+          return true;
+        } else {
+          console.log(`❌ [${fieldNumber}] Неверное значение: ожидалось "${expectedValue}", выбрано: ${isChecked ? 'Full' : 'Only year is known'}`);
+          return false;
+        }
+      }
+      
+      // Для других радио кнопок стандартная логика
       if (isChecked) {
         console.log(`✅ [${fieldNumber}] Проверка пройдена: ${expectedValue}`);
         return true;

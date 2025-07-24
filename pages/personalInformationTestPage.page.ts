@@ -110,13 +110,44 @@ export class PersonalInformationTestPage {
    * Заполняем поле dateOfBirthType (тип 6 - радио кнопка)
    */
   async aFillDateOfBirthTypeField(dateType: string): Promise<void> {
-    const dateTypeField = await this.aFindDateOfBirthTypeRadioByValue(dateType);
+    const fieldNumber = this.fieldUtils.getFieldNumber('dateOfBirthType');
+    console.log(`📝 [${fieldNumber}] dateOfBirthType: ${dateType}`);
     
-    if (!dateTypeField) {
-      throw new Error(`Поле Date of birth type со значением "${dateType}" не найдено`);
+    try {
+      // Ищем обе радио кнопки
+      const fullRadio = this.page.getByRole('radio', { name: 'Full' });
+      const yearOnlyRadio = this.page.getByRole('radio', { name: 'Only year is known' });
+      
+      // Проверяем, какая кнопка сейчас выбрана
+      const isFullSelected = await fullRadio.isChecked();
+      const isYearOnlySelected = await yearOnlyRadio.isChecked();
+      
+      console.log(`🔍 [${fieldNumber}] Текущее состояние: Full=${isFullSelected}, Only year=${isYearOnlySelected}`);
+      
+      if (dateType === 'Full') {
+        if (isFullSelected) {
+          console.log(`✅ [${fieldNumber}] Уже выбрано правильно: Full`);
+          return;
+        } else {
+          console.log(`🔄 [${fieldNumber}] Переключаем на Full`);
+          await fullRadio.click();
+        }
+      } else if (dateType === 'Only year is known') {
+        if (isYearOnlySelected) {
+          console.log(`✅ [${fieldNumber}] Уже выбрано правильно: Only year is known`);
+          return;
+        } else {
+          console.log(`🔄 [${fieldNumber}] Переключаем на Only year is known`);
+          await yearOnlyRadio.click();
+        }
+      }
+      
+      console.log(`✅ [${fieldNumber}] Выбрано: ${dateType}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`❌ [${fieldNumber}] Ошибка: ${errorMessage}`);
+      throw error;
     }
-    
-    await this.fieldUtils.fillRadioButton('dateOfBirthType', dateType, dateTypeField);
   }
 
   /**
@@ -149,13 +180,33 @@ export class PersonalInformationTestPage {
    * Проверяем, что поле dateOfBirthType заполнено правильно
    */
   async aVerifyDateOfBirthTypeField(expectedType: string): Promise<boolean> {
-    const dateTypeField = await this.aFindDateOfBirthTypeRadioByValue(expectedType);
+    const fieldNumber = this.fieldUtils.getFieldNumber('dateOfBirthType');
     
-    if (!dateTypeField) {
+    try {
+      // Ищем обе радио кнопки
+      const fullRadio = this.page.getByRole('radio', { name: 'Full' });
+      const yearOnlyRadio = this.page.getByRole('radio', { name: 'Only year is known' });
+      
+      // Проверяем, какая кнопка выбрана
+      const isFullSelected = await fullRadio.isChecked();
+      const isYearOnlySelected = await yearOnlyRadio.isChecked();
+      
+      console.log(`🔍 [${fieldNumber}] Проверка: Full=${isFullSelected}, Only year=${isYearOnlySelected}, ожидается: ${expectedType}`);
+      
+      if (expectedType === 'Full' && isFullSelected) {
+        console.log(`✅ [${fieldNumber}] Проверка пройдена: Full`);
+        return true;
+      } else if (expectedType === 'Only year is known' && isYearOnlySelected) {
+        console.log(`✅ [${fieldNumber}] Проверка пройдена: Only year is known`);
+        return true;
+      } else {
+        console.log(`❌ [${fieldNumber}] Неверное значение: ожидалось "${expectedType}", выбрано: Full=${isFullSelected}, Only year=${isYearOnlySelected}`);
+        return false;
+      }
+    } catch (error) {
+      console.log(`❌ [${fieldNumber}] Ошибка проверки: ${error}`);
       return false;
     }
-    
-    return await this.fieldUtils.verifyRadioButton('dateOfBirthType', expectedType, dateTypeField);
   }
 
   /**

@@ -33,18 +33,16 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     const middleAndGivenName = userDataContent.personalInformation.middleAndGivenName;
     const dateOfBirthType = userDataContent.personalInformation.dateOfBirthType;
     
-    // Заполняем поле surname (1.1)
+    // Заполняем и проверяем поле surname (1.1)
     await personalInfoTestPage.aFillSurnameField(surname);
-    
-    // Заполняем поле middleAndGivenName (1.2)
-    await personalInfoTestPage.aFillMiddleAndGivenNameField(middleAndGivenName);
-    
-    // Заполняем поле dateOfBirthType (1.3)
-    await personalInfoTestPage.aFillDateOfBirthTypeField(dateOfBirthType);
-    
-    // Проверяем, что поля заполнены правильно
     const isSurnameCorrect = await personalInfoTestPage.aVerifySurnameField(surname);
+    
+    // Заполняем и проверяем поле middleAndGivenName (1.2)
+    await personalInfoTestPage.aFillMiddleAndGivenNameField(middleAndGivenName);
     const isNameCorrect = await personalInfoTestPage.aVerifyMiddleAndGivenNameField(middleAndGivenName);
+    
+    // Заполняем и проверяем поле dateOfBirthType (1.3)
+    await personalInfoTestPage.aFillDateOfBirthTypeField(dateOfBirthType);
     const isDateTypeCorrect = await personalInfoTestPage.aVerifyDateOfBirthTypeField(dateOfBirthType);
     
     // Утверждения
