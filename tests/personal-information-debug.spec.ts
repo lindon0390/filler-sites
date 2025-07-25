@@ -33,7 +33,7 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     console.log(`   🔌 CHROME_CDP_ENDPOINT: ${process.env.CHROME_CDP_ENDPOINT}`);
     
     // Извлекаем данные для тестируемых полей
-    const { surname, middleAndGivenName, dateOfBirthType, hasOtherPassports } = userData.personalInformation;
+    const { surname, middleAndGivenName, dateOfBirthType, sex, hasOtherPassports } = userData.personalInformation;
     
     // Заполняем и проверяем поле surname (1.1)
     await personalInfoTestPage.aFillSurnameField(surname);
@@ -47,6 +47,10 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     await personalInfoTestPage.aFillDateOfBirthTypeField(dateOfBirthType);
     const isDateTypeCorrect = await personalInfoTestPage.aVerifyDateOfBirthTypeField(dateOfBirthType);
 
+    // Заполняем и проверяем поле sex (1.5)
+    await personalInfoTestPage.aFillSexField(sex);
+    const isSexCorrect = await personalInfoTestPage.aVerifySexField(sex);
+
     // Заполняем и проверяем поле hasOtherPassports (1.13)
     await personalInfoTestPage.aFillHasOtherPassportsField(hasOtherPassports);
     const isHasOtherPassportsCorrect = await personalInfoTestPage.aVerifyHasOtherPassportsField(hasOtherPassports);
@@ -55,6 +59,7 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     expect(isSurnameCorrect).toBe(true);
     expect(isNameCorrect).toBe(true);
     expect(isDateTypeCorrect).toBe(true);
+    expect(isSexCorrect).toBe(true);
     expect(isHasOtherPassportsCorrect).toBe(true);
     
     console.log('✅ Тест полей 1.1, 1.2, 1.3, 1.5 и 1.13 завершен успешно!');

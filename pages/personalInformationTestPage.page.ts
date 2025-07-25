@@ -17,7 +17,7 @@ export class PersonalInformationTestPage {
   // private eDateOfBirthField: Locator;
 
   // 1.5: Поле Sex (Ant Design Select)
-  // private eSexSelect: Locator;
+  private eSexSelect: Locator;
 
   // 1.6: Поле Nationality (большой выпадающий список)
   // private eNationalitySelect: Locator;
@@ -65,6 +65,9 @@ export class PersonalInformationTestPage {
     // Радио кнопки dateOfBirthType
     this.eDateOfBirthFullRadio = page.getByRole('radio', { name: 'Full' });
     this.eDateOfBirthYearOnlyRadio = page.getByRole('radio', { name: 'Only year is known' });
+    
+    // Поле Sex (Ant Design Select)
+    this.eSexSelect = page.getByRole('combobox', { name: 'Sex *' });
     
     // Радио кнопки hasOtherPassports - используем специфичные локаторы
     this.eHasOtherPassportsYesRadio = page.locator('text=Have you ever used any other passports to enter into Viet Nam?').locator('..').getByRole('radio', { name: 'Yes' });
@@ -169,6 +172,41 @@ export class PersonalInformationTestPage {
       'Yes': this.eHasOtherPassportsYesRadio,
       'No': this.eHasOtherPassportsNoRadio
     };
+    
     return await this.fieldUtils.verifyRadioButtonGroup('hasOtherPassports', expectedValue, radioLocators);
+  }
+
+  // === МЕТОДЫ ДЛЯ ПОЛЯ SEX (ТИП 2: ВЫПАДАЮЩИЙ СПИСОК) ===
+  
+  async aFindSexField(): Promise<Locator | null> {
+    try {
+      const count = await this.eSexSelect.count();
+      if (count > 0) {
+        console.log(`✅ [${this.fieldUtils.getFieldNumber('sex')}] Найдено поле sex`);
+        return this.eSexSelect;
+      }
+    } catch (error) {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('sex')}] Поле sex не найдено`);
+    }
+    return null;
+  }
+
+  async aFillSexField(value: string): Promise<void> {
+    const field = await this.aFindSexField();
+    if (field) {
+      await this.fieldUtils.fillDropdownSelect('sex', value, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('sex')}] Не удалось найти поле sex для заполнения`);
+    }
+  }
+
+  async aVerifySexField(expectedValue: string): Promise<boolean> {
+    const field = await this.aFindSexField();
+    if (field) {
+      return await this.fieldUtils.verifyDropdownSelect('sex', expectedValue, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('sex')}] Не удалось найти поле sex для проверки`);
+      return false;
+    }
   }
 } 
