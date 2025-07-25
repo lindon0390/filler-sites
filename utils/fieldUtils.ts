@@ -257,13 +257,147 @@ export class FieldUtils {
   async fillLargeDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<void> {
     const fieldNumber = this.getFieldNumber(fieldName);
     console.log(`📝 [${fieldNumber}] ${fieldName}: ${expectedValue}`);
-    // TODO: Реализовать заполнение динамического списка с поиском (ввод текста в инпут, динамическое изменение данных в списке)
+
+    try {
+      // Проверяем, не заполнено ли поле уже правильно
+      const isAlreadyFilled = await this.verifyLargeDropdownSelect(fieldName, expectedValue, locator);
+      if (isAlreadyFilled) {
+        console.log(`✅ [${fieldNumber}] ${fieldName}: уже заполнено правильно (${expectedValue})`);
+        return;
+      }
+
+      // Прокручиваем к элементу
+      await locator.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(1000);
+
+      // Кликаем на поле для открытия выпадающего списка
+      await locator.click({ force: true });
+      await this.page.waitForTimeout(1500);
+
+      // Ждем появления выпадающего списка
+      try {
+        await this.page.locator('.ant-select-dropdown').waitFor({ timeout: 3000 });
+      } catch (error) {
+        console.log(`⚠️ [${fieldNumber}] ${fieldName}: выпадающий список не появился`);
+      }
+
+      let optionFound = false;
+
+      // Способ 1: Поиск опции по точному тексту
+      try {
+        const exactOption = this.page.locator('.ant-select-item-option').filter({ hasText: expectedValue });
+        if (await exactOption.count() > 0) {
+          await exactOption.first().click();
+          optionFound = true;
+          console.log(`✅ [${fieldNumber}] ${fieldName}: установлено "${expectedValue}" (точное совпадение)`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [${fieldNumber}] ${fieldName}: не найдено точное совпадение для "${expectedValue}"`);
+      }
+
+      // Способ 2: Если не нашли точное совпадение, пробуем поиск по частичному совпадению
+      if (!optionFound) {
+        try {
+          const partialOption = this.page.locator('.ant-select-item-option').filter({ hasText: new RegExp(expectedValue, 'i') });
+          if (await partialOption.count() > 0) {
+            await partialOption.first().click();
+            optionFound = true;
+            console.log(`✅ [${fieldNumber}] ${fieldName}: установлено "${expectedValue}" (частичное совпадение)`);
+          }
+        } catch (error) {
+          console.log(`⚠️ [${fieldNumber}] ${fieldName}: не найдено частичное совпадение для "${expectedValue}"`);
+        }
+      }
+
+      // Способ 3: Ввод текста в поле поиска для фильтрации списка
+      if (!optionFound) {
+        try {
+          // Находим поле ввода в выпадающем списке
+          const searchInput = this.page.locator('.ant-select-dropdown input');
+          if (await searchInput.count() > 0) {
+            await searchInput.fill(expectedValue);
+            await this.page.waitForTimeout(1000);
+            
+            // Теперь ищем опцию в отфильтрованном списке
+            const filteredOption = this.page.locator('.ant-select-item-option').filter({ hasText: expectedValue });
+            if (await filteredOption.count() > 0) {
+              await filteredOption.first().click();
+              optionFound = true;
+              console.log(`✅ [${fieldNumber}] ${fieldName}: установлено "${expectedValue}" (через поиск)`);
+            }
+          }
+        } catch (error) {
+          console.log(`⚠️ [${fieldNumber}] ${fieldName}: не удалось использовать поиск для "${expectedValue}"`);
+        }
+      }
+
+      // Ждем закрытия выпадающего списка и обновления DOM
+      if (optionFound) {
+        await this.page.waitForTimeout(1000);
+      } else {
+        console.log(`❌ [${fieldNumber}] ${fieldName}: не удалось найти опцию "${expectedValue}" в динамическом списке`);
+      }
+    } catch (error) {
+      console.log(`❌ [${fieldNumber}] ${fieldName}: ошибка заполнения - ${error}`);
+    }
   }
 
   async verifyLargeDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean> {
     const fieldNumber = this.getFieldNumber(fieldName);
-    // TODO: Реализовать проверку динамического списка с поиском
-    return false;
+
+    try {
+      // Получаем текущее значение поля (аналогично типу 2)
+      const currentValue = await locator.evaluate((el) => {
+        // Если это input элемент, ищем родительский контейнер
+        let container = el;
+        if (el.classList.contains('ant-select-selection-search-input')) {
+          container = el.closest('.ant-select') || el;
+        }
+        
+        // Для Ant Design Select ищем выбранное значение в контейнере
+        const selectedOption = container.querySelector('.ant-select-selection-item');
+        if (selectedOption) {
+          return selectedOption.textContent?.trim() || '';
+        }
+        
+        // Альтернативный способ - через span внутри .ant-select-selection-item
+        const selectedSpan = container.querySelector('.ant-select-selection-item span');
+        if (selectedSpan) {
+          return selectedSpan.textContent?.trim() || '';
+        }
+        
+        // Проверяем через input для скрытых полей
+        const input = container.querySelector('input');
+        if (input && input.value) {
+          return input.value.trim();
+        }
+        
+        // Альтернативный способ - через placeholder
+        const placeholder = container.querySelector('.ant-select-selection-placeholder');
+        if (placeholder && placeholder.textContent?.includes('Choose')) {
+          return '';
+        }
+        
+        // Последний способ - через aria-label или title
+        const ariaLabel = container.getAttribute('aria-label');
+        if (ariaLabel && ariaLabel !== 'Choose one') {
+          return ariaLabel.trim();
+        }
+        
+        return '';
+      });
+
+      if (currentValue === expectedValue) {
+        console.log(`✅ [${fieldNumber}] ${fieldName}: проверка пройдена (${expectedValue})`);
+        return true;
+      } else {
+        console.log(`❌ [${fieldNumber}] ${fieldName}: неверное значение: ожидалось "${expectedValue}", получено "${currentValue}"`);
+        return false;
+      }
+    } catch (error) {
+      console.log(`❌ [${fieldNumber}] ${fieldName}: ошибка проверки - ${error}`);
+      return false;
+    }
   }
 
   // === ТИП 4: ЗАВИСИМЫЙ ДИНАМИЧЕСКИЙ СПИСОК С ПОИСКОМ (dependent_dropdown) ===

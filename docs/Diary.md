@@ -214,6 +214,24 @@ async verifyFileUpload(fieldName: string, expectedFileName: string, locator: Loc
 
 ## 25.07.2025
 
+### Исправление типа поля passport type (3.3)
+
+**Проблема:** Поле `passportInformation.type` было неправильно классифицировано как тип 2, хотя должно быть тип 3.
+
+**Исправления:**
+- Исправлен тип поля passport type с 2 на 3 в `field-classification.md`
+- Обновлено описание: "динамический список с поиском" вместо "выпадающий список"
+- Добавлена особенность: "Можно вводить текст для поиска в выпадающем списке"
+- Реализованы методы `fillLargeDropdownSelect()` и `verifyLargeDropdownSelect()` в `fieldUtils.ts`
+- Обновлены методы в `ApplicationFormTestPage` для использования типа 3
+
+**Реализация методов для типа 3:**
+- Поддержка ввода текста в поле поиска для фильтрации списка
+- Множественные способы поиска: точное совпадение, частичное совпадение, поиск через input
+- Аналогичная логика проверки с типом 2
+
+**Результат:** ✅ Поле passport type теперь корректно работает как тип 3 с возможностью поиска.
+
 ### Реализация поля occupation (5.1)
 
 **Задача:** Реализовать методы для работы с полем `occupation.occupation` типа 2 (выпадающий список).
@@ -230,18 +248,6 @@ async verifyFileUpload(fieldName: string, expectedFileName: string, locator: Loc
 - Обновлены примеры полей типа 2 в `field-fill-rules.md`
 
 **Результат:** ✅ Поле occupation успешно работает с поиском, заполнением и проверкой значений.
-
-### Реализация поля passport type (3.3)
-
-**Задача:** Реализовать методы для работы с полем `passportInformation.type` типа 2 (выпадающий список).
-
-**Реализация:**
-- Добавлены методы `aFindPassportTypeField()`, `aFillPassportTypeField()`, `aVerifyPassportTypeField()` в `ApplicationFormTestPage`
-- Поле использует общий метод `fillDropdownSelect` из `FieldUtils`
-- Опции: "Ordinary passport", "Diplomatic passport", "Official passport", "Other"
-- Тест интегрирован в основной тест отладки
-
-**Результат:** ✅ Поле passport type успешно работает с поиском, заполнением и проверкой значений.
 
 ### Переименование файлов для работы со всей анкетой
 

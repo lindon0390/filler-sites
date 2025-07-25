@@ -230,7 +230,7 @@ export class ApplicationFormTestPage {
 
   // === МЕТОДЫ ДЛЯ 3. PASSPORT INFORMATION ===
   
-  // === МЕТОДЫ ДЛЯ ПОЛЯ PASSPORT TYPE (ТИП 2: ВЫПАДАЮЩИЙ СПИСОК) ===
+  // === МЕТОДЫ ДЛЯ ПОЛЯ PASSPORT TYPE (ТИП 3: ДИНАМИЧЕСКИЙ СПИСОК С ПОИСКОМ) ===
   
   async aFindPassportTypeField(): Promise<Locator | null> {
     try {
@@ -248,7 +248,7 @@ export class ApplicationFormTestPage {
   async aFillPassportTypeField(value: string): Promise<void> {
     const field = await this.aFindPassportTypeField();
     if (field) {
-      await this.fieldUtils.fillDropdownSelect('type', value, field);
+      await this.fieldUtils.fillLargeDropdownSelect('type', value, field);
     } else {
       console.log(`❌ [${this.fieldUtils.getFieldNumber('type')}] Не удалось найти поле passport type для заполнения`);
     }
@@ -257,7 +257,7 @@ export class ApplicationFormTestPage {
   async aVerifyPassportTypeField(expectedValue: string): Promise<boolean> {
     const field = await this.aFindPassportTypeField();
     if (field) {
-      return await this.fieldUtils.verifyDropdownSelect('type', expectedValue, field);
+      return await this.fieldUtils.verifyLargeDropdownSelect('type', expectedValue, field);
     } else {
       console.log(`❌ [${this.fieldUtils.getFieldNumber('type')}] Не удалось найти поле passport type для проверки`);
       return false;
