@@ -1,10 +1,11 @@
 import { Page, Locator } from '@playwright/test';
 import { FieldUtils } from '../utils/fieldUtils';
 
-export class PersonalInformationTestPage {
+export class ApplicationFormTestPage {
   private fieldUtils: FieldUtils;
 
-  // === ЛОКАТОРЫ ПОЛЕЙ ===
+  // === ЛОКАТОРЫ ПОЛЕЙ ВСЕЙ АНКЕТЫ ===
+  // 1. PERSONAL INFORMATION
   // 1.1 - 1.2: Текстовые поля
   private eSurnameField: Locator;
   private eMiddleAndGivenNameField: Locator;
@@ -55,10 +56,15 @@ export class PersonalInformationTestPage {
   // private eViolationOfVietnameseLawsYesRadio: Locator;
   // private eViolationOfVietnameseLawsNoRadio: Locator;
 
+  // 3. PASSPORT INFORMATION
+  // 3.3: Поле Type (тип паспорта) - выпадающий список
+  private ePassportTypeSelect: Locator;
+
   constructor(private page: Page) {
     this.fieldUtils = new FieldUtils(page);
     
     // Инициализация локаторов - используем специфичные селекторы
+    // 1. PERSONAL INFORMATION
     this.eSurnameField = page.getByRole('textbox', { name: 'Surname (Last name)' });
     this.eMiddleAndGivenNameField = page.getByRole('textbox', { name: 'Middle and given name' });
     
@@ -72,6 +78,9 @@ export class PersonalInformationTestPage {
     // Радио кнопки hasOtherPassports - используем специфичные локаторы
     this.eHasOtherPassportsYesRadio = page.locator('text=Have you ever used any other passports to enter into Viet Nam?').locator('..').getByRole('radio', { name: 'Yes' });
     this.eHasOtherPassportsNoRadio = page.locator('text=Have you ever used any other passports to enter into Viet Nam?').locator('..').getByRole('radio', { name: 'No' });
+
+    // 3. PASSPORT INFORMATION
+    this.ePassportTypeSelect = page.getByRole('combobox', { name: 'Type *' });
   }
 
   async aCheckEvisaPage(): Promise<void> {
@@ -84,6 +93,8 @@ export class PersonalInformationTestPage {
     }
   }
 
+  // === МЕТОДЫ ДЛЯ 1. PERSONAL INFORMATION ===
+  
   // Методы для работы с текстовыми полями
   async aFindSurnameField(): Promise<Locator | null> {
     try {
@@ -206,6 +217,42 @@ export class PersonalInformationTestPage {
       return await this.fieldUtils.verifyDropdownSelect('sex', expectedValue, field);
     } else {
       console.log(`❌ [${this.fieldUtils.getFieldNumber('sex')}] Не удалось найти поле sex для проверки`);
+      return false;
+    }
+  }
+
+  // === МЕТОДЫ ДЛЯ 3. PASSPORT INFORMATION ===
+  
+  // === МЕТОДЫ ДЛЯ ПОЛЯ PASSPORT TYPE (ТИП 2: ВЫПАДАЮЩИЙ СПИСОК) ===
+  
+  async aFindPassportTypeField(): Promise<Locator | null> {
+    try {
+      const count = await this.ePassportTypeSelect.count();
+      if (count > 0) {
+        console.log(`✅ [${this.fieldUtils.getFieldNumber('type')}] Найдено поле passport type`);
+        return this.ePassportTypeSelect;
+      }
+    } catch (error) {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('type')}] Поле passport type не найдено`);
+    }
+    return null;
+  }
+
+  async aFillPassportTypeField(value: string): Promise<void> {
+    const field = await this.aFindPassportTypeField();
+    if (field) {
+      await this.fieldUtils.fillDropdownSelect('type', value, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('type')}] Не удалось найти поле passport type для заполнения`);
+    }
+  }
+
+  async aVerifyPassportTypeField(expectedValue: string): Promise<boolean> {
+    const field = await this.aFindPassportTypeField();
+    if (field) {
+      return await this.fieldUtils.verifyDropdownSelect('type', expectedValue, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('type')}] Не удалось найти поле passport type для проверки`);
       return false;
     }
   }

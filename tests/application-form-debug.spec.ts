@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { PersonalInformationTestPage } from '../pages/personalInformationTestPage.page';
+import { ApplicationFormTestPage } from '../pages/applicationFormTestPage.page';
 import { connectAndGetActivePage } from '../utils/browserConnect';
 import { getEnvConfig } from '../utils/envConfig';
 import * as fs from 'fs';
 import * as path from 'path';
 
-test.describe('🔧 Отладка полей Personal Information', () => {
-  test('📝 Тест заполнения полей 1.1, 1.2, 1.3, 1.5 и 1.13', async () => {
+test.describe('🔧 Отладка полей всей анкеты E-Visa', () => {
+  test('📝 Тест заполнения полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.13) и Passport Information (3.3)', async () => {
     // Подключаемся к существующему Chrome
     const { page } = await connectAndGetActivePage();
     
@@ -15,10 +15,10 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     console.log(`✅ Подключились к странице: "${pageTitle}"`);
     
     // Создаём экземпляр POM
-    const personalInfoTestPage = new PersonalInformationTestPage(page);
+    const applicationFormTestPage = new ApplicationFormTestPage(page);
     
     // Проверяем страницу E-Visa
-    await personalInfoTestPage.aCheckEvisaPage();
+    await applicationFormTestPage.aCheckEvisaPage();
     
     // Загружаем данные пользователя
     const config = getEnvConfig();
@@ -34,26 +34,35 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     
     // Извлекаем данные для тестируемых полей
     const { surname, middleAndGivenName, dateOfBirthType, sex, hasOtherPassports } = userData.personalInformation;
+    const { type: passportType } = userData.passportInformation;
+    
+    // === ТЕСТИРУЕМ ПОЛЯ PERSONAL INFORMATION ===
     
     // Заполняем и проверяем поле surname (1.1)
-    await personalInfoTestPage.aFillSurnameField(surname);
-    const isSurnameCorrect = await personalInfoTestPage.aVerifySurnameField(surname);
+    await applicationFormTestPage.aFillSurnameField(surname);
+    const isSurnameCorrect = await applicationFormTestPage.aVerifySurnameField(surname);
 
     // Заполняем и проверяем поле middleAndGivenName (1.2)
-    await personalInfoTestPage.aFillMiddleAndGivenNameField(middleAndGivenName);
-    const isNameCorrect = await personalInfoTestPage.aVerifyMiddleAndGivenNameField(middleAndGivenName);
+    await applicationFormTestPage.aFillMiddleAndGivenNameField(middleAndGivenName);
+    const isNameCorrect = await applicationFormTestPage.aVerifyMiddleAndGivenNameField(middleAndGivenName);
 
     // Заполняем и проверяем поле dateOfBirthType (1.3)
-    await personalInfoTestPage.aFillDateOfBirthTypeField(dateOfBirthType);
-    const isDateTypeCorrect = await personalInfoTestPage.aVerifyDateOfBirthTypeField(dateOfBirthType);
+    await applicationFormTestPage.aFillDateOfBirthTypeField(dateOfBirthType);
+    const isDateTypeCorrect = await applicationFormTestPage.aVerifyDateOfBirthTypeField(dateOfBirthType);
 
     // Заполняем и проверяем поле sex (1.5)
-    await personalInfoTestPage.aFillSexField(sex);
-    const isSexCorrect = await personalInfoTestPage.aVerifySexField(sex);
+    await applicationFormTestPage.aFillSexField(sex);
+    const isSexCorrect = await applicationFormTestPage.aVerifySexField(sex);
 
     // Заполняем и проверяем поле hasOtherPassports (1.13)
-    await personalInfoTestPage.aFillHasOtherPassportsField(hasOtherPassports);
-    const isHasOtherPassportsCorrect = await personalInfoTestPage.aVerifyHasOtherPassportsField(hasOtherPassports);
+    await applicationFormTestPage.aFillHasOtherPassportsField(hasOtherPassports);
+    const isHasOtherPassportsCorrect = await applicationFormTestPage.aVerifyHasOtherPassportsField(hasOtherPassports);
+    
+    // === ТЕСТИРУЕМ ПОЛЯ PASSPORT INFORMATION ===
+    
+    // Заполняем и проверяем поле passport type (3.3)
+    await applicationFormTestPage.aFillPassportTypeField(passportType);
+    const isPassportTypeCorrect = await applicationFormTestPage.aVerifyPassportTypeField(passportType);
     
     // Проверяем результаты
     expect(isSurnameCorrect).toBe(true);
@@ -61,7 +70,8 @@ test.describe('🔧 Отладка полей Personal Information', () => {
     expect(isDateTypeCorrect).toBe(true);
     expect(isSexCorrect).toBe(true);
     expect(isHasOtherPassportsCorrect).toBe(true);
+    expect(isPassportTypeCorrect).toBe(true);
     
-    console.log('✅ Тест полей 1.1, 1.2, 1.3, 1.5 и 1.13 завершен успешно!');
+    console.log('✅ Тест полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.13) и Passport Information (3.3) завершен успешно!');
   });
 }); 

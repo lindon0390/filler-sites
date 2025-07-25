@@ -212,4 +212,76 @@ async verifyFileUpload(fieldName: string, expectedFileName: string, locator: Loc
 - ⚠️ Добавить тесты для всех типов полей
 - ⚠️ Реализовать обработку поля "accompany children" (undefined тип)
 
-// ... existing code ...
+## 25.07.2025
+
+### Реализация поля passport type (3.3)
+
+**Задача:** Реализовать методы для работы с полем `passportInformation.type` типа 2 (выпадающий список).
+
+**Реализация:**
+- Добавлены методы `aFindPassportTypeField()`, `aFillPassportTypeField()`, `aVerifyPassportTypeField()` в `ApplicationFormTestPage`
+- Поле использует общий метод `fillDropdownSelect` из `FieldUtils`
+- Опции: "Ordinary passport", "Diplomatic passport", "Official passport", "Other"
+- Тест интегрирован в основной тест отладки
+
+**Результат:** ✅ Поле passport type успешно работает с поиском, заполнением и проверкой значений.
+
+### Переименование файлов для работы со всей анкетой
+
+**Изменения:**
+- `pages/personalInformationTestPage.page.ts` → `pages/applicationFormTestPage.page.ts`
+- `tests/personal-information-debug.spec.ts` → `tests/application-form-debug.spec.ts`
+- Класс `PersonalInformationTestPage` → `ApplicationFormTestPage`
+- Обновлены импорты и комментарии
+
+**Причина:** Файлы теперь работают со всей анкетой E-Visa, а не только с разделом Personal Information.
+
+**Результат:** ✅ Структура файлов отражает новое назначение - тестирование всей анкеты.
+
+## 25.07.2025
+
+### Реализация поля sex (1.5)
+
+**Задача:** Реализовать методы для работы с полем `personalInformation.sex` типа 2 (выпадающий список).
+
+**Реализация:**
+- Добавлены методы `aFindSexField()`, `aFillSexField()`, `aVerifySexField()` в `PersonalInformationTestPage`
+- Поле использует общий метод `fillDropdownSelect` из `FieldUtils`
+- Опции: "Male", "Female"
+- Тест интегрирован в основной тест отладки
+
+**Проблемы и решения:**
+1. **Проблема:** `verifyDropdownSelect` возвращал пустую строку
+   **Решение:** Исправлена логика поиска выбранного значения в Ant Design Select компоненте
+2. **Проблема:** Пользователь запросил интеграцию в существующий тест
+   **Решение:** Удален отдельный файл `sex-field-test.spec.ts`, тест интегрирован в `personal-information-debug.spec.ts`
+
+**Результат:** ✅ Поле sex успешно работает с поиском, заполнением и проверкой значений.
+
+### Структурные улучшения
+
+**Добавлены универсальные методы в FieldUtils:**
+- `fillDropdownSelect()` - заполнение выпадающих списков типа 2
+- `verifyDropdownSelect()` - проверка выбранного значения в выпадающих списках
+- Поддержка точного и частичного поиска опций
+- Обработка уже заполненных полей
+
+**Обновлена документация:**
+- `field-fill-rules.md` - добавлено описание типа 2
+- `field-classification.md` - обновлены описания полей
+- `README.md` - обновлены ссылки и статистика
+- `Tasktracker.md` - обновлен прогресс проекта
+
+**Результат:** ✅ Создана базовая инфраструктура для работы с полями типа 2.
+
+## 24.07.2025
+
+### Создание базовой структуры проекта
+
+**Инициализация:**
+- Настроен Playwright с TypeScript
+- Создана структура Page Object Model
+- Добавлены утилиты для работы с браузером
+- Настроена система конфигурации через .env
+
+**Результат:** ✅ Проект готов для разработки автоматизации E-Visa.

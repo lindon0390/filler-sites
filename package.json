@@ -4,7 +4,7 @@
   "description": "Автоматическое заполнение формы заявки на электронную визу Вьетнама",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test tests/evisa-vietnam-full-flow.spec.ts --headed",
+    "test": "playwright test --headed",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
