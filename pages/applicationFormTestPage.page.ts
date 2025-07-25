@@ -60,6 +60,10 @@ export class ApplicationFormTestPage {
   // 3.3: Поле Type (тип паспорта) - выпадающий список
   private ePassportTypeSelect: Locator;
 
+  // 5. OCCUPATION
+  // 5.1: Поле Occupation (занятость) - выпадающий список
+  private eOccupationSelect: Locator;
+
   constructor(private page: Page) {
     this.fieldUtils = new FieldUtils(page);
     
@@ -81,6 +85,9 @@ export class ApplicationFormTestPage {
 
     // 3. PASSPORT INFORMATION
     this.ePassportTypeSelect = page.getByRole('combobox', { name: 'Type *' });
+
+    // 5. OCCUPATION
+    this.eOccupationSelect = page.getByRole('combobox', { name: 'Occupation' });
   }
 
   async aCheckEvisaPage(): Promise<void> {
@@ -253,6 +260,42 @@ export class ApplicationFormTestPage {
       return await this.fieldUtils.verifyDropdownSelect('type', expectedValue, field);
     } else {
       console.log(`❌ [${this.fieldUtils.getFieldNumber('type')}] Не удалось найти поле passport type для проверки`);
+      return false;
+    }
+  }
+
+  // === МЕТОДЫ ДЛЯ 5. OCCUPATION ===
+  
+  // === МЕТОДЫ ДЛЯ ПОЛЯ OCCUPATION (ТИП 2: ВЫПАДАЮЩИЙ СПИСОК) ===
+  
+  async aFindOccupationField(): Promise<Locator | null> {
+    try {
+      const count = await this.eOccupationSelect.count();
+      if (count > 0) {
+        console.log(`✅ [${this.fieldUtils.getFieldNumber('occupation')}] Найдено поле occupation`);
+        return this.eOccupationSelect;
+      }
+    } catch (error) {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('occupation')}] Поле occupation не найдено`);
+    }
+    return null;
+  }
+
+  async aFillOccupationField(value: string): Promise<void> {
+    const field = await this.aFindOccupationField();
+    if (field) {
+      await this.fieldUtils.fillDropdownSelect('occupation', value, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('occupation')}] Не удалось найти поле occupation для заполнения`);
+    }
+  }
+
+  async aVerifyOccupationField(expectedValue: string): Promise<boolean> {
+    const field = await this.aFindOccupationField();
+    if (field) {
+      return await this.fieldUtils.verifyDropdownSelect('occupation', expectedValue, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('occupation')}] Не удалось найти поле occupation для проверки`);
       return false;
     }
   }

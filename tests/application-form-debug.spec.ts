@@ -35,6 +35,7 @@ test.describe('🔧 Отладка полей всей анкеты E-Visa', () 
     // Извлекаем данные для тестируемых полей
     const { surname, middleAndGivenName, dateOfBirthType, sex, hasOtherPassports } = userData.personalInformation;
     const { type: passportType } = userData.passportInformation;
+    const { occupation } = userData.occupation;
     
     // === ТЕСТИРУЕМ ПОЛЯ PERSONAL INFORMATION ===
     
@@ -64,6 +65,12 @@ test.describe('🔧 Отладка полей всей анкеты E-Visa', () 
     await applicationFormTestPage.aFillPassportTypeField(passportType);
     const isPassportTypeCorrect = await applicationFormTestPage.aVerifyPassportTypeField(passportType);
     
+    // === ТЕСТИРУЕМ ПОЛЯ OCCUPATION ===
+    
+    // Заполняем и проверяем поле occupation (5.1)
+    await applicationFormTestPage.aFillOccupationField(occupation);
+    const isOccupationCorrect = await applicationFormTestPage.aVerifyOccupationField(occupation);
+    
     // Проверяем результаты
     expect(isSurnameCorrect).toBe(true);
     expect(isNameCorrect).toBe(true);
@@ -71,7 +78,8 @@ test.describe('🔧 Отладка полей всей анкеты E-Visa', () 
     expect(isSexCorrect).toBe(true);
     expect(isHasOtherPassportsCorrect).toBe(true);
     expect(isPassportTypeCorrect).toBe(true);
+    expect(isOccupationCorrect).toBe(true);
     
-    console.log('✅ Тест полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.13) и Passport Information (3.3) завершен успешно!');
+    console.log('✅ Тест полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.13), Passport Information (3.3) и Occupation (5.1) завершен успешно!');
   });
 }); 

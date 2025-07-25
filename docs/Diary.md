@@ -214,6 +214,19 @@ async verifyFileUpload(fieldName: string, expectedFileName: string, locator: Loc
 
 ## 25.07.2025
 
+### Реализация поля occupation (5.1)
+
+**Задача:** Реализовать методы для работы с полем `occupation.occupation` типа 2 (выпадающий список).
+
+**Реализация:**
+- Добавлены методы `aFindOccupationField()`, `aFillOccupationField()`, `aVerifyOccupationField()` в `ApplicationFormTestPage`
+- Поле использует общий метод `fillDropdownSelect` из `FieldUtils`
+- Опции: "Businessman", "Employee", "Official", "Others", "Retired", "Student", "Unemployed"
+- Тест интегрирован в основной тест отладки
+- Исправлен локатор: `page.getByRole('combobox', { name: 'Occupation' })` (убрана звездочка)
+
+**Результат:** ✅ Поле occupation успешно работает с поиском, заполнением и проверкой значений.
+
 ### Реализация поля passport type (3.3)
 
 **Задача:** Реализовать методы для работы с полем `passportInformation.type` типа 2 (выпадающий список).
