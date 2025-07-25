@@ -21,7 +21,7 @@ export class ApplicationFormTestPage {
   private eSexSelect: Locator;
 
   // 1.6: Поле Nationality (большой выпадающий список)
-  // private eNationalitySelect: Locator;
+  private eNationalitySelect: Locator;
 
   // 1.7: Поле Identity Card
   // private eIdentityCardField: Locator;
@@ -78,6 +78,9 @@ export class ApplicationFormTestPage {
     
     // Поле Sex (Ant Design Select)
     this.eSexSelect = page.getByRole('combobox', { name: 'Sex *' });
+    
+    // Поле Nationality (Ant Design Select)
+    this.eNationalitySelect = page.getByRole('combobox', { name: 'Nationality *' });
     
     // Радио кнопки hasOtherPassports - используем специфичные локаторы
     this.eHasOtherPassportsYesRadio = page.locator('text=Have you ever used any other passports to enter into Viet Nam?').locator('..').getByRole('radio', { name: 'Yes' });
@@ -224,6 +227,40 @@ export class ApplicationFormTestPage {
       return await this.fieldUtils.verifyDropdownSelect('sex', expectedValue, field);
     } else {
       console.log(`❌ [${this.fieldUtils.getFieldNumber('sex')}] Не удалось найти поле sex для проверки`);
+      return false;
+    }
+  }
+
+  // === МЕТОДЫ ДЛЯ ПОЛЯ NATIONALITY (ТИП 3: ДИНАМИЧЕСКИЙ СПИСОК С ПОИСКОМ) ===
+  
+  async aFindNationalityField(): Promise<Locator | null> {
+    try {
+      const count = await this.eNationalitySelect.count();
+      if (count > 0) {
+        console.log(`✅ [${this.fieldUtils.getFieldNumber('nationality')}] Найдено поле nationality`);
+        return this.eNationalitySelect;
+      }
+    } catch (error) {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('nationality')}] Поле nationality не найдено`);
+    }
+    return null;
+  }
+
+  async aFillNationalityField(value: string): Promise<void> {
+    const field = await this.aFindNationalityField();
+    if (field) {
+      await this.fieldUtils.fillLargeDropdownSelect('nationality', value, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('nationality')}] Не удалось найти поле nationality для заполнения`);
+    }
+  }
+
+  async aVerifyNationalityField(expectedValue: string): Promise<boolean> {
+    const field = await this.aFindNationalityField();
+    if (field) {
+      return await this.fieldUtils.verifyLargeDropdownSelect('nationality', expectedValue, field);
+    } else {
+      console.log(`❌ [${this.fieldUtils.getFieldNumber('nationality')}] Не удалось найти поле nationality для проверки`);
       return false;
     }
   }

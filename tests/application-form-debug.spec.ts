@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 test.describe('🔧 Отладка полей всей анкеты E-Visa', () => {
-  test('📝 Тест заполнения полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.13) и Passport Information (3.3)', async () => {
+  test('📝 Тест заполнения полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.6, 1.13) и Passport Information (3.3) и Occupation (5.1)', async () => {
     // Подключаемся к существующему Chrome
     const { page } = await connectAndGetActivePage();
     
@@ -33,7 +33,7 @@ test.describe('🔧 Отладка полей всей анкеты E-Visa', () 
     console.log(`   🔌 CHROME_CDP_ENDPOINT: ${process.env.CHROME_CDP_ENDPOINT}`);
     
     // Извлекаем данные для тестируемых полей
-    const { surname, middleAndGivenName, dateOfBirthType, sex, hasOtherPassports } = userData.personalInformation;
+    const { surname, middleAndGivenName, dateOfBirthType, sex, nationality, hasOtherPassports } = userData.personalInformation;
     const { type: passportType } = userData.passportInformation;
     const { occupation } = userData.occupation;
     
@@ -42,19 +42,23 @@ test.describe('🔧 Отладка полей всей анкеты E-Visa', () 
     // Заполняем и проверяем поле surname (1.1)
     await applicationFormTestPage.aFillSurnameField(surname);
     const isSurnameCorrect = await applicationFormTestPage.aVerifySurnameField(surname);
-
+    
     // Заполняем и проверяем поле middleAndGivenName (1.2)
     await applicationFormTestPage.aFillMiddleAndGivenNameField(middleAndGivenName);
     const isNameCorrect = await applicationFormTestPage.aVerifyMiddleAndGivenNameField(middleAndGivenName);
-
+    
     // Заполняем и проверяем поле dateOfBirthType (1.3)
     await applicationFormTestPage.aFillDateOfBirthTypeField(dateOfBirthType);
     const isDateTypeCorrect = await applicationFormTestPage.aVerifyDateOfBirthTypeField(dateOfBirthType);
-
+    
     // Заполняем и проверяем поле sex (1.5)
     await applicationFormTestPage.aFillSexField(sex);
     const isSexCorrect = await applicationFormTestPage.aVerifySexField(sex);
-
+    
+    // Заполняем и проверяем поле nationality (1.6)
+    await applicationFormTestPage.aFillNationalityField(nationality);
+    const isNationalityCorrect = await applicationFormTestPage.aVerifyNationalityField(nationality);
+    
     // Заполняем и проверяем поле hasOtherPassports (1.13)
     await applicationFormTestPage.aFillHasOtherPassportsField(hasOtherPassports);
     const isHasOtherPassportsCorrect = await applicationFormTestPage.aVerifyHasOtherPassportsField(hasOtherPassports);
@@ -76,10 +80,11 @@ test.describe('🔧 Отладка полей всей анкеты E-Visa', () 
     expect(isNameCorrect).toBe(true);
     expect(isDateTypeCorrect).toBe(true);
     expect(isSexCorrect).toBe(true);
+    expect(isNationalityCorrect).toBe(true);
     expect(isHasOtherPassportsCorrect).toBe(true);
     expect(isPassportTypeCorrect).toBe(true);
     expect(isOccupationCorrect).toBe(true);
     
-    console.log('✅ Тест полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.13), Passport Information (3.3) и Occupation (5.1) завершен успешно!');
+    console.log('✅ Тест полей Personal Information (1.1, 1.2, 1.3, 1.5, 1.6, 1.13), Passport Information (3.3) и Occupation (5.1) завершен успешно!');
   });
 }); 
