@@ -39,13 +39,10 @@
   - Проверка уже заполненных значений
 
 ### Тип 2: Выпадающий список (dropdown_select)
-- **Описание:** Ant Design Select с небольшим списком опций
-- **Примеры:** Пол, тип паспорта, профессия
+- **Описание:** Поля с фиксированным набором опций
+- **Примеры:** Sex (Male/Female), Passport Type (Ordinary/Diplomatic/Official/Other), Occupation (Businessman/Employee/Official/Others/Retired/Student/Unemployed)
 - **Метод:** `aFillDropdownSelectWithLog()`
-- **Особенности:**
-  - Проверка через `aIsAntDesignSelectFilled()`
-  - Точный поиск опций
-  - Таймаут 3 секунды для выпадающего списка
+- **Особенности:** Поддержка точного и частичного поиска опций
 
 ### Тип 3: Динамический список с поиском (large_dropdown)
 - **Описание:** Ant Design Select с большим списком опций и возможностью поиска

@@ -37,6 +37,7 @@
 - **Поле:** personalInformation.sex
 - **Тип заполнения:** 2 (инпут с выпадающим списком)
 - **Видимость:** 1 (поле сразу видно)
+- **Возможные значения:** ["Male", "Female"]
 
 #### 1.6 Nationality (национальность)
 - **Поле:** personalInformation.nationality
@@ -139,6 +140,7 @@
 - **Поле:** passportInformation.type
 - **Тип заполнения:** 3 (инпут с выпадающим списком, большой список)
 - **Видимость:** 1 (поле сразу видно)
+- **Возможные значения:** ["Ordinary passport", "Diplomatic passport", "Official passport", "Other"]
 
 #### 3.4 Date of issue (дата выдачи)
 - **Поле:** passportInformation.dateOfIssue
@@ -223,6 +225,7 @@
 - **Поле:** occupation.occupation
 - **Тип заполнения:** 2 (инпут с выпадающим списком)
 - **Видимость:** 1 (поле сразу видно)
+- **Возможные значения:** ["Businessman", "Employee", "Official", "Others", "Retired", "Student", "Unemployed"]
 
 #### 5.2 Occupation info (информация о занятости)
 - **Поле:** occupation.occupationInfo

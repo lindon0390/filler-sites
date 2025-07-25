@@ -225,6 +225,10 @@ async verifyFileUpload(fieldName: string, expectedFileName: string, locator: Loc
 - Тест интегрирован в основной тест отладки
 - Исправлен локатор: `page.getByRole('combobox', { name: 'Occupation' })` (убрана звездочка)
 
+**Документация:**
+- Добавлена информация о возможных значениях в `field-classification.md`
+- Обновлены примеры полей типа 2 в `field-fill-rules.md`
+
 **Результат:** ✅ Поле occupation успешно работает с поиском, заполнением и проверкой значений.
 
 ### Реализация поля passport type (3.3)
