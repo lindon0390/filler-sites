@@ -81,7 +81,7 @@ export class FieldUtils {
     return fieldNumbers[fieldName] || '?';
   }
 
-  // === ТЕКСТОВЫЕ ПОЛЯ ===
+  // === ТИП 1: ПРОСТОЙ ИНПУТ (simple_input) ===
   
   async fillSimpleTextField(fieldName: string, value: string, locator: Locator): Promise<void> {
     const fieldNumber = this.getFieldNumber(fieldName);
@@ -126,7 +126,63 @@ export class FieldUtils {
     }
   }
 
-  // === РАДИО КНОПКИ ===
+  // === ТИП 2: ВЫПАДАЮЩИЙ СПИСОК (dropdown_select) ===
+  
+  async fillDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<void> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    console.log(`📝 [${fieldNumber}] ${fieldName}: ${expectedValue}`);
+    // TODO: Реализовать заполнение выпадающего списка
+  }
+
+  async verifyDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    // TODO: Реализовать проверку выпадающего списка
+    return false;
+  }
+
+  // === ТИП 3: ДИНАМИЧЕСКИЙ СПИСОК С ПОИСКОМ (large_dropdown) ===
+  
+  async fillLargeDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<void> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    console.log(`📝 [${fieldNumber}] ${fieldName}: ${expectedValue}`);
+    // TODO: Реализовать заполнение динамического списка с поиском (ввод текста в инпут, динамическое изменение данных в списке)
+  }
+
+  async verifyLargeDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    // TODO: Реализовать проверку динамического списка с поиском
+    return false;
+  }
+
+  // === ТИП 4: ЗАВИСИМЫЙ ДИНАМИЧЕСКИЙ СПИСОК С ПОИСКОМ (dependent_dropdown) ===
+  
+  async fillDependentDropdownSelect(fieldName: string, expectedValue: string, locator: Locator, dependsOnValue?: string): Promise<void> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    console.log(`📝 [${fieldNumber}] ${fieldName}: ${expectedValue} (зависит от: ${dependsOnValue})`);
+    // TODO: Реализовать заполнение зависимого динамического списка с поиском (такой же как тип 3, но появляется только при установке значения в другом поле)
+  }
+
+  async verifyDependentDropdownSelect(fieldName: string, expectedValue: string, locator: Locator): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    // TODO: Реализовать проверку зависимого динамического списка с поиском
+    return false;
+  }
+
+  // === ТИП 5: ПОЛЕ ДАТЫ (date_picker) ===
+  
+  async fillDatePicker(fieldName: string, dateValue: string, locator: Locator): Promise<void> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    console.log(`📝 [${fieldNumber}] ${fieldName}: ${dateValue}`);
+    // TODO: Реализовать заполнение поля даты
+  }
+
+  async verifyDatePicker(fieldName: string, expectedDate: string, locator: Locator): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    // TODO: Реализовать проверку поля даты
+    return false;
+  }
+
+  // === ТИП 6: РАДИОКНОПКА (radio_button) ===
   
   async fillRadioButtonGroup(fieldName: string, expectedValue: string, radioLocators: { [key: string]: Locator }): Promise<void> {
     const fieldNumber = this.getFieldNumber(fieldName);
@@ -197,5 +253,33 @@ export class FieldUtils {
       console.log(`❌ [${fieldNumber}] Ошибка проверки: ${error}`);
       return false;
     }
+  }
+
+  // === ТИП 7: ЧЕКБОКС (checkbox) ===
+  
+  async fillCheckbox(fieldName: string, shouldBeChecked: boolean, locator: Locator): Promise<void> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    console.log(`📝 [${fieldNumber}] ${fieldName}: ${shouldBeChecked ? 'checked' : 'unchecked'}`);
+    // TODO: Реализовать заполнение чекбокса
+  }
+
+  async verifyCheckbox(fieldName: string, expectedState: boolean, locator: Locator): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    // TODO: Реализовать проверку чекбокса
+    return false;
+  }
+
+  // === ТИП 8: ЗАГРУЗКА ФАЙЛА (file_upload) ===
+  
+  async uploadFile(fieldName: string, filePath: string, locator: Locator): Promise<void> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    console.log(`📝 [${fieldNumber}] ${fieldName}: загрузка файла ${filePath}`);
+    // TODO: Реализовать загрузку файла
+  }
+
+  async verifyFileUpload(fieldName: string, expectedFileName: string, locator: Locator): Promise<boolean> {
+    const fieldNumber = this.getFieldNumber(fieldName);
+    // TODO: Реализовать проверку загрузки файла
+    return false;
   }
 } 
